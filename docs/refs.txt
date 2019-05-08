@@ -1,0 +1,8 @@
+.. -*- coding: utf-8; mode: rst -*-
+..
+.. misc tools
+.. ----------
+
+.. _pip: https://pip.pypa.io
+.. _git: https:/git-scm.com/
+.. _.dir-locals.el: https://www.gnu.org/software/emacs/manual/html_node/emacs/Directory-Variables.html#Directory-Variables

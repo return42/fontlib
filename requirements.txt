@@ -1,0 +1,36 @@
+# -*- coding: utf-8; mode: conf -*-
+# ----------------
+# install requires
+# ----------------
+
+fspath
+tinycss
+
+# -------------
+# tests_require
+# -------------
+
+pylint
+#tox
+#pytest
+#pytest-cov
+
+# ----------------
+# develop requires
+# ----------------
+
+jedi
+Sphinx
+sphinx_rtd_theme
+sphinx-autobuild
+pip
+#twine
+#wheel
+#mock
+
+# sphinxjp.themes.revealjs: slide-shows with revaljs
+#
+#   comment out next lines, if you don't build slide-shows
+#
+#git+https://github.com/return42/sphinxjp.themes.revealjs
+# -e file:../sphinxjp.themes.revealjs#egg=sphinxjp.themes.revealjs
