@@ -1,0 +1,31 @@
+# -*- coding: utf-8; mode: conf -*-
+#
+# Font type MIME types
+# ====================
+#
+# - [RFC8081] IETF:  https://tools.ietf.org/html/rfc8081
+# - IANA: https://www.iana.org/assignments/media-types/media-types.xhtml#font
+#
+# TTF Font Type
+#     https://tools.ietf.org/html/rfc8081#section-4.4.2
+font/ttf		ttf
+#
+# OpenType Layout (OTF) Font Type
+#     https://tools.ietf.org/html/rfc8081#section-4.4.3
+font/otf		otf
+#
+# Collection Font Type
+#     https://tools.ietf.org/html/rfc8081#section-4.4.4
+font/collection		collection
+#
+# WOFF 1.0
+#     https://tools.ietf.org/html/rfc8081#section-4.4.5
+font/woff		woff
+#
+# WOFF 2.0
+#     https://tools.ietf.org/html/rfc8081#section-4.4.6
+font/woff2		woff2
+#
+# Generic SFNT Font Type
+#    https://tools.ietf.org/html/rfc8081#section-4.4.1
+font/sfnt		sfnt
