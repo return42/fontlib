@@ -8,3 +8,12 @@ Python fontlib
 .. automodule:: fontlib
     :undoc-members:
 
+Content
+=======
+
+.. toctree::
+   :maxdepth: 2
+
+   install
+   builtin
+   api

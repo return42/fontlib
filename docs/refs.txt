@@ -6,3 +6,16 @@
 .. _pip: https://pip.pypa.io
 .. _git: https:/git-scm.com/
 .. _.dir-locals.el: https://www.gnu.org/software/emacs/manual/html_node/emacs/Directory-Variables.html#Directory-Variables
+
+.. fonts
+.. -----
+..
+.. _`GNOME cantarell-fonts`: https://gitlab.gnome.org/GNOME/cantarell-fonts
+.. _dejavu-fonts-ttf-2.37.tar.bz2: https://github.com/dejavu-fonts/dejavu-fonts/releases/download/version_2_37/dejavu-fonts-ttf-2.37.tar.bz2
+
+.. fonts licenses
+.. --------------
+..
+.. _SIL-OFL: https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&item_id=OFL
+.. _`OFL at fontlibrary.org`: https://fontlibrary.org/en/search?license=OFL%20(SIL%20Open%20Font%20License)>`
+.. _`Variable Fonts (css-tricks.com)`: https://css-tricks.com/one-file-many-options-using-variable-fonts-web
