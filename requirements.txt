@@ -4,7 +4,7 @@
 # ----------------
 
 fspath
-tinycss
+tinycss2
 
 # -------------
 # tests_require

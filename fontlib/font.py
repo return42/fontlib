@@ -6,10 +6,18 @@ Implemtation of :py:class:`Font`
 __all__ = ["Font", ]
 
 class Font:
-    """A font file (url)"""
+    """A font resource identified by URL"""
     # pylint: disable=too-few-public-methods
 
     def __init__(self, url, font_name):
+        """Create instace
+
+        :param url:
+            URL of the font
+        :param font_name:
+            Name of the font
+        """
+
         self.url = url
         self.name = font_name
         self.aliases = []

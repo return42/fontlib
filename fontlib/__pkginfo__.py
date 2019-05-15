@@ -23,7 +23,7 @@ package_data = {'fontlib' : ['cantarell','dejavu']}
 python_requires  ='>=3'
 install_requires = [
     'fspath'
-    , 'tinycss'
+    , 'tinycss2'
 ]
 tests_require = [
     'pylint'

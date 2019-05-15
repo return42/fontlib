@@ -2,81 +2,65 @@
 """
 Font library
 """
+
+from urllib.parse import urlparse
 import pkg_resources
 import fspath
-import tinycss
-from tinycss.fonts3 import FontFaceRule
 
 from .font import Font
+from .css import get_css_at_rules
+from .css import FontFaceRule
 
 class FontStack:
     """A collection of :class:`Font` objects"""
 
     def __init__(self):
         self.stack = dict()
-        self.get = self.stack.get
 
-    def add_url(self, url, font_name):
-        """Add a font resource
-
-        :param url:
-            URL of the font
-        :param font_name:
-            Name of the font
-        """
-        font = self.get(url, None)
-        if font is not None:
-            font.aliases.append(font_name)
+    def add_font(self, font):
+        if self.stack.get(font.url, None) is None:
+            self.stack[font.url] = font
         else:
-            self.stack[url] = Font(url, font_name)
+            self.stack[font.url].aliases.append(font.name)
 
-    def get_fonts(self, font_name):
-        """get :class:`Font` objects by font name
+    def load_entry_point(self, ep_name):
+        for entry_point in pkg_resources.iter_entry_points(ep_name):
+            print("%s: %s" % (ep_name, entry_point))
+            for name, file_name in entry_point.load().items():
+                # add font ...
+                font = Font('file://' + file_name, name)
+                self.add_font(font)
+
+    def load_css(self, css_url):
+        base_url = "/".join(css_url.split('/')[:-1])
+        at_rules = get_css_at_rules(css_url, FontFaceRule)
+        for rule in at_rules:
+            name_list = rule.declaration_token_values('font-family', 'string')
+            url_list =  rule.declaration_token_values('src', 'url')
+
+            for font_name in name_list:
+                for url_str in url_list:
+                    url = urlparse(url_str)
+                    if url.scheme == '' and url.netloc == '' and url.path[0] != '/':
+                        # is relative path name
+                        url_str = base_url + "/" + url_str
+                    # add font ...
+                    font = Font(url_str, font_name)
+                    self.add_font(font)
+
+    def list_fonts(self, font_name):
+        """Return list of :class:`Font` objects selected by ``font_name``.
 
         :param font_name:
             Name of the font
         """
         ret_val = []
-        for obj in self.stack:
-            if ( obj.name == font_name
-                 or font_name in obj.aliases):
-                ret_val.append(obj)
+        for font in self.stack:
+            if ( font.name == font_name
+                 or font_name in font.aliases):
+                ret_val.append(font)
         return ret_val
 
-    def load_from_css(self, css_file, folder=""):
-        """load font resources from CSS @font-face rules
-
-        :param css_file:
-            file name of the css file
-        :param folder:
-            Name of base folder where the font files are located.
-        """
-        parser = tinycss.make_parser('fonts3')
-        stylesheet = parser.parse_stylesheet_file(css_file)
-
-        # filter @font-face rules
-        font_face_rules = [ rule for rule in stylesheet.rules
-                            if isinstance(rule, FontFaceRule) ]
-
-        for rule in font_face_rules:
-            l_font_family = []
-            l_uri = []
-
-            for decl in rule.declarations:
-                if decl.name == 'font-family':
-                    for token in decl.value:
-                        l_font_family.append(token.value)
-
-                if decl.name == 'src':
-                    for token in decl.value:
-                        if token.type == 'URI':
-                            l_uri.append(token.value)
-
-            for font_name in l_font_family:
-                for url in l_uri:
-                    if folder:
-                        url = folder + '/' + url
-                    self.add_url(url, font_name)
 
 def get_stack():
     """
@@ -100,12 +84,12 @@ def get_stack():
     stack = FontStack()
     # register font files from entry points
     for ep_name  in ['fonts_ttf', 'fonts_otf', 'fonts_woff', 'fonts_woff2']:
-        for entry_point in pkg_resources.iter_entry_points(ep_name):
-            for name, val in entry_point.load().items():
-                stack.add_url(val, name)
+        stack.load_entry_point(ep_name)
 
     # register builtin fonts
     base = fspath.FSPath(__file__).DIRNAME / 'files'
     for name in [ 'cantarell', 'dejavu']:
         css_file = base / name / name + ".css"
-        stack.load_from_css( css_file, folder=base)
+        stack.load_css('file:' + css_file)
+
+    return stack
