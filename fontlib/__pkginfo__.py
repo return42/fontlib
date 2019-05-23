@@ -34,7 +34,10 @@ tests_require = [
 
 def get_entry_points():
     """get entry points of the python package"""
-    return {}
+    return {
+        'console_scripts': [
+            'fontlib = fontlib.cli:main'
+        ]}
 
 # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
 classifiers = [
