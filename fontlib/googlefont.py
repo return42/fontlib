@@ -8,10 +8,13 @@ Manage fonts from `Google Fonts <https://www.google.com/fonts>`__
 
 __all__ = ['is_google_font_url', 'read_google_font_css' ]
 
+import socket
+import ipaddress
 from urllib.parse import urlparse
 import requests
 
 GOOGLE_FONTS_HOST = 'fonts.googleapis.com'
+GOOGLE_FONTS_NETWORK = ipaddress.ip_network('172.217.0.0/16')
 
 # user agent concept was stolen from https://github.com/glasslion/fontdump.git
 GOOGLE_USER_AGENTS = {
@@ -25,7 +28,7 @@ GOOGLE_USER_AGENTS = {
               'Mobile/7B334b Safari/531.21.10'  # iOS<4.2
 }
 
-GOOGLE_FONT_FORMATS = GOOGLE_USER_AGENTS.keys()
+GOOGLE_FONT_FORMATS = list(GOOGLE_USER_AGENTS)
 
 def is_google_font_url(url):
     """Test if <url> is from google font host '%s'
@@ -66,8 +69,13 @@ def read_google_font_css(url, format_list=None):
         raise ConnectionError('%s is not a google font url matching %s' % (
             url, GOOGLE_FONTS_HOST))
 
+    ip = socket.gethostbyname(GOOGLE_FONTS_HOST)
+    if ipaddress.ip_address(ip) not in ipaddress.ip_network('172.217.0.0/16'):
+        raise ConnectionError(
+            'got wrong IP (%s) for %s, not matching %s (blocked CDNs by DNS?)' % (
+                ip, GOOGLE_FONTS_HOST, GOOGLE_FONTS_NETWORK))
     if format_list is None:
-        format_list = GOOGLE_FONT_FORMATS.copy()
+        format_list = GOOGLE_FONT_FORMATS
 
     content = b''
     headers = {}
