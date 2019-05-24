@@ -24,6 +24,7 @@ python_requires  ='>=3'
 install_requires = [
     'fspath'
     , 'tinycss2'
+    , 'requests'
 ]
 tests_require = [
     'pylint'

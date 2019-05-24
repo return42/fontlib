@@ -5,6 +5,7 @@
 
 fspath
 tinycss2
+requests
 
 # -------------
 # tests_require
@@ -24,7 +25,7 @@ Sphinx
 sphinx_rtd_theme
 sphinx-autobuild
 pip
-#twine
+twine
 #wheel
 #mock
 

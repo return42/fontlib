@@ -1,0 +1,79 @@
+# -*- coding: utf-8; mode: python -*-
+# pylint: disable=missing-docstring, too-few-public-methods
+"""
+googlefont -- implememt tools to manage fonts from fonts.google.com
+
+Manage fonts from `Google Fonts <https://www.google.com/fonts>`__
+"""
+
+__all__ = ['is_google_font_url', 'read_google_font_css' ]
+
+from urllib.parse import urlparse
+import requests
+
+GOOGLE_FONTS_HOST = 'fonts.googleapis.com'
+
+# user agent concept was stolen from https://github.com/glasslion/fontdump.git
+GOOGLE_USER_AGENTS = {
+    # pylint: disable=bad-continuation
+    'woff2':  'Mozilla/5.0 (X11; Linux x86_64; rv:66.0) Gecko/20100101 Firefox/66.0'
+    , 'ttf':  'Mozilla/5.0 (Linux; U; Android 2.2; en-us; DROID2 GLOBAL '
+              'Build/S273) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 '
+              'Mobile Safari/533.1' # Android 2
+    , 'svg':  'Mozilla/5.0 (iPad; U; CPU OS 3_2 like Mac OS X; en-us) '
+              'AppleWebKit/531.21.10 (KHTML, like Gecko) Version/4.0.4 '
+              'Mobile/7B334b Safari/531.21.10'  # iOS<4.2
+}
+
+GOOGLE_FONT_FORMATS = GOOGLE_USER_AGENTS.keys()
+
+def is_google_font_url(url):
+    """Test if <url> is from google font host '%s'
+
+    :param url:
+        URL that match hostname ``%s`` and scheme ``http://`` or ``https://``
+
+    """ % (GOOGLE_FONTS_HOST, GOOGLE_FONTS_HOST)
+
+    url = urlparse(url)
+    hostname = url.netloc.split(':')[0]
+
+    if ( hostname == GOOGLE_FONTS_HOST
+         and  url.scheme in ('http', 'https')):
+        return True
+    return False
+
+def read_google_font_css(url, format_list=None):
+    """Read stylesheet's (CSS) content from <url>
+
+    :type url: str
+    :param url:
+        URL of the google CSS that defines the @font-face rules, e.g.:
+        https://fonts.googleapis.com/css?family=Cute+Font|Roboto+Slab
+
+    :type format_list: list
+    :param format_list: A list with the formats to fetch (default: ``%s``)
+
+    :rtype: byte
+    :return: CSS loaded from URL (request.content)
+
+    :raises ConnectionError:
+         Raised when the URL is not a google font URL (see
+         :py:func:`is_google_font_url`)
+    """ % (GOOGLE_FONT_FORMATS)
+
+    if not is_google_font_url(url):
+        raise ConnectionError('%s is not a google font url matching %s' % (
+            url, GOOGLE_FONTS_HOST))
+
+    if format_list is None:
+        format_list = GOOGLE_FONT_FORMATS.copy()
+
+    content = b''
+    headers = {}
+
+    for font_format in format_list:
+        headers['User-Agent'] = GOOGLE_USER_AGENTS[font_format]
+        resp = requests.get(url, headers=headers)
+        content += resp.content
+    return content

@@ -11,8 +11,18 @@ from urllib.request import urlopen
 
 import tinycss2
 
+from .googlefont import is_google_font_url
+from .googlefont import read_google_font_css
 
 def get_css_at_rules(css_url, at_class):
+
+    if is_google_font_url(css_url):
+        css_bytes = read_google_font_css(css_url)
+    else:
+        with urlopen(css_url) as handle:
+            css_bytes= handle.read()
+
+    css_rules, _encoding = tinycss2.parse_stylesheet_bytes(css_bytes=css_bytes)
 
     # parse css ...
     with urlopen(css_url) as handle:
