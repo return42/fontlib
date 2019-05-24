@@ -31,10 +31,10 @@ help:
 	@$(MAKE) -s -f utils/makefile.sphinx docs-help
 
 PHONY += install
-install: pyinstall
+install: pyinstall pyenvinstall
 
 PHONY += uninstall
-uninstall: pyuninstall
+uninstall: pyuninstall pyenvuninstall
 
 PHONY += docs
 docs:  sphinx-doc
