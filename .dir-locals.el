@@ -4,18 +4,26 @@
 ;;   $ make install
 
 ((nil
-  . ((fill-column . 80)
+  . ((fill-column . 120)
      ))
  (python-mode
   . ((indent-tabs-mode . nil)
-     (flycheck-pylintrc . ".pylintrc")
-     (flycheck-python-pylint-executable . "python3")
-     (python-shell-interpreter . "python3")
-     (python-environment-directory . (expand-file-name "./local/py3" prj-root))
-     (python-environment-virtualenv . ("virtualenv" "--python" "python3" "--system-site-packages" "--quiet"))
+     ;; project root folder is where the `.dir-locals.el' is located
      (eval . (setq-local prj-root (locate-dominating-file  default-directory ".dir-locals.el")))
+     (eval . (setq-local prj-py-exe (expand-file-name "./local/py3/bin/python" prj-root)))
+     ;; pylint will find the '.pylintrc' file next to the CWD
+     ;; https://pylint.readthedocs.io/en/latest/user_guide/run.html#command-line-options
+     (flycheck-pylintrc . ".pylintrc")
+     ;; flycheck & other python stuff should use the local py3 environment
+     (flycheck-python-pylint-executable . prj-py-exe)
+     (python-shell-interpreter . prj-py-exe)
+     (python-environment-directory
+      . (expand-file-name "./local" prj-root))
+     (python-environment-virtualenv
+      . ("virtualenv" "--python"  prj-py-exe "--system-site-packages" "--quiet"))
      ))
 )
+
 
 ;;(eval . (setq-local jedi:environment-root (expand-file-name "./local/py3" prj-root)))
 ;;(eval . (setq-local jedi:environment-root (expand-file-name ".jedi-env" prj-root)))
