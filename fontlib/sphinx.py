@@ -1,7 +1,11 @@
-# -*- coding: utf-8; mode: python -*-
+# -*- coding: utf-8; mode: python; mode: flycheck -*-
 """
 Implementation for Sphinx-doc exetensions (TODO)
 """
+
+import logging
+
+log = logging.getLogger(__name__)
 
 # def on_build_finished(app, exc):
 #     # type: (Sphinx, Exception) -> None

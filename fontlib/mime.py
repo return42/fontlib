@@ -5,8 +5,11 @@ MIME type implementations
 
 __all___ = ['add_types', ]
 
+import logging
 import mimetypes
 import fspath
+
+log = logging.getLogger(__name__)
 
 def add_types():
     """Add ``fontlib/mime.types`` to :py:mod:`mimetypes` """

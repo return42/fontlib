@@ -6,6 +6,7 @@ CSS helper
 
 __all__ = ['get_css_at_rules', 'FontFaceRule']
 
+import logging
 import re
 from urllib.request import urlopen
 
@@ -13,6 +14,8 @@ import tinycss2
 
 from .googlefont import is_google_font_url
 from .googlefont import read_google_font_css
+
+log = logging.getLogger(__name__)
 
 def get_css_at_rules(css_url, at_class):
 

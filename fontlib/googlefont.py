@@ -8,10 +8,13 @@ Manage fonts from `Google Fonts <https://www.google.com/fonts>`__
 
 __all__ = ['is_google_font_url', 'read_google_font_css' ]
 
+import logging
 import socket
 import ipaddress
 from urllib.parse import urlparse
 import requests
+
+log = logging.getLogger(__name__)
 
 GOOGLE_FONTS_HOST = 'fonts.googleapis.com'
 GOOGLE_FONTS_NETWORK = ipaddress.ip_network('172.217.0.0/16')

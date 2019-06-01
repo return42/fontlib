@@ -3,6 +3,7 @@
 Font library
 """
 
+import logging
 from urllib.parse import urlparse
 import pkg_resources
 import fspath
@@ -10,6 +11,8 @@ import fspath
 from .font import Font
 from .css import get_css_at_rules
 from .css import FontFaceRule
+
+log = logging.getLogger(__name__)
 
 class FontStack:
     """A collection of :class:`Font` objects"""

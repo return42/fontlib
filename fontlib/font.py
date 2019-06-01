@@ -5,6 +5,10 @@ Implemtation of :py:class:`Font`
 
 __all__ = ["Font", ]
 
+import logging
+
+log = logging.getLogger(__name__)
+
 class Font:
     """A font resource identified by URL"""
     # pylint: disable=too-few-public-methods

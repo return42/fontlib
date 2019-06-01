@@ -1,6 +1,9 @@
 # -*- coding: utf-8; mode: python -*-
 # pylint: disable=missing-docstring
 
+import logging
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+
 from . import __pkginfo__
 
 __version__   = __pkginfo__.version

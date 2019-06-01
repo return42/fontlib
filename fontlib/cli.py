@@ -3,11 +3,16 @@
 u"""fontlib -- main entry point for commandline interfaces"""
 
 import sys
+import logging
+from logging.config import dictConfig
 
 from fspath import CLI
 from fspath.sui import SimpleUserInterface
 
 from .fontstack import FontStack
+from .log import cfg as log_cfg
+
+log = logging.getLogger(__name__)
 
 # ==============================================================================
 def _cli_parse_css(args):
@@ -41,6 +46,9 @@ def main():
     u"""
     Tools from the fontlib library
     """
+
+    dictConfig(log_cfg)
+
     cli    = CLI(description=main.__doc__)
     cli.UI = SimpleUserInterface(cli=cli)
 
