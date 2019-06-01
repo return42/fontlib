@@ -5,7 +5,13 @@ common logging & setup implementations
 
 import logging
 
+from fspath import OS_ENV
+
 log = logging.getLogger('fontlib')
+
+CONSOLE_LEVEL = 'ERROR'
+if OS_ENV.get("DEBUG", None) is not None:
+    CONSOLE_LEVEL =  'DEBUG'
 
 cfg = {
     'version': 1,
@@ -21,7 +27,7 @@ cfg = {
         'console': {
             'class':        'logging.StreamHandler',
             'formatter':    'console',
-            'level':        'INFO',
+            'level':        CONSOLE_LEVEL,
         },
         'logfile': {
             'class':        'logging.handlers.RotatingFileHandler',

@@ -40,6 +40,7 @@ def get_css_at_rules(css_url, at_class):
         css_rules.append(obj)
         obj.parse_css_rule(rule)
 
+    log.debug("found %s at-rules", len(css_rules))
     return css_rules
 
 
