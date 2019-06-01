@@ -25,11 +25,8 @@ def get_css_at_rules(css_url, at_class):
         with urlopen(css_url) as handle:
             css_bytes= handle.read()
 
-    css_rules, _encoding = tinycss2.parse_stylesheet_bytes(css_bytes=css_bytes)
-
     # parse css ...
-    with urlopen(css_url) as handle:
-        css_rules, _encoding = tinycss2.parse_stylesheet_bytes(css_bytes = handle.read())
+    css_rules, _encoding = tinycss2.parse_stylesheet_bytes(css_bytes=css_bytes)
 
     # filter @font-face (at rules)
     font_face_rules =  [
