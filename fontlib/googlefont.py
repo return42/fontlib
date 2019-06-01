@@ -72,11 +72,14 @@ def read_google_font_css(url, format_list=None):
         raise ConnectionError('%s is not a google font url matching %s' % (
             url, GOOGLE_FONTS_HOST))
 
+    log.debug("try to solve %s", GOOGLE_FONTS_HOST)
     ip = socket.gethostbyname(GOOGLE_FONTS_HOST)
     if ipaddress.ip_address(ip) not in ipaddress.ip_network('172.217.0.0/16'):
+        log.error("got IP: %s for %s", ip, GOOGLE_FONTS_HOST)
         raise ConnectionError(
             'got wrong IP (%s) for %s, not matching %s (blocked CDNs by DNS?)' % (
                 ip, GOOGLE_FONTS_HOST, GOOGLE_FONTS_NETWORK))
+    log.debug("got IP: %s for %s", ip, GOOGLE_FONTS_HOST)
     if format_list is None:
         format_list = GOOGLE_FONT_FORMATS
 
