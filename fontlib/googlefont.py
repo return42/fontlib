@@ -1,4 +1,4 @@
-# -*- coding: utf-8; mode: python -*-
+# -*- coding: utf-8; mode: python; mode: flycheck -*-
 # pylint: disable=missing-docstring, too-few-public-methods
 """
 googlefont -- implememt tools to manage fonts from fonts.google.com

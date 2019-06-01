@@ -1,4 +1,4 @@
-# -*- coding: utf-8; mode: python -*-
+# -*- coding: utf-8; mode: python; mode: flycheck -*-
 
 u"""fontlib -- main entry point for commandline interfaces"""
 

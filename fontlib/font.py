@@ -1,4 +1,4 @@
-# -*- coding: utf-8; mode: python -*-
+# -*- coding: utf-8; mode: python; mode: flycheck -*-
 """
 Implemtation of :py:class:`Font`
 """
