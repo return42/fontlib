@@ -15,14 +15,12 @@
      ;; https://pylint.readthedocs.io/en/latest/user_guide/run.html#command-line-options
      (flycheck-pylintrc . ".pylintrc")
      ;; flycheck & other python stuff should use the local py3 environment
-     (flycheck-python-pylint-executable . prj-py-exe)
-     (python-shell-interpreter . prj-py-exe)
-     (python-environment-directory
-      . (expand-file-name "./local" prj-root))
+     (eval . (setq-local flycheck-python-pylint-executable prj-py-exe))
+     (eval . (setq-local python-shell-interpreter prj-py-exe))
+     (eval . (setq-local python-environment-directory (expand-file-name "./local" prj-root)))
      (python-environment-virtualenv
       . ("virtualenv" "--python"  prj-py-exe "--system-site-packages" "--quiet"))
-     ))
-)
+     )))
 
 
 ;;(eval . (setq-local jedi:environment-root (expand-file-name "./local/py3" prj-root)))
