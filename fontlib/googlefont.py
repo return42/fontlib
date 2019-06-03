@@ -34,13 +34,13 @@ GOOGLE_USER_AGENTS = {
 GOOGLE_FONT_FORMATS = list(GOOGLE_USER_AGENTS)
 
 def is_google_font_url(url):
-    """Test if <url> is from google font host '%s'
+    """Test if ``url`` is from google font host ``fonts.googleapis.com``
 
     :param url:
-        URL that match hostname ``%s`` and scheme ``http://`` or ``https://``
+        URL that match hostname ``fonts.googleapis.com`` and scheme
+        ``http://`` or ``https://``
 
-    """ % (GOOGLE_FONTS_HOST, GOOGLE_FONTS_HOST)
-
+    """
     url = urlparse(url)
     hostname = url.netloc.split(':')[0]
 
@@ -50,7 +50,7 @@ def is_google_font_url(url):
     return False
 
 def read_google_font_css(url, format_list=None):
-    """Read stylesheet's (CSS) content from <url>
+    """Read stylesheet's (CSS) content from ``url``
 
     :type url: str
     :param url:
@@ -58,7 +58,8 @@ def read_google_font_css(url, format_list=None):
         https://fonts.googleapis.com/css?family=Cute+Font|Roboto+Slab
 
     :type format_list: list
-    :param format_list: A list with the formats to fetch (default: ``%s``)
+    :param format_list:
+        A list with the formats to fetch (default: ``['woff2', 'ttf', 'svg']``)
 
     :rtype: byte
     :return: CSS loaded from URL (request.content)

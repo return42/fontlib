@@ -4,63 +4,62 @@ Font library
 """
 
 import logging
-from urllib.parse import urlparse
-import pkg_resources
 import fspath
 
 from .font import Font
-from .css import get_css_at_rules
-from .css import FontFaceRule
 
 log = logging.getLogger(__name__)
 
 class FontStack:
-    """A collection of :class:`Font` objects"""
+    """A collection of :py:class:`.api.Font` objects"""
 
     def __init__(self):
         self.stack = dict()
 
     def add_font(self, font):
-        if self.stack.get(font.url, None) is None:
+        """Add :py:class:`.api.Font` object to *this* stack."""
+        exists = self.stack.get(font.url, None)
+        if exists is None:
+            log.debug("add font-family: '%s' with url %s", font.name, font.url)
             self.stack[font.url] = font
         else:
-            self.stack[font.url].aliases.append(font.name)
+            if exists.match_name(font.name):
+                log.warning("FontStack: Font already exists, skip additional Font '%s' with url '%s'"
+                            , font.name, font.url)
+            else:
+                log.debug("FontStack: add alias '%s' to url %s", font.name, font.url)
+                exists.aliases.append(font.name)
 
     def load_entry_point(self, ep_name):
-        for entry_point in pkg_resources.iter_entry_points(ep_name):
-            print("%s: %s" % (ep_name, entry_point))
-            for name, file_name in entry_point.load().items():
-                # add font ...
-                font = Font('file://' + file_name, name)
-                self.add_font(font)
+        """Add :py:class:`.api.Font` objects from ``ep_name``.
+
+        :param ep_name:
+           String with the name of the entry point (one of: ``fonts_ttf``,
+           ``fonts_otf`` ``fonts_woff``, ``fonts_woff2``)
+        """
+        for font in Font.from_entry_point(ep_name):
+            self.add_font(font)
 
     def load_css(self, css_url):
-        base_url = "/".join(css_url.split('/')[:-1])
-        at_rules = get_css_at_rules(css_url, FontFaceRule)
-        for rule in at_rules:
-            name_list = rule.declaration_token_values('font-family', 'string')
-            url_list =  rule.declaration_token_values('src', 'url')
+        """Add :py:class:`.api.Font` objects from `@font-face rule`_ rules.
 
-            for font_name in name_list:
-                for url_str in url_list:
-                    url = urlparse(url_str)
-                    if url.scheme == '' and url.netloc == '' and url.path[0] != '/':
-                        # is relative path name
-                        url_str = base_url + "/" + url_str
-                    # add font ...
-                    font = Font(url_str, font_name)
-                    self.add_font(font)
+        :param css_url:
+            URL of a CSS (stylesheet) file defining ``@font-face`` rules
+
+        .. _`@font-face rule`: https://www.w3.org/TR/css-fonts-3/#font-face-rule
+        """
+        for font in Font.from_css(css_url):
+            self.add_font(font)
 
     def list_fonts(self, font_name):
-        """Return list of :class:`Font` objects selected by ``font_name``.
+        """Return list of :py:class:`.api.Font` objects selected by ``font_name``.
 
         :param font_name:
             Name of the font
         """
         ret_val = []
         for font in self.stack:
-            if ( font.name == font_name
-                 or font_name in font.aliases):
+            if font.match_name(font_name):
                 ret_val.append(font)
         return ret_val
 
@@ -83,6 +82,13 @@ def get_stack():
     - :ref:`builtin_cantarell`
     - :ref:`builtiin_dejavu`
 
+    E.g. to include all fonts from the fonts-python_ project install::
+
+        pip install font-amatic-sc font-caladea font-font-awesome \
+                    font-fredoka-one font-hanken-grotesk font-intuitive \
+                    font-source-sans-pro  font-source-serif-pro
+
+    .. _fonts-python: https://github.com/pimoroni/fonts-python
     """
     stack = FontStack()
     # register font files from entry points

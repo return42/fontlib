@@ -126,10 +126,34 @@ class AtRule(CSSRule):
     rule_type = 'at-rule'
 
     def declaration_token_values(self, decl_name, *token_types):
+        """Get token values from tokens of ``decl_name`` and ``token_types``.
+
+        Select token values from *this* at-rule declarations.  E.g. to get all
+        ``url`` tokns from the declaration ``src`` use::
+
+            url_list = my_rule.declaration_token_values('src', 'url')
+
+        To select the name of a font-family declaration use ``string`` type::
+
+            font_name = my_rule.declaration_token_values('font-family', 'string')
+
+        :param decl_name:
+            A string with the name of the declaration (e.g. ``src`` or
+            ``font-family``).
+
+        :param *token_types:
+            A list of string arguments with the name of token's type (e.g.
+            ``string`` or ``url``).
+
+        :return:
+            A list with the **values** of the selected tokens.
+        """
+        ret_val = []
         decl = self.declarations.get(decl_name, None)
-        if decl is None:
-            return []
-        return [ token.value for token in decl if token.type in token_types ]
+        if decl is not None:
+            ret_val = [ token.value for token in decl if token.type in token_types ]
+        # log.debug("declaration_token_values(%s, *%s): --> %s", decl_name, token_types, ret_val)
+        return ret_val
 
 class FontFaceRule(AtRule):
     rule_name = 'font-face'

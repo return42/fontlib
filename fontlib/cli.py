@@ -10,8 +10,9 @@ from fspath import CLI
 from fspath.sui import SimpleUserInterface
 
 from .fontstack import FontStack
+from .fontstack import get_stack
 from .log import cfg as log_cfg
-
+from .mime import add_types
 log = logging.getLogger(__name__)
 
 # ==============================================================================
@@ -38,6 +39,22 @@ def _cli_parse_css(args):
         , ("Name",     "%-50s",        "name")
         , ("URL",      "%-90s",        "url") )
 
+# ==============================================================================
+def _cli_list_fonts(args):
+# ==============================================================================
+
+    u"""
+    List (builtin) fonts.
+    """
+
+    cli = args.CLI
+    fs = get_stack()
+    cli.UI.rst_table(
+        fs.stack.values()
+        # <col-title>, <format sting>, <attribute name>
+        , ("Name",     "%-50s",        "name")
+        , ("URL",      "%-90s",        "url") )
+
 
 # ==============================================================================
 def main():
@@ -48,6 +65,7 @@ def main():
     """
 
     dictConfig(log_cfg)
+    add_types()
 
     cli    = CLI(description=main.__doc__)
     cli.UI = SimpleUserInterface(cli=cli)
@@ -58,6 +76,7 @@ def main():
         , type = str
         , help = "<url> of ccs to parse"
         )
+    css_parse = cli.addCMDParser(_cli_list_fonts, cmdName='list')
 
     # run ...
     cli()
