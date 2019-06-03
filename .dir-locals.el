@@ -4,7 +4,7 @@
 ;;   $ make install
 
 ((nil
-  . ((fill-column . 120)
+  . ((fill-column . 80)
      ))
  (python-mode
   . ((indent-tabs-mode . nil)
