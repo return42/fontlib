@@ -4,7 +4,7 @@
 CSS helper
 """
 
-__all__ = ['get_css_at_rules', 'FontFaceRule']
+__all__ = ['get_css_at_rules', 'CSSRule', 'AtRule', 'FontFaceRule']
 
 import logging
 import re
@@ -18,7 +18,23 @@ from .googlefont import read_google_font_css
 log = logging.getLogger(__name__)
 
 def get_css_at_rules(css_url, at_class):
+    """get at-rules of type ``at_class`` from CSS ``css_url``
 
+    The CSS file is read by :py:func:`urlopen`.  If the URL points to the google
+    fonts api, the CSS is read by :py:func:`.googlefont.read_google_font_css`.
+    Both funtions return the byte stream from the URL, which is parsed by
+    :py:func:`tinycss2.parse_stylesheet_bytes`.  The resulting CSS rules are
+    filtered by ``at_class``.
+
+    :type css_url:   str
+    :param css_url:  URL of the CSS (stylesheet) file
+
+    :type at_class:  css.AtRule
+    :param at_class: class of the at-rule
+
+    :rtype: [css.AtRule]
+    :return: list of ``at_class`` objects
+    """
     if is_google_font_url(css_url):
         css_bytes = read_google_font_css(css_url)
     else:
@@ -47,7 +63,7 @@ def get_css_at_rules(css_url, at_class):
 def split_tokens(rule_tokens, t_type='literal', t_value=';'):
     """Split list of tokens into a list of token lists.
 
-    By a delimiter, the ``rule_token`` list is spitted into groups.
+    By a delimiter, the ``rule_token`` list is splitted into groups.
     Delimiters are tokens with type ``t_type`` and value ``t_value``.
     Delimiter tokens and ``whitespace`` tokens are stripped from the
     returned lists.
@@ -82,8 +98,12 @@ def split_tokens(rule_tokens, t_type='literal', t_value=';'):
 
 
 class CSSRule:
+    """Base class for internal abstraction of a CSS rules."""
+
     rule_name = None
+    """String with the name of the rule"""
     rule_type = None
+    """String naming the type of the rule"""
 
     def __init__(self, css_url, *args, **kwargs):  # pylint: disable=unused-argument
         self.css_url = css_url
@@ -123,13 +143,15 @@ class CSSRule:
 
 
 class AtRule(CSSRule):
+    """Internal abstraction of a CSS at-rule."""
+
     rule_type = 'at-rule'
 
     def declaration_token_values(self, decl_name, *token_types):
         """Get token values from tokens of ``decl_name`` and ``token_types``.
 
         Select token values from *this* at-rule declarations.  E.g. to get all
-        ``url`` tokns from the declaration ``src`` use::
+        ``url`` tokens from the declaration ``src`` use::
 
             url_list = my_rule.declaration_token_values('src', 'url')
 
@@ -141,7 +163,7 @@ class AtRule(CSSRule):
             A string with the name of the declaration (e.g. ``src`` or
             ``font-family``).
 
-        :param *token_types:
+        :param \\*token_types:
             A list of string arguments with the name of token's type (e.g.
             ``string`` or ``url``).
 
@@ -156,4 +178,5 @@ class AtRule(CSSRule):
         return ret_val
 
 class FontFaceRule(AtRule):
+    """Internal abstraction of a CSS ``@font-face``."""
     rule_name = 'font-face'

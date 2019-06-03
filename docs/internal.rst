@@ -21,7 +21,7 @@ googlefont
 ==========
 
 .. automodule:: fontlib.googlefont
-    :members: is_google_font_url,read_google_font_css
+    :members:
     :undoc-members:
     :show-inheritance:
 
@@ -33,3 +33,10 @@ mime
     :undoc-members:
     :show-inheritance:
 
+log
+===
+
+.. automodule:: fontlib.log
+    :members:
+    :undoc-members:
+    :show-inheritance:

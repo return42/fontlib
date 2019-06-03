@@ -3,7 +3,7 @@
 MIME type implementations
 """
 
-__all___ = ['add_types', ]
+__all___ = ['add_types', 'FontlibMimeTypes']
 
 import logging
 import mimetypes
@@ -29,12 +29,8 @@ class FontlibMimeTypes(mimetypes.MimeTypes):
     def map_types(self):
         """Return tuples with suffix and mime type.
 
-        Optional `strict' argument when False adds a bunch of commonly found,
-        but non-standard types.
-
         :return:
-
-        ``[]('.ttf', 'font/ttf'), ('.woff2', 'font/woff2'), ...]
+            ``[('.ttf', 'font/ttf'), ('.woff2', 'font/woff2'), ...]``
         """
         return self.types_map[True].items()
 

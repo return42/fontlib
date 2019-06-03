@@ -6,7 +6,7 @@ googlefont -- implememt tools to manage fonts from fonts.google.com
 Manage fonts from `Google Fonts <https://www.google.com/fonts>`__
 """
 
-__all__ = ['is_google_font_url', 'read_google_font_css' ]
+__all__ = ['GOOGLE_FONTS_HOST', 'GOOGLE_FONT_FORMATS', 'is_google_font_url', 'read_google_font_css' ]
 
 import logging
 import socket
@@ -17,6 +17,8 @@ import requests
 log = logging.getLogger(__name__)
 
 GOOGLE_FONTS_HOST = 'fonts.googleapis.com'
+"""Hostname of the google fonts api (url)"""
+
 GOOGLE_FONTS_NETWORK = ipaddress.ip_network('172.217.0.0/16')
 
 # user agent concept was stolen from https://github.com/glasslion/fontdump.git
@@ -32,6 +34,8 @@ GOOGLE_USER_AGENTS = {
 }
 
 GOOGLE_FONT_FORMATS = list(GOOGLE_USER_AGENTS)
+"""list of font formats used from google's font api"""
+
 
 def is_google_font_url(url):
     """Test if ``url`` is from google font host ``fonts.googleapis.com``
@@ -67,7 +71,7 @@ def read_google_font_css(url, format_list=None):
     :raises ConnectionError:
          Raised when the URL is not a google font URL (see
          :py:func:`is_google_font_url`)
-    """ % (GOOGLE_FONT_FORMATS)
+    """
 
     if not is_google_font_url(url):
         raise ConnectionError('%s is not a google font url matching %s' % (
