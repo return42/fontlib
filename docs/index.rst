@@ -17,3 +17,4 @@ Content
    install
    builtin
    api
+   internal

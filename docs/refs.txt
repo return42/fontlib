@@ -1,5 +1,8 @@
 .. -*- coding: utf-8; mode: rst -*-
 ..
+.. _fontlib: https://github.com/return42/fontlib.git
+..
+..
 .. misc tools
 .. ----------
 
