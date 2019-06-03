@@ -20,15 +20,15 @@ class FontStack:
         """Add :py:class:`.api.Font` object to *this* stack."""
         exists = self.stack.get(font.url, None)
         if exists is None:
-            log.debug("add font-family: '%s' with url %s", font.name, font.url)
+            log.debug("add font-family: '%s' with url %s", font.font_name, font.url)
             self.stack[font.url] = font
         else:
-            if exists.match_name(font.name):
+            if exists.match_name(font.font_name):
                 log.warning("FontStack: Font already exists, skip additional Font '%s' with url '%s'"
-                            , font.name, font.url)
+                            , font.font_name, font.url)
             else:
-                log.debug("FontStack: add alias '%s' to url %s", font.name, font.url)
-                exists.aliases.append(font.name)
+                log.debug("FontStack: add alias '%s' to url %s", font.font_name, font.url)
+                exists.aliases.append(font.font_name)
 
     def load_entry_point(self, ep_name):
         """Add :py:class:`.api.Font` objects from ``ep_name``.
@@ -41,12 +41,10 @@ class FontStack:
             self.add_font(font)
 
     def load_css(self, css_url):
-        """Add :py:class:`.api.Font` objects from `@font-face rule`_ rules.
+        """Add :py:class:`.api.Font` objects from `@font-face`_ rules.
 
         :param css_url:
             URL of a CSS (stylesheet) file defining ``@font-face`` rules
-
-        .. _`@font-face rule`: https://www.w3.org/TR/css-fonts-3/#font-face-rule
         """
         for font in Font.from_css(css_url):
             self.add_font(font)
@@ -84,9 +82,9 @@ def get_stack():
 
     E.g. to include all fonts from the fonts-python_ project install::
 
-        pip install font-amatic-sc font-caladea font-font-awesome \
-                    font-fredoka-one font-hanken-grotesk font-intuitive \
-                    font-source-sans-pro  font-source-serif-pro
+        $ pip install font-amatic-sc font-caladea font-font-awesome \\
+                      font-fredoka-one font-hanken-grotesk font-intuitive \\
+                      font-source-sans-pro  font-source-serif-pro
 
     .. _fonts-python: https://github.com/pimoroni/fonts-python
     """

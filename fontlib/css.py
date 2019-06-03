@@ -107,8 +107,10 @@ class CSSRule:
 
     def __init__(self, css_url, *args, **kwargs):  # pylint: disable=unused-argument
         self.css_url = css_url
+        """URL of the CSS (stylesheet) file"""
         self.content = []
         self.declarations = dict()
+        """Python dict with CSS declarations"""
 
     def parse_css_rule(self, rule):
         self.content = rule.content
@@ -177,6 +179,11 @@ class AtRule(CSSRule):
         # log.debug("declaration_token_values(%s, *%s): --> %s", decl_name, token_types, ret_val)
         return ret_val
 
+
 class FontFaceRule(AtRule):
     """Internal abstraction of a CSS ``@font-face``."""
     rule_name = 'font-face'
+
+    def font_family(self):
+        return ' '.join(self.declaration_token_values('font-family', 'string'))
+

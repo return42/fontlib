@@ -36,7 +36,7 @@ def _cli_parse_css(args):
     cli.UI.rst_table(
         fs.stack.values()
         # <col-title>, <format sting>, <attribute name>
-        , ("Name",     "%-50s",        "name")
+        , ("Name",     "%-50s",        "font_name")
         , ("URL",      "%-90s",        "url") )
 
 # ==============================================================================
@@ -52,7 +52,7 @@ def _cli_list_fonts(args):
     cli.UI.rst_table(
         fs.stack.values()
         # <col-title>, <format sting>, <attribute name>
-        , ("Name",     "%-50s",        "name")
+        , ("Name",     "%-50s",        "font_name")
         , ("URL",      "%-90s",        "url") )
 
 

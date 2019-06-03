@@ -1,6 +1,10 @@
 .. -*- coding: utf-8; mode: rst -*-
 ..
 .. _fontlib: https://github.com/return42/fontlib.git
+.. _`@font-face`: https://www.w3.org/TR/css-fonts-3/#font-face-rule
+.. _`CSS font-family`: https://www.w3.org/TR/css-fonts-3/#descdef-font-family
+.. _`CSS src`: https://www.w3.org/TR/css-fonts-3/#descdef-src
+.. _`CSS unicode-range`: https://www.w3.org/TR/css-fonts-3/#descdef-unicode-range
 ..
 ..
 .. misc tools

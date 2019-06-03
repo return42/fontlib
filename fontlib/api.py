@@ -3,7 +3,7 @@
 Font library API
 """
 
-__all__ = ['FontStack', 'Font', 'get_stack' ]
+__all__ = ['Font', 'FontStack', 'get_stack' ]
 
 from .font import Font
 from .fontstack import FontStack
