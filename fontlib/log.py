@@ -7,11 +7,18 @@ import logging
 
 from fspath import OS_ENV
 
-log = logging.getLogger('fontlib')
+log = logging.getLogger(__name__)
 
+DEFAULT_LOGGER = 'fontlib'
 CONSOLE_LEVEL = 'ERROR'
-if OS_ENV.get("DEBUG", None) is not None:
-    CONSOLE_LEVEL =  'DEBUG'
+
+DEBUG_LOG = OS_ENV.get("DEBUG", None)
+
+if DEBUG_LOG is not None:
+    CONSOLE_LEVEL = 'DEBUG'
+    if DEBUG_LOG and DEBUG_LOG.startswith(DEFAULT_LOGGER):
+        DEFAULT_LOGGER = DEBUG_LOG
+
 
 cfg = {
     'version': 1,
@@ -39,7 +46,7 @@ cfg = {
         },
     },
     'loggers':  {
-        'fontlib': {
+        DEFAULT_LOGGER: {
             'handlers':     ['console', 'logfile'],
             'level':        'DEBUG'
         },
