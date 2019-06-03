@@ -35,3 +35,16 @@ twine
 #
 #git+https://github.com/return42/sphinxjp.themes.revealjs
 # -e file:../sphinxjp.themes.revealjs#egg=sphinxjp.themes.revealjs
+
+# -------------------------------
+# Packages with font entry points
+# -------------------------------
+#
+# font-amatic-sc
+# font-caladea
+# font-font-awesome
+# font-fredoka-one
+# font-hanken-grotesk
+# font-intuitive
+# font-source-sans-pro
+# font-source-serif-pro
