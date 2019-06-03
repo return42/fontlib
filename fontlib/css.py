@@ -187,3 +187,5 @@ class FontFaceRule(AtRule):
     def font_family(self):
         return ' '.join(self.declaration_token_values('font-family', 'string'))
 
+    def unicode_range(self):
+        return ", ".join([ x.serialize() for x in self.declarations['unicode-range']])

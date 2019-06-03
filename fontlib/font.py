@@ -24,15 +24,18 @@ class Font:
     """
     # pylint: disable=too-few-public-methods
 
-    def __init__(self, url, font_name):
+    def __init__(self, url, font_name, font_face_rule=None):
         self.url = url
         """URL (ID) of the font.  E.g. the url from `CSS src`_ for this font resource"""
         self.font_name = font_name
         """The font-name (value of `CSS font-family`_)"""
         self.aliases = []
         """A list of alias font-names (values of `CSS font-family`_)"""
+
         self.unicode_range = None
         """A string with the value of `CSS unicode-range`_"""
+        if font_face_rule is not None:
+            self.unicode_range = font_face_rule.unicode_range
 
     def match_name(self, font_name):
         """Returns ``True`` if ``font_name`` match one of the names"""
@@ -102,5 +105,5 @@ class Font:
                 # is relative path name
                 url_str = base_url + "/" + url_str
             # add font ...
-            font = Font(url_str, font_name)
+            font = Font(url_str, font_name, font_face_rule=at_rule)
             yield font
