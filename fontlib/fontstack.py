@@ -20,15 +20,15 @@ class FontStack:
         """Add :py:class:`.api.Font` object to *this* stack."""
         exists = self.stack.get(font.url, None)
         if exists is None:
-            log.debug("FontStack: add font-family: '%s' with url %s", font.font_name, font.url)
-            #log.debug("FontStack: with unicode-range : %s", font.unicode_range())
+            log.debug("add font-family: '%s' with url %s", font.font_name, font.url)
+            #log.debug("with unicode-range : %s", font.unicode_range())
             self.stack[font.url] = font
         else:
             if exists.match_name(font.font_name):
-                log.warning("FontStack: Font already exists, skip additional Font '%s' with url '%s'"
+                log.warning("Font already exists, skip additional Font '%s' with url '%s'"
                             , font.font_name, font.url)
             else:
-                log.debug("FontStack: add alias '%s' to url %s", font.font_name, font.url)
+                log.debug("add alias '%s' to url %s", font.font_name, font.url)
                 exists.aliases.append(font.font_name)
 
     def load_entry_point(self, ep_name):

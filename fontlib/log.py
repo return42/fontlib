@@ -24,7 +24,7 @@ cfg = {
     'version': 1,
     'formatters': {
         'console': {
-            'format': '%(levelname)s: %(message)s',
+            'format': '%(levelname)-8s|%(name)-12s| %(message)s',
         },
         'logfile': {
             'format': '%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
