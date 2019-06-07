@@ -79,7 +79,7 @@ def read_google_font_css(url, format_list=None):
 
     log.debug("try to solve %s", GOOGLE_FONTS_HOST)
     ip = socket.gethostbyname(GOOGLE_FONTS_HOST)
-    if ipaddress.ip_address(ip) not in ipaddress.ip_network('172.217.0.0/16'):
+    if ipaddress.ip_address(ip) in ipaddress.ip_network('127.0.0.0/8'):
         log.error("got IP: %s for %s", ip, GOOGLE_FONTS_HOST)
         raise ConnectionError(
             'got wrong IP (%s) for %s, not matching %s (blocked CDNs by DNS?)' % (
