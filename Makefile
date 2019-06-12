@@ -10,6 +10,7 @@ PYOBJECTS = fontlib
 DOC       = docs
 SLIDES    = $(DOC)/slides
 API_DOC   = $(DOC)/fontlib-api
+PYLINT_RC = .pylintrc
 
 all: clean pylint pytest build docs
 

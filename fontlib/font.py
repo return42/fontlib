@@ -55,7 +55,7 @@ class Font:
 
         ep_list = list(pkg_resources.iter_entry_points(ep_name))
         for entry_point in ep_list:
-            log.debug("loading from entry point: %s (%s)" % (ep_name, entry_point))
+            log.debug("loading from entry point: %s (%s)", ep_name, entry_point)
             for name, file_name in entry_point.load().items():
                 # add font ...
                 font = Font('file:' + file_name, name)

@@ -2,9 +2,10 @@
 # pylint: disable=missing-docstring
 
 import logging
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-
 from . import __pkginfo__
+from .mime import add_types
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 __version__   = __pkginfo__.version
 __author__    = __pkginfo__.authors[0]
@@ -13,6 +14,4 @@ __copyright__ = __pkginfo__.copyright
 __doc__       = __pkginfo__.docstring
 
 # register mime types
-
-from .mime import add_types
 add_types()

@@ -17,7 +17,7 @@ class FontlibMimeTypes(mimetypes.MimeTypes):
     """
     A class (:py:class:`mimetypes.MimeTypes` ) with (only) mime types from ``fontlib/mime.types``
     """
-    def __init__(self):
+    def __init__(self):  #pylint: disable=super-init-not-called
         self.encodings_map = {}
         self.suffix_map = {}
         self.types_map = ({}, {})

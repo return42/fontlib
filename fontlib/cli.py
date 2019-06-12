@@ -30,11 +30,11 @@ def _cli_parse_css(args):
     cli = args.CLI
     cli.UI.echo("load css from url: %s" % args.url)
 
-    fs = FontStack()
-    fs.load_css(args.url)
+    font_stack = FontStack()
+    font_stack.load_css(args.url)
 
     cli.UI.rst_table(
-        fs.stack.values()
+        font_stack.stack.values()
         # <col-title>, <format sting>, <attribute name>
         , ("Name",     "%-50s",        "font_name")
         , ("URL",      "%-90s",        "url") )
@@ -48,9 +48,9 @@ def _cli_list_fonts(args):
     """
 
     cli = args.CLI
-    fs = get_stack()
+    font_stack = get_stack()
     cli.UI.rst_table(
-        fs.stack.values()
+        font_stack.stack.values()
         # <col-title>, <format sting>, <attribute name>
         , ("Name",     "%-50s",        "font_name")
         , ("URL",      "%-90s",        "url") )
