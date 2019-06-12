@@ -13,6 +13,7 @@ PYTHON   ?= python$(PY)
 PIP      ?= pip$(PY)
 PIP_INST ?= --user
 PYDEBUG  ?= --pdb
+PYLINT_RC ?= utils/pylintrc
 
 TEST_FOLDER  ?= ./tests
 TEST         ?= .
@@ -148,7 +149,7 @@ quiet_cmd_virtualenv  = PYENV     $@
 
 # $2 path to lint
 quiet_cmd_pylint      = LINT      $@
-      cmd_pylint      = $(PY_ENV_BIN)/pylint --rcfile utils/pylintrc $2
+      cmd_pylint      = $(PY_ENV_BIN)/pylint --rcfile $(PYLINT_RC) $2
 
 quiet_cmd_pytest      = TEST      $@
       cmd_pytest      = $(PY_ENV_BIN)/tox -vv
