@@ -57,7 +57,7 @@ class FontStack:
             Name of the font
         """
         ret_val = []
-        for font in self.stack:
+        for font in self.stack.values():
             if font.match_name(font_name):
                 ret_val.append(font)
         return ret_val

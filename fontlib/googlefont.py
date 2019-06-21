@@ -93,6 +93,7 @@ def read_google_font_css(url, format_list=None):
 
     for font_format in format_list:
         headers['User-Agent'] = GOOGLE_USER_AGENTS[font_format]
+        log.debug("request: %s | User-Agent: %s" , url, headers['User-Agent'])
         resp = requests.get(url, headers=headers)
         content += resp.content
     return content
