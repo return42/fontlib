@@ -43,12 +43,29 @@ def _cli_parse_css(args):
 def _cli_list_fonts(args):
 # ==============================================================================
 
-    u"""
-    List (builtin) fonts.
+    u"""List fonts from *builtins* and fonts.googleapis.com
+
+    Option --google list fonts from google fonts infrastructure.  See screenshot
+    at:
+
+        https://raw.githubusercontent.com/return42/fontlib/master/docs/fonts_google_com.png
+
+    Select your fonts on https://fonts.google.com (use the + button) and from
+    the *Families Selected* menu in the right bottom, use the bold marked
+    string, right to the 'family=' parameter.
     """
 
     cli = args.CLI
-    font_stack = get_stack()
+
+    if args.builtins:
+        font_stack = get_stack()
+    else:
+        font_stack = FontStack()
+
+    if args.google:
+        font_stack.load_css(
+            'https://fonts.googleapis.com/css?family=' + args.google
+        )
     cli.UI.rst_table(
         font_stack.stack.values()
         # <col-title>, <format sting>, <attribute name>
@@ -76,7 +93,19 @@ def main():
         , type = str
         , help = "<url> of ccs to parse"
         )
-    css_parse = cli.addCMDParser(_cli_list_fonts, cmdName='list')
+
+    list_fonts = cli.addCMDParser(_cli_list_fonts, cmdName='list')
+    list_fonts.add_argument(
+        "--google"
+        , type = str
+        , help = "fonts from fonts.googleapis.com / to supress use --google ''"
+        , default = 'Cute+Font|Roboto+Slab'
+        )
+    list_fonts.add_argument(
+        "--builtins"
+        , action = "store_false"
+        , help = "use builtin fonts"
+        )
 
     # run ...
     cli()
