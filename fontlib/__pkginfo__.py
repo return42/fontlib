@@ -1,4 +1,4 @@
-# -*- coding: utf-8; mode: python -*-
+# -*- coding: utf-8; mode: python; mode: flycheck -*-
 # pylint: disable=invalid-name,redefined-builtin
 """
 python package meta informations used by setup.py
@@ -65,4 +65,3 @@ license:     %s
 ===========  ===============================================
 
 """ % (docs, repository, copyright, emails[0], license )
-
