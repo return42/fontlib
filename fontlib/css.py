@@ -1,5 +1,5 @@
 # -*- coding: utf-8; mode: python; mode: flycheck -*-
-# pylint: disable=missing-docstring, too-few-public-methods
+# pylint: disable=too-few-public-methods
 """
 CSS helper
 """
@@ -63,7 +63,7 @@ def get_css_at_rules(css_url, at_class):
 def split_tokens(rule_tokens, t_type='literal', t_value=';'):
     """Split list of tokens into a list of token lists.
 
-    By a delimiter, the ``rule_token`` list is splitted into groups.
+    By a delimiter, the ``rule_tokens`` list is splitted into groups.
     Delimiters are tokens with type ``t_type`` and value ``t_value``.
     Delimiter tokens and ``whitespace`` tokens are stripped from the
     returned lists.
@@ -112,7 +112,15 @@ class CSSRule:
         self.declarations = dict()
         """Python dict with CSS declarations"""
 
+    def serialize(self):
+        """Returns a string of the CSS rule."""
+        return tinycss2.serialize(self.content)
+
     def parse_css_rule(self, rule):
+        """Parse CSS rule
+
+        TODO: needs some documentation
+        """
         self.content = rule.content
         self.declarations = dict()
 
@@ -133,11 +141,15 @@ class CSSRule:
                         colon = True
                     continue
 
+                # parse with method parse_decl_<decl_name>, if this does not
+                # exists, use self.parse_decl
+
                 method_name = re.sub('[^a-zA-Z0-9]', '_', decl_name)
                 parse_method = getattr(self, 'parse_decl_%s' % method_name, self.parse_decl)
                 parse_method(decl_name, token)
 
     def parse_decl(self, decl_name, token):
+        """Default method to parse declarations."""
         # ignore whitespace and literal tokens
         if token.type in ['whitespace', 'literal']:
             return
@@ -149,35 +161,35 @@ class AtRule(CSSRule):
 
     rule_type = 'at-rule'
 
-    def declaration_token_values(self, decl_name, *token_types):
-        """Get token values from tokens of ``decl_name`` and ``token_types``.
+    # def declaration_token_values(self, decl_name, *token_types):
+    #     """Get token values from tokens of ``decl_name`` and ``token_types``.
 
-        Select token values from *this* at-rule declarations.  E.g. to get all
-        ``url`` tokens from the declaration ``src`` use::
+    #     Select token values from *this* at-rule declarations.  E.g. to get all
+    #     ``url`` tokens from the declaration ``src`` use::
 
-            url_list = my_rule.declaration_token_values('src', 'url')
+    #         url_list = my_rule.declaration_token_values('src', 'url')
 
-        To select the name of a font-family declaration use ``string`` type::
+    #     To select the name of a font-family declaration use ``string`` type::
 
-            font_name = my_rule.declaration_token_values('font-family', 'string')
+    #         font_name = my_rule.declaration_token_values('font-family', 'string')
 
-        :param decl_name:
-            A string with the name of the declaration (e.g. ``src`` or
-            ``font-family``).
+    #     :param decl_name:
+    #         A string with the name of the declaration (e.g. ``src`` or
+    #         ``font-family``).
 
-        :param \\*token_types:
-            A list of string arguments with the name of token's type (e.g.
-            ``string`` or ``url``).
+    #     :param \\*token_types:
+    #         A list of string arguments with the name of token's type (e.g.
+    #         ``string`` or ``url``).
 
-        :return:
-            A list with the **values** of the selected tokens.
-        """
-        ret_val = []
-        decl = self.declarations.get(decl_name, None)
-        if decl is not None:
-            ret_val = [ token.value for token in decl if token.type in token_types ]
-        # log.debug("declaration_token_values(%s, *%s): --> %s", decl_name, token_types, ret_val)
-        return ret_val
+    #     :return:
+    #         A list with the **values** of the selected tokens.
+    #     """
+    #     ret_val = []
+    #     decl = self.declarations.get(decl_name, None)
+    #     if decl is not None:
+    #         ret_val = [ token.value for token in decl if token.type in token_types ]
+    #     # log.debug("declaration_token_values(%s, *%s): --> %s", decl_name, token_types, ret_val)
+    #     return ret_val
 
 
 class FontFaceRule(AtRule):
@@ -185,7 +197,91 @@ class FontFaceRule(AtRule):
     rule_name = 'font-face'
 
     def font_family(self):
-        return ' '.join(self.declaration_token_values('font-family', 'string'))
+        """Return a string with the font-family name
+
+        This descriptor defines the font family name that will be used in all
+        CSS font family name matching.  It is required for the @font-face rule
+        to be valid (`CSS @font-face:font-family`_).
+        """
+        ret_val = []
+        decl = self.declarations.get('font-family', None)
+        if decl is None:
+            log.error("invalid @font-face rule, missing declartion: font-family")
+        else:
+            ret_val = [ token.value for token in decl if token.type == 'string' ]
+        return ' '.join(ret_val)
+
+    def src(self):
+        """Returns a dictionary with ``src`` values.
+
+        This descriptor specifies the resource containing font data. It is
+        required for the @font-face rule to be valid.  Its value is a
+        prioritized, comma-separated list of external references or
+        locally-installed font face names (`CSS @font-face:src`_).
+
+        url:
+          As with other URLs in CSS, the URL may be relative, in which case it
+          is resolved relative to the location of the style sheet containing the
+          @font-face rule.
+
+          In the case of SVG fonts, the URL points to an element within a
+          document containing SVG font definitions.
+
+        local:
+          When authors would prefer to use a locally available copy of a given
+          font and download it if it's not, local() can be used.
+
+          The local-value in the dictionary contains a comma-separated list of
+          *local* font-face names (``<font-face-name>, <font-face-name>, ...``)
+
+        format:
+          The format hint contains a comma-separated list of format strings that
+          denote well-known font formats.
+
+        """
+        # pylint: disable=too-many-branches
+        ret_val = dict(url=None, format=None, local=[], )
+        decl = self.declarations.get('src', None)
+        if decl is None:
+            log.error("invalid @font-face rule, missing declartion: src")
+        else:
+            for token in decl:
+
+                if token.type == 'url':
+                    ret_val['url'] = token.value
+
+                elif token.type == 'function':
+                    if token.name == 'format':
+                        if not token.arguments:
+                            log.error("invalid @font-face rule, declartion src: format(...) token missing argument")
+                        else:
+                            ret_val['format'] = ",".join([_.value for _ in token.arguments])
+                    elif token.name == 'local':
+                        if not token.arguments:
+                            log.error("invalid @font-face rule, declartion src: local(...) token missing argument")
+                        else:
+                            ret_val['local'] = ",".join([_.value for _ in token.arguments])
+                    else:
+                        log.warning("@font-face rule, declartion src: ignore function token: %s", token)
+
+                else:
+                    log.warning("@font-face rule, declartion src: ignore token: %s", token)
+
+        return ret_val
+
 
     def unicode_range(self):
-        return ", ".join([ x.serialize() for x in self.declarations['unicode-range']])
+        """Returns a comma separeted string with unicode ranges.
+
+        This descriptor defines the set of Unicode codepoints that may be
+        supported by the font face for which it is declared.  The descriptor
+        value is a comma-delimited list of Unicode range (<urange>) values.  The
+        union of these ranges defines the set of codepoints that serves as a
+        hint for user agents when deciding whether or not to download a font
+        resgource for a given text run (`CSS @font-face:unicode-range`_).
+        """
+        ret_val = []
+        decl = self.declarations.get('unicode-range', None)
+        if decl is not None:
+            ret_val = [ token.serialize() for token in decl ]
+        return ', '.join(ret_val)
