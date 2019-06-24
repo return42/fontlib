@@ -94,6 +94,10 @@ def _cli_download_family(args):
                 FSPath(url.path).copyfile(dest_file)
             else:
                 dest_file = args.dest / FSPath(url.path).BASENAME
+                if url.query:
+                    # the resource is not a typical file URL with a file name, lets use
+                    # the fonts resource ID asa file name
+                    dest_file = args.dest / str(font.ID) + '.' + font.format
                 cli.UI.echo("  [remote] download %s from %s" % (dest_file.BASENAME, font.url))
                 dest_file.download(font.url)
             c += 1
