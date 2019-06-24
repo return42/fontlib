@@ -5,9 +5,13 @@ Implemtation of :py:class:`Font`
 
 __all__ = ["Font", ]
 
-import logging
 from urllib.parse import urlparse
+
+import logging
+import base64
+import hashlib
 import pkg_resources
+
 from .css import get_css_at_rules
 from .css import FontFaceRule
 
@@ -24,18 +28,43 @@ class Font:
     """
     # pylint: disable=too-few-public-methods
 
-    def __init__(self, url, font_name, font_face_rule=None):
+    def __init__(self, url, font_name, unicode_range=None, src_format=None):
+
         self.url = url
-        """URL (ID) of the font.  E.g. the url from `CSS src`_ for this font resource"""
+        """The URL from `CSS @font-face:src`_ of the font resource."""
+
+        _ = self.url.encode('utf-8')
+        _ = hashlib.md5(_).digest()
+        _ = base64.urlsafe_b64encode(_)[:-2]
+        self.ID = _.decode('utf-8')
+        """A url-safe hash of font's resource URL, used as unique resource ID"""
+
         self.font_name = font_name
-        """The font-name (value of `CSS font-family`_)"""
+        """The font-name (value of `CSS @font-face:font-family`_)"""
+
         self.aliases = []
         """A list of alias font-names (values of `CSS font-family`_)"""
 
-        self.unicode_range = None
-        """A string with the value of `CSS unicode-range`_"""
-        if font_face_rule is not None:
-            self.unicode_range = font_face_rule.unicode_range
+        if src_format.lower().startswith('woff2'):
+            src_format = 'woff2'
+        elif src_format.lower().startswith('woff'):
+            src_format = 'woff'
+        elif src_format.lower().startswith('svg'):
+            src_format = 'svg'
+        elif src_format.lower().startswith('ttf'):
+            src_format = 'ttf'
+
+        self.format = src_format
+        """Comma-separated list of format strings (`CSS @font-face:src`_)"""
+
+        self.unicode_range = unicode_range
+        """A string with the value of `CSS @font-face:unicode-range`_"""
+
+
+    def __repr__(self):
+        return "<font_name='%s', format='%s', ID='%s', url='%s'>" % (
+            self.font_name, self.format, self.ID, self.url
+        )
 
     def match_name(self, font_name):
         """Returns ``True`` if ``font_name`` match one of the names"""
@@ -74,8 +103,7 @@ class Font:
         """
         at_rules = get_css_at_rules(css_url, FontFaceRule)
         for rule in at_rules:
-            for font in cls.from_at_rule(rule, css_url):
-                yield font
+            yield  cls.from_at_rule(rule, css_url)
 
     @classmethod
     def from_at_rule(cls, at_rule, css_url):
@@ -93,17 +121,20 @@ class Font:
         :return:
             A generator of :py:class:`Font` instances.
         """
+
         base_url = "/".join(css_url.split('/')[:-1])
-        url_list =  at_rule.declaration_token_values('src', 'url')
+        src = at_rule.src()
+        font_family = at_rule.font_family()
+        url_str = src['url']
 
-        font_name = at_rule.font_family()
+        url = urlparse(url_str)
+        if url.scheme == '' and url.netloc == '' and url.path[0] != '/':
+            # is relative path name
+            url_str = base_url + "/" + url_str
 
-        for url_str in url_list:
-            # log.debug("font-family: '%s' / src: url('%s')", font_name, url_str)
-            url = urlparse(url_str)
-            if url.scheme == '' and url.netloc == '' and url.path[0] != '/':
-                # is relative path name
-                url_str = base_url + "/" + url_str
-            # add font ...
-            font = Font(url_str, font_name, font_face_rule=at_rule)
-            yield font
+        return Font(
+            url_str
+            , font_family
+            , at_rule.unicode_range()
+            , src_format = src['format']
+            )

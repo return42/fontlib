@@ -20,7 +20,7 @@ class FontStack:
         """Add :py:class:`.api.Font` object to *this* stack."""
         exists = self.stack.get(font.url, None)
         if exists is None:
-            log.debug("add font-family: '%s' with url %s", font.font_name, font.url)
+            log.debug("add font-family: %s", font)
             #log.debug("with unicode-range : %s", font.unicode_range())
             self.stack[font.url] = font
         else:
