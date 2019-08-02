@@ -10,26 +10,50 @@ from .font import Font
 
 log = logging.getLogger(__name__)
 
+def get_FQN(name):
+    """
+    Return Python Objekt that is refered by full qualiffied name
+
+    .. code-block:: python
+
+      >>> get_FQN("fontlib.urlcache.URLCache")
+      <class 'fontlib.urlcache.URLCache'>
+    """
+    (modulename, name) = name.rsplit('.', 1)
+    m = __import__(modulename, {}, {}, [name], 0)
+    return getattr(m, name)
+
+
 class FontStack:
     """A collection of :py:class:`.api.Font` objects"""
 
     def __init__(self):
+        #cache_cls = get_FQN("fontlib.urlcache.SimpleURLCache")
+        cache_cls = get_FQN("fontlib.urlcache.NoCache")
+        self.cache = cache_cls()
         self.stack = dict()
 
     def add_font(self, font):
         """Add :py:class:`.api.Font` object to *this* stack."""
-        exists = self.stack.get(font.url, None)
+        exists = self.stack.get(font.origin, None)
+
         if exists is None:
             log.debug("add font-family: %s", font)
-            #log.debug("with unicode-range : %s", font.unicode_range())
-            self.stack[font.url] = font
+            self.stack[font.origin] = font
+            self.cache.add_url(font.origin)
+
         else:
             if exists.match_name(font.font_name):
                 log.warning("Font already exists, skip additional Font '%s' with url '%s'"
-                            , font.font_name, font.url)
+                            , font.font_name, font.origin)
             else:
-                log.debug("add alias '%s' to url %s", font.font_name, font.url)
+                log.debug("add alias '%s' to url %s", font.font_name, font.origin)
                 exists.aliases.append(font.font_name)
+
+        self.cache.add_url(font.origin)
+
+    def download_font(self, font, dest_file):
+        self.cache.download_url(font.origin, dest_file)
 
     def load_entry_point(self, ep_name):
         """Add :py:class:`.api.Font` objects from ``ep_name``.
@@ -61,7 +85,6 @@ class FontStack:
             if font.match_name(font_name):
                 ret_val.append(font)
         return ret_val
-
 
 def get_stack():
     """

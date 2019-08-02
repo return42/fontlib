@@ -28,12 +28,12 @@ class Font:
     """
     # pylint: disable=too-few-public-methods
 
-    def __init__(self, url, font_name, unicode_range=None, src_format=None):
+    def __init__(self, origin, font_name, unicode_range=None, src_format=None):
 
-        self.url = url
+        self.origin = origin
         """The URL from `CSS @font-face:src`_ of the font resource."""
 
-        _ = self.url.encode('utf-8')
+        _ = self.origin.encode('utf-8')
         _ = hashlib.md5(_).digest()
         _ = base64.urlsafe_b64encode(_)[:-2]
         self.ID = _.decode('utf-8')
@@ -45,14 +45,15 @@ class Font:
         self.aliases = []
         """A list of alias font-names (values of `CSS font-family`_)"""
 
-        if src_format.lower().startswith('woff2'):
-            src_format = 'woff2'
-        elif src_format.lower().startswith('woff'):
-            src_format = 'woff'
-        elif src_format.lower().startswith('svg'):
-            src_format = 'svg'
-        elif src_format.lower().startswith('ttf'):
-            src_format = 'ttf'
+        if src_format is not None:
+            if src_format.lower().startswith('woff2'):
+                src_format = 'woff2'
+            elif src_format.lower().startswith('woff'):
+                src_format = 'woff'
+            elif src_format.lower().startswith('svg'):
+                src_format = 'svg'
+            elif src_format.lower().startswith('ttf'):
+                src_format = 'ttf'
 
         self.format = src_format
         """Comma-separated list of format strings (`CSS @font-face:src`_)"""
@@ -62,8 +63,8 @@ class Font:
 
 
     def __repr__(self):
-        return "<font_name='%s', format='%s', ID='%s', url='%s'>" % (
-            self.font_name, self.format, self.ID, self.url
+        return "<font_name='%s', format='%s', ID='%s', origin='%s'>" % (
+            self.font_name, self.format, self.ID, self.origin
         )
 
     def match_name(self, font_name):
@@ -125,15 +126,15 @@ class Font:
         base_url = "/".join(css_url.split('/')[:-1])
         src = at_rule.src()
         font_family = at_rule.font_family()
-        url_str = src['url']
+        origin = src['url']
 
-        url = urlparse(url_str)
+        url = urlparse(origin)
         if url.scheme == '' and url.netloc == '' and url.path[0] != '/':
             # is relative path name
-            url_str = base_url + "/" + url_str
+            origin = base_url + "/" + origin
 
         return Font(
-            url_str
+            origin
             , font_family
             , at_rule.unicode_range()
             , src_format = src['format']

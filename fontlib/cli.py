@@ -63,7 +63,7 @@ def _cli_list_fonts(args):
         font_stack.stack.values()
         # <col-title>, <format sting>, <attribute name>
         , ("Name",     "%-50s",        "font_name")
-        , ("URL",      "%-90s",        "url") )
+        , ("origin",   "%-90s",        "origin") )
 
 # ==============================================================================
 def _cli_download_family(args):
@@ -85,21 +85,18 @@ def _cli_download_family(args):
     count = 0
     for font_family in args.family:
         c = 0
-        for font in font_stack.list_fonts(font_family):
-            url = urlparse(font.url)
 
-            if url.scheme == 'file':
-                dest_file = args.dest / FSPath(url.path).BASENAME
-                cli.UI.echo("  [local ] download %s from %s" % (dest_file.BASENAME, font.url))
-                FSPath(url.path).copyfile(dest_file)
-            else:
-                dest_file = args.dest / FSPath(url.path).BASENAME
-                if url.query:
-                    # the resource is not a typical file URL with a file name, lets use
-                    # the fonts resource ID asa file name
-                    dest_file = args.dest / str(font.ID) + '.' + font.format
-                cli.UI.echo("  [remote] download %s from %s" % (dest_file.BASENAME, font.url))
-                dest_file.download(font.url)
+        for font in font_stack.list_fonts(font_family):
+            url = urlparse(font.origin)
+            dest_file = args.dest / FSPath(url.path).BASENAME
+            if url.query:
+                # the resource is not a typical file URL with a file name, lets use
+                # the fonts resource ID as a file name
+                dest_file = args.dest / str(font.ID) + '.' + font.format
+
+            cli.UI.echo("[%s]: download %s from %s" % (
+                font.font_name, dest_file, font.origin))
+            font_stack.download_font(font, dest_file)
             c += 1
         if c == 0:
             cli.UI.echo("ERROR: unknow font-family: %s" % font_family)
