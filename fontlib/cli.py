@@ -59,11 +59,32 @@ def _cli_list_fonts(args):
 
     cli = args.CLI
     font_stack = _get_fontstack_from_options(args)
+    cache = font_stack.cache
+
+    def table_rows():
+
+        for font in font_stack.list_fonts():
+
+            closest = font.origin
+            blob_state = cache.url_state(font.origin)
+            if blob_state == 'cached':
+                closest = cache.fname_by_url(font.origin)
+
+            yield dict(
+                ID = font.ID
+                , font_name = font.font_name
+                , origin = font.origin
+                , blob_state = blob_state
+                , closest = closest
+                )
+
     cli.UI.rst_table(
-        font_stack.stack.values()
-        # <col-title>, <format sting>, <attribute name>
-        , ("Name",     "%-50s",        "font_name")
-        , ("origin",   "%-90s",        "origin") )
+        table_rows()
+        # <col-title>,      <format sting>, <attribute name>
+        , ("cache sate",    "%-10s",        "blob_state")
+        , ("name",          "%-40s",        "font_name")
+        , ("ID",            "%-22s",        "ID")
+        , ("location",      "%-90s",        "closest") )
 
 # ==============================================================================
 def _cli_download_family(args):
