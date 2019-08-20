@@ -52,8 +52,13 @@ class FontStack:
 
         self.cache.add_url(font.origin)
 
-    def download_font(self, font, dest_file):
-        self.cache.download_url(font.origin, dest_file)
+    def save_font(self, font, dest_file):
+        """Save BLOB of :py:class:`.api.Font` into file <dest_file>
+
+        :param origin: :py:class:`.api.Font` object
+        :param dest_file: Filename of the destination
+        """
+        self.cache.save_url(font.origin, dest_file)
 
     def load_entry_point(self, ep_name):
         """Add :py:class:`.api.Font` objects from ``ep_name``.
@@ -74,17 +79,16 @@ class FontStack:
         for font in Font.from_css(css_url):
             self.add_font(font)
 
-    def list_fonts(self, font_name):
-        """Return list of :py:class:`.api.Font` objects selected by ``font_name``.
+    def list_fonts(self, font_name=None):
+        """Return generator of :py:class:`.api.Font` objects selected by ``font_name``.
 
         :param font_name:
             Name of the font
         """
-        ret_val = []
         for font in self.stack.values():
-            if font.match_name(font_name):
-                ret_val.append(font)
-        return ret_val
+            if font_name is None or font.match_name(font_name):
+                yield font
+
 
 def get_stack():
     """

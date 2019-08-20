@@ -96,7 +96,7 @@ def _cli_download_family(args):
 
             cli.UI.echo("[%s]: download %s from %s" % (
                 font.font_name, dest_file, font.origin))
-            font_stack.download_font(font, dest_file)
+            font_stack.save_font(font, dest_file)
             c += 1
         if c == 0:
             cli.UI.echo("ERROR: unknow font-family: %s" % font_family)
