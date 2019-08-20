@@ -14,13 +14,22 @@ log = logging.getLogger(__name__)
 
 class URLBlob:  # pylint: disable=too-few-public-methods
     """A simple BLOB object"""
-    def __init__(self, origin, state='remote'):
+
+    STATE_REMOTE = 'remote'
+    STATE_LOCAL  = 'local'
+    STATE_CACHED = 'cached'
+
+    def __init__(self, origin, state=STATE_REMOTE):
+
         self.origin = origin
+
         _ = self.origin.encode('utf-8')
         _ = hashlib.md5(_).digest()
         _ = base64.urlsafe_b64encode(_)[:-2]
+
         self.ID = _.decode('utf-8')
         """A url-safe hash of :py:class:`URLBlob` resource, used as unique resource ID"""
+
         self.state = state
         """State of the BLOB in the cache: ``[remote|local|cached]``
 
@@ -41,38 +50,45 @@ class URLCache:
         self.init_ok = False
         self.blobs = dict()
 
-    def download_url(self, origin, dest_file):
-        """Download (cached) BLOB from <origin> into file <dest_file>"""
+    def save_url(self, origin, dest_file):
+        """Save (possibly cached) BLOB from <origin> into file <dest_file>
+
+        :param origin: URL of the origin
+        :param dest_file: Filename of the destination
+
+        If <origin> is not already cached, it is downloaded and cached now.
+        """
         self.cache_url(origin)
         blob = self.blobs[origin]
-        cache_file = self.cache_blob_fname(blob)
+        cache_file = self.fname_by_blob(blob)
         cache_file.copyfile(dest_file)
 
     def cache_url(self, origin):
-        """Assure a local copy of the URL.
+        """Assure a localy cached copy of the URL response.
 
-        :param url: the URL of the origin
+        :param origin: the URL of the origin
 
         """
         self.init()
         blob = self.add_url(origin)
-        cache_file = self.cache_blob_fname(blob)
+        cache_file = self.fname_by_blob(blob)
 
-        if blob.state == 'cached':
+        if blob.state == URLBlob.STATE_CACHED:
             log.debug("BLOB [%s] already cached from: %s" , blob.ID, blob.origin)
 
-        elif blob.state == 'local':
+        elif blob.state == URLBlob.STATE_LOCAL:
             if not cache_file.EXISTS:
                 log.debug("BLOB [%s] is cached (copied) from: %s" , blob.ID, blob.origin)
                 url = urlparse(blob.origin)
                 fspath.FSPath(url.path).copyfile(cache_file)
-                blob.state = 'cached'
+                blob.state = URLBlob.STATE_CACHED
 
-        elif blob.state == 'remote':
+        elif blob.state == URLBlob.STATE_REMOTE:
             if not cache_file.EXISTS:
-                log.debug("BLOB [%s] is cached (downloaded) from: %s" , blob.ID, blob.origin)
+                log.debug("BLOB [%s] is cached (downloaded) from: %s"
+                          , blob.ID, blob.origin)
                 cache_file.download(blob.origin)
-                blob.state = 'cached'
+                blob.state = URLBlob.STATE_CACHED
 
     def url_state(self, origin):
         """Returns BLOB state of <origin> or ``None`` if URL is unknown.
@@ -81,10 +97,26 @@ class URLCache:
 
         """
         state = None
-        blob = self.blobs.get(origin, None)
+        blob = self.get_blob_obj(origin)
         if blob is not None:
             state = blob.state
         return state
+
+    def get_blob_obj(self, origin):
+        """Return :py:class:`URLBlob` from cache or ``None`` if URL is unknown."""
+        return self.blobs.get(origin, None)
+
+    def fname_by_url(self, origin):
+        """Return file name of cached blob or None if URL is not already cached.
+
+        :param origin: URL of the origin
+
+        """
+        ret_val = None
+        blob = self.get_blob_obj(origin)
+        if blob is not None and blob.state == URLBlob.STATE_CACHED:
+            ret_val = self.fname_by_blob(blob)
+        return ret_val
 
     def init(self):
         """Init cache"""
@@ -92,20 +124,21 @@ class URLCache:
 
 
     def add_url(self, origin):
-        """Add URL <origin> to cached blobs.
+        """Add URL <origin> to cache's database.
 
         :param origin: the URL of the origin
 
         """
         raise NotImplementedError
 
-    def cache_blob_fname(self, blob):
-        """Return local file name of cached blob.
+    def fname_by_blob(self, blob):
+        """Return local file name of cached blob or None if not already cached.
 
         :param blob: a :py:class:`URLBlob` instance
 
         """
         raise NotImplementedError
+
 
 class NoCache(URLCache):
     """A dummy cache which never caches"""
@@ -114,12 +147,12 @@ class NoCache(URLCache):
         pass
 
     def add_url(self, origin):
-        blob = self.blobs.get(origin, None)
+        blob = self.get_blob_obj(origin)
         if blob is None:
-            state = 'remote'
+            state = URLBlob.STATE_REMOTE
             url = urlparse(origin)
             if url.scheme == 'file':
-                state = 'local'
+                state = URLBlob.STATE_LOCAL
             blob = URLBlob(origin, state)
             self.blobs[origin] = blob
         return blob
@@ -127,20 +160,24 @@ class NoCache(URLCache):
     def cache_url(self, origin):
         self.add_url(origin)
 
-    def cache_blob_fname(self, blob):
+    def fname_by_blob(self, blob):
         return None
 
-    def download_url(self, origin, dest_file):
-        """Download (un-cached) BLOB from <origin> into file <dest_file>"""
+    def save_url(self, origin, dest_file):
+        """Download (un-cached) BLOB from <origin> into file <dest_file>
+
+        :param origin: URL of the origin
+        :param dest_file: Filename of the destination
+        """
         self.cache_url(origin)
         blob = self.blobs[origin]
 
-        if blob.state == 'local':
+        if blob.state == URLBlob.STATE_LOCAL:
             log.debug("BLOB [%s] is copied from: %s" , blob.ID, blob.origin)
             url = urlparse(blob.origin)
             fspath.FSPath(url.path).copyfile(dest_file)
 
-        elif blob.state == 'remote':
+        elif blob.state == URLBlob.STATE_REMOTE:
             log.debug("BLOB [%s] is downloaded from: %s" , blob.ID, blob.origin)
             dest_file.download(blob.origin)
 
@@ -158,22 +195,22 @@ class SimpleURLCache(URLCache):
         self.root.makedirs()
         self.init_ok = True
 
-    def cache_blob_fname(self, blob):
+    def fname_by_blob(self, blob):
         return self.root / blob.ID
 
     def add_url(self, origin):
-        blob = self.blobs.get(origin, None)
+        blob = self.get_blob_obj(origin)
         if blob is None:
-            state = 'remote'
+            state = URLBlob.STATE_REMOTE
             url = urlparse(origin)
             if url.scheme == 'file':
-                state = 'local'
+                state = URLBlob.STATE_LOCAL
             blob = URLBlob(origin, state)
             self.blobs[origin] = blob
 
         # does the BLOB already exists in the cache?
-        cache_file = self.cache_blob_fname(blob)
+        cache_file = self.fname_by_blob(blob)
         if cache_file.EXISTS:
-            blob.state = 'cached'
+            blob.state = URLBlob.STATE_CACHED
 
         return blob
