@@ -11,11 +11,57 @@ import logging
 import base64
 import hashlib
 import pkg_resources
+import mimetypes
+import collections
 
 from .css import get_css_at_rules
 from .css import FontFaceRule
 
 log = logging.getLogger(__name__)
+
+
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# please pay attention whe adding new formats to FONTFACE_SRC_FORMAT; it is an
+# ordered dict and the first '.startswith' will match!
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+FONTFACE_SRC_FORMAT = _ = collections.OrderedDict()
+
+# https://css-tricks.com/one-file-many-options-using-variable-fonts-web/
+_['woff2-variations']  = ('.woff2', )
+
+# https://www.w3.org/TR/2018/REC-css-fonts-3-20180920/#src-desc
+_['woff2']  = ('.woff2', )           # WOFF 2.0 https://www.w3.org/TR/WOFF2/
+_['woff'] = ('.woff', )              # WOFF 1.0 https://www.w3.org/TR/WOFF/
+_['truetype'] = ('.ttf')             # TrueType --> https://docs.microsoft.com/en-us/typography/opentype/spec/
+_['opentype'] = ('.otf', 'ttf' )    # OpenType --> https://docs.microsoft.com/en-us/typography/opentype/spec/
+_['embedded-opentype'] = ('.eot', )  # Embedded OpenType --> https://www.w3.org/Submission/2008/SUBM-EOT-20080305/
+_['svg'] = ('.svg', '.svgz')         # SVG Font --> https://www.w3.org/TR/SVG11/fonts.html
+
+def _guess_format(src_format_string):
+    if src_format_string is None:
+        return None
+
+    src_format_string = src_format_string.lower()
+    if src_format_string in FONTFACE_SRC_FORMAT.keys():
+        return src_format_string
+
+    found_format = None
+
+    for _format, extensions in FONTFACE_SRC_FORMAT.items():
+        for ext in extensions:
+            if ( src_format_string.startswith(ext)           # match '.<suffix>'
+                 or src_format_string.startswith(ext[1:])):  # match '<suffix>'
+                found_format = _format
+                break
+
+        if found_format is not None:
+            break
+
+    if found_format is not None:
+        src_format_string = found_format
+    return src_format_string
+
 
 class Font:
     """A font resource identified by URL.
@@ -45,22 +91,11 @@ class Font:
         self.aliases = []
         """A list of alias font-names (values of `CSS font-family`_)"""
 
-        if src_format is not None:
-            if src_format.lower().startswith('woff2'):
-                src_format = 'woff2'
-            elif src_format.lower().startswith('woff'):
-                src_format = 'woff'
-            elif src_format.lower().startswith('svg'):
-                src_format = 'svg'
-            elif src_format.lower().startswith('ttf'):
-                src_format = 'ttf'
-
-        self.format = src_format
+        self.format = _guess_format(src_format)
         """Comma-separated list of format strings (`CSS @font-face:src`_)"""
 
         self.unicode_range = unicode_range
         """A string with the value of `CSS @font-face:unicode-range`_"""
-
 
     def __repr__(self):
         return "<font_name='%s', format='%s', ID='%s', origin='%s'>" % (
@@ -87,8 +122,13 @@ class Font:
         for entry_point in ep_list:
             log.debug("loading from entry point: %s (%s)", ep_name, entry_point)
             for name, file_name in entry_point.load().items():
+                src_format = mimetypes.guess_type(file_name)[0]
+                if src_format is not None:
+                    src_format = src_format.split('/')[1]
+                else:
+                    src_format = file_name.split('.')[-1]
                 # add font ...
-                font = Font('file:' + file_name, name)
+                font = Font('file:' + file_name, name, src_format=src_format)
                 yield font
 
     @classmethod
