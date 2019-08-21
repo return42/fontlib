@@ -23,6 +23,8 @@ class Config(configparser.ConfigParser): # pylint: disable=too-many-ancestors
             raw=raw, vars=_vars, fallback=fallback, **kwargs)
 
     def _convert_to_list(self, value): # pylint: disable=no-self-use
+        if not value:
+            return []
         return [i.strip() for i in value.split(',')]
 
     # direct access to config sections
