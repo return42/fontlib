@@ -65,14 +65,16 @@ def main():
         , help = "URL of stylesheet (CSS) to parse"
     )
 
+    # cmd: download ...
+
     download_family = cli.addCMDParser(cli_download_family, cmdName='download')
     add_fontstack_options(download_family)
-    download_family .add_argument(
+    download_family.add_argument(
         "dest"
         , type = FSPath
         , help = "Folder where the download will be placed."
     )
-    download_family .add_argument(
+    download_family.add_argument(
         "family"
         , type = str
         , nargs = '+'
