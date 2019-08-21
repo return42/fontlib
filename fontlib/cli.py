@@ -83,6 +83,16 @@ def main():
             "E.g.  'Roboto Slab' 'DejaVu Sans Mono'")
     )
 
+    # cmd: config
+
+    cfg = cli.addCMDParser(cli_config, cmdName='config')
+    add_fontstack_options(cfg)
+    cfg.add_argument(
+        '--show'
+        , dest = 'show'
+        , action  = 'store_true'
+        , help = 'show configuration' )
+
     # run ...
     cli()
 
@@ -200,6 +210,13 @@ def cli_download_family(args):
 
     cli.UI.echo("download %s files into %s" % (count, args.dest))
 
+def cli_config(args):
+    """Inspect configuration (working with INI files)"""
+    init_cfg(args, verbose=True)
+    cli = args.CLI
+    if args.show:
+        CONFIG.write(cli.OUT)
+
 # ==============================================================================
 # helper ...
 # ==============================================================================
@@ -231,13 +248,20 @@ def add_fontstack_options(cmd):
         )
 
 
-def init_cfg(args):
+def init_cfg(args, verbose=False):
     """Update the :py:class:`.config.Config` object from command line arguments"""
+    cli = args.CLI
 
     # load INI files ...
 
     if args.config != USER_INI and not args.config.EXPANDUSER.EXISTS:
         raise args.Error(42, 'config file does not extsts: %s' % args.config)
+
+    if verbose and not args.config.EXISTS:
+        cli.UI.echo("WARN: %s does not extsis." % args.config)
+    else:
+        cli.UI.echo("INFO: load %s." % args.config)
+
     CONFIG.read(args.config.EXPANDUSER)
 
     # update config from command line ..
