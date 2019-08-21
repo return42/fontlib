@@ -90,23 +90,23 @@ class FontStack:
                 yield font
 
 
-def get_stack():
+def get_stack(config):
     """
     Returns a :py:class:`FontStack` instance with fonts loaded.
 
     Fonts are loaded from builtin fonts and entry points.
 
-    entry points:
+    available builtin fonts:
+
+    - :ref:`builtin_cantarell`
+    - :ref:`builtiin_dejavu`
+
+    available entry points:
 
     - ``fonts_ttf``
     - ``fonts_otf``
     - ``fonts_woff``
     - ``fonts_woff2``
-
-    builtin fonts:
-
-    - :ref:`builtin_cantarell`
-    - :ref:`builtiin_dejavu`
 
     E.g. to include all fonts from the fonts-python_ project install::
 
@@ -117,14 +117,21 @@ def get_stack():
     .. _fonts-python: https://github.com/pimoroni/fonts-python
     """
     stack = FontStack()
-    # register font files from entry points
-    for ep_name  in ['fonts_ttf', 'fonts_otf', 'fonts_woff', 'fonts_woff2']:
-        stack.load_entry_point(ep_name)
 
     # register builtin fonts
     base = fspath.FSPath(__file__).DIRNAME / 'files'
-    for name in [ 'cantarell', 'dejavu']:
+    for name in config.getlist('fontstack', 'builtin fonts'):
+        log.debug('register builtin font: %s', name)
         css_file = base / name / name + ".css"
         stack.load_css('file:' + css_file)
+
+    # register font files from entry points
+    for ep_name in config.getlist('fontstack', 'entry points'):
+        stack.load_entry_point(ep_name)
+
+    # register google fonts
+    base_url = config.get('google fonts', 'family base url')
+    for family in config.getlist('google fonts', 'fonts'):
+        stack.load_css(base_url + family)
 
     return stack
