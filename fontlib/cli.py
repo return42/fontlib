@@ -89,10 +89,23 @@ def main():
     cfg = cli.addCMDParser(cli_config, cmdName='config')
     add_fontstack_options(cfg)
     cfg.add_argument(
-        '--show'
-        , dest = 'show'
+        '--force'
         , action  = 'store_true'
-        , help = 'show configuration' )
+        , help = 'force command'
+    )
+    cfg.add_argument(
+        "subcommand"
+        , type = str
+        , choices=['show', 'install']
+        , help = "available subcommands: %(choices)s"
+    )
+    cfg.add_argument(
+        "argument_list"
+        , type = str
+        , nargs = '*'
+        , help = "arguments of the subcommand"
+        , metavar = 'ARG'
+    )
 
     # run ...
     cli()
@@ -212,11 +225,38 @@ def cli_download_family(args):
     cli.UI.echo("download %s files into %s" % (count, args.dest))
 
 def cli_config(args):
-    """Inspect configuration (working with INI files)"""
-    init_cfg(args, verbose=True)
+    """Inspect configuration (working with INI files).
+
+    commands:
+      show:       print configuration
+      install:    install default configuration (optional ARG1: <dest>)
+
+    """
     cli = args.CLI
-    if args.show:
+
+    # commands that do not need to initialize configuration
+
+    if args.subcommand == 'install':
+
+        dest = USER_INI
+        if args.argument_list:
+            dest = FSPath(args.argument_list[0])
+            if dest.ISDIR:
+                dest = dest / '.fontlib.ini'
+
+        cli.UI.echo("installing:  %s" % dest)
+        if dest.EXISTS and not args.force:
+            raise args.Error(42, "file already exists (use --force to overwrite)")
+        CONFIG.DEFAULT_INI.copyfile(dest)
+        return
+
+    # commands that are need to initialize configuration first
+
+    init_cfg(args, verbose=True)
+
+    if args.subcommand == 'show':
         CONFIG.write(cli.OUT)
+        return
 
 # ==============================================================================
 # helper ...
