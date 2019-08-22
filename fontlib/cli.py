@@ -79,8 +79,9 @@ def main():
         , type = str
         , nargs = '+'
         , help = (
-            "the font name, the value of CSS font-family property."
-            "E.g.  'Roboto Slab' 'DejaVu Sans Mono'")
+            "Font's name, the value of CSS font-family property."
+            "E.g. 'Roboto Slab' or 'DejaVu Sans Mono'"
+        )
     )
 
     # cmd: config
@@ -223,6 +224,7 @@ def cli_config(args):
 
 def add_fontstack_options(cmd):
     """Adds common fontstack options to comand"""
+
     cmd.add_argument(
         "--builtins"
         , dest = 'builtins'
@@ -254,7 +256,7 @@ def init_cfg(args, verbose=False):
 
     # load INI files ...
 
-    if args.config != USER_INI and not args.config.EXPANDUSER.EXISTS:
+    if args.config != USER_INI and not args.config.EXISTS:
         raise args.Error(42, 'config file does not extsts: %s' % args.config)
 
     if verbose and not args.config.EXISTS:
@@ -262,7 +264,7 @@ def init_cfg(args, verbose=False):
     else:
         cli.UI.echo("INFO: load %s." % args.config)
 
-    CONFIG.read(args.config.EXPANDUSER)
+    CONFIG.read(args.config)
 
     # update config from command line ..
 
