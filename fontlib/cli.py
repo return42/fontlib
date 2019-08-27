@@ -1,10 +1,10 @@
 # -*- coding: utf-8; mode: python; mode: flycheck -*-
+# pylint: disable=global-statement
 
 u"""fontlib -- main entry point for commandline interfaces"""
 
 import sys
-import logging
-from logging.config import dictConfig
+import logging.config
 from urllib.parse import urlparse
 
 from fspath import CLI
@@ -13,29 +13,25 @@ from fspath.sui import SimpleUserInterface
 
 from .fontstack import FontStack
 from .fontstack import get_stack
-from .log import cfg as log_cfg
-from .mime import add_types
+from .log import DEFAULT_LOG_INI
+from .log import FONTLIB_LOGGER
+from .log import init_log
 from .config import Config
+
+UNKNOWN = object()
+CONFIG = None
+
+DEFAULT_WORKSPACE = FSPath('~/.fontlib').EXPANDUSER
+CONFIG_INI = 'config.ini'
+LOG_INI = 'log.ini'
 
 log = logging.getLogger(__name__)
 
-UNKNOWN = object()
-CONFIG = Config()
-USER_INI = FSPath("~/.fontlib.ini")
-
-# pylint: disable=bad-continuation
-CMDARG_TO_CFG = {
-    # cli-argument    : (cfg-section, cfg-option) # see ./config.ini
-    'builtins'        : ('fontstack', 'builtin fonts')
-    , 'epfonts'       : ('fontstack', 'entry points')
-    , 'google'        : ('google fonts', 'fonts')
-}
-# pylint: enable=bad-continuation
-
 def main():
     """Tools from the fontlib library."""
-    dictConfig(log_cfg)
-    add_types()
+    global CONFIG
+    init_main()
+    app_ws = CONFIG.getpath('DEFAULT', 'workspace', fallback=DEFAULT_WORKSPACE)
 
     cli = CLI(description=main.__doc__)
     cli.UI = SimpleUserInterface(cli=cli)
@@ -47,7 +43,7 @@ def main():
         , help = 'specify config file'
         , dest = 'config'
         , type = FSPath
-        , default = USER_INI
+        , default = app_ws / CONFIG_INI
         , nargs = '?'
         , metavar = 'INI-FILE' )
 
@@ -131,7 +127,7 @@ def cli_list_fonts(args):
               font-source-sans-pro font-source-serif-pro
 
     """
-    init_cfg(args)
+    init_app(args)
 
     cli = args.CLI
     stack = get_stack(CONFIG)
@@ -172,7 +168,7 @@ def cli_parse_css(args):
     built-in *dejavu* fonts from url 'file:./fontlib/files/dejavu/dejavu.css'.
 
     """
-    init_cfg(args)
+    init_app(args)
     cli = args.CLI
     cli.UI.echo("load css from url: %s" % args.url)
 
@@ -190,16 +186,15 @@ def cli_parse_css(args):
 
 def cli_download_family(args):
     """Download font-family <family> into folder <dest>."""
-
-    init_cfg(args)
+    init_app(args)
 
     cli = args.CLI
     stack = get_stack(CONFIG)
 
     if args.dest.EXISTS:
-        cli.UI.echo("INFO: use existing folder %s" % args.dest)
+        log.info("use existing folder %s", args.dest)
     else:
-        cli.UI.echo("INFO: createfolder %s" % args.dest)
+        log.info("createfolder %s", args.dest)
         args.dest.makedirs()
 
     count = 0
@@ -229,30 +224,32 @@ def cli_config(args):
 
     commands:
       show:       print configuration
-      install:    install default configuration (optional ARG1: <dest>)
+      install:    install default configuration (optional ARG1: <dest-folder>)
 
     """
     cli = args.CLI
-
-    # commands that do not need to initialize configuration
+    init_app(args, verbose=True)
 
     if args.subcommand == 'install':
 
-        dest = USER_INI
+        folder = CONFIG.getpath('DEFAULT', 'workspace', fallback=DEFAULT_WORKSPACE)
         if args.argument_list:
-            dest = FSPath(args.argument_list[0])
-            if dest.ISDIR:
-                dest = dest / '.fontlib.ini'
+            folder = FSPath(args.argument_list[0])
+        folder.makedirs()
 
-        cli.UI.echo("installing:  %s" % dest)
+        dest = folder / 'config.ini'
+        cli.UI.echo("install:  %s" % dest)
         if dest.EXISTS and not args.force:
-            raise args.Error(42, "file already exists (use --force to overwrite)")
+            raise args.Error(42, "file %s already exists (use --force to overwrite)" % dest)
         CONFIG.DEFAULT_INI.copyfile(dest)
+
+        dest = folder / 'log.ini'
+        cli.UI.echo("install:  %s" % dest)
+        if dest.EXISTS and not args.force:
+            raise args.Error(42, "file %s already exists (use --force to overwrite)" % dest)
+        DEFAULT_LOG_INI.copyfile(dest)
+
         return
-
-    # commands that are need to initialize configuration first
-
-    init_cfg(args, verbose=True)
 
     if args.subcommand == 'show':
         CONFIG.write(cli.OUT)
@@ -262,13 +259,35 @@ def cli_config(args):
 # helper ...
 # ==============================================================================
 
+# pylint: disable=bad-continuation
+MAP_ARG_TO_CFG = {
+    # cli-argument    : (cfg-section, cfg-option) # see ./config.ini
+    'builtins'        : ('fontstack', 'builtin fonts')
+    , 'epfonts'       : ('fontstack', 'entry points')
+    , 'google'        : ('google fonts', 'fonts')
+    , 'workspace'     : ('DEFAULT', 'workspace')
+}
+"""Maps comand line arguments to config section & option"""
+# pylint: enable=bad-continuation
+
+def map_arg_to_cfg(args, cfg):
+    """update application's CONFIG from command line arguments.."""
+    for arg_name, (cfg_sect, cfg_opt) in MAP_ARG_TO_CFG.items():
+        value = args.__dict__.get(arg_name, UNKNOWN)
+        if value is UNKNOWN:
+            continue
+        if value is None:
+            value = ''
+        log.debug("set %s/%s = %s", cfg_sect, cfg_opt, value)
+        cfg.set(cfg_sect, cfg_opt, str(value))
+
 def add_fontstack_options(cmd):
     """Adds common fontstack options to comand"""
 
     cmd.add_argument(
         "--builtins"
         , dest = 'builtins'
-        , default = CONFIG.get(*CMDARG_TO_CFG['builtins'][:2])
+        , default = CONFIG.get(*MAP_ARG_TO_CFG['builtins'][:2])
         , nargs = '?', type = str
         , help = "use builtin fonts"
         )
@@ -276,7 +295,7 @@ def add_fontstack_options(cmd):
     cmd.add_argument(
         "--ep-fonts"
         , dest = 'epfonts'
-        , default = CONFIG.get(*CMDARG_TO_CFG['epfonts'][:2])
+        , default = CONFIG.get(*MAP_ARG_TO_CFG['epfonts'][:2])
         , nargs = '?', type = str
         , help = "use fonts from entry points"
         )
@@ -284,38 +303,91 @@ def add_fontstack_options(cmd):
     cmd.add_argument(
         "--google"
         , dest = 'google'
-        , default = CONFIG.get(*CMDARG_TO_CFG['google'][:2])
+        , default = CONFIG.get(*MAP_ARG_TO_CFG['google'][:2])
         , nargs = '?', type = str
         , help = "use fonts from fonts.googleapis.com"
         )
 
+    cmd.add_argument(
+        "--workspace"
+        , dest = 'workspace'
+        , default = CONFIG.get(*MAP_ARG_TO_CFG['workspace'][:2])
+        , type = FSPath
+        , help = "workspace"
+        )
 
-def init_cfg(args, verbose=False):
-    """Update the :py:class:`.config.Config` object from command line arguments"""
-    cli = args.CLI
+def init_main():
+    """Init routine for the very first the main function."""
+    global CONFIG
 
-    # load INI files ...
+    # init main's CONFIG from INI file
 
-    if args.config != USER_INI and not args.config.EXISTS:
-        raise args.Error(42, 'config file does not extsts: %s' % args.config)
+    CONFIG = Config()
+    app_ws = CONFIG.getpath('DEFAULT', 'workspace', fallback=DEFAULT_WORKSPACE)
+    app_ws.makedirs()
+    log.debug("using workspace at: %s", app_ws)
 
-    if verbose and not args.config.EXISTS:
-        cli.UI.echo("WARN: %s does not extsis." % args.config)
-    else:
-        cli.UI.echo("INFO: load %s." % args.config)
+    # init main logging with (new) CONFIG settings
 
+    log_cfg = CONFIG.get("logging", "config", fallback=DEFAULT_LOG_INI)
+    env = CONFIG.config_env(
+        app = 'cli'
+        , workspace = DEFAULT_WORKSPACE
+    )
+    init_log(log_cfg, defaults=env)
+
+
+def init_app(args, verbose=False):
+    """Init the :py:object:`CONFIG` object and LOG settings from command line arguments"""
+    global CONFIG
+
+    verbose = verbose or args.verbose
+    _ = args.CLI.UI
+
+    # init application's CONFIG from INI file
+
+    if args.config != DEFAULT_WORKSPACE / CONFIG_INI:
+        # assert config if --config was explicite set
+        if not args.config.EXISTS:
+            raise args.Error(42, 'config file does not exists: %s' % args.config)
+    if verbose and args.config.EXISTS:
+        _.echo("load configuration from: %s" % args.config)
     CONFIG.read(args.config)
+    map_arg_to_cfg(args, CONFIG)
 
-    # update config from command line ..
+    app_ws = CONFIG.getpath('DEFAULT', 'workspace', fallback=DEFAULT_WORKSPACE)
+    app_ws.makedirs()
+    if verbose:
+        _.echo("using workspace: %s" % app_ws)
+    app_ws.makedirs()
 
-    for arg_name, (cfg_sect, cfg_opt) in CMDARG_TO_CFG.items():
-        value = args.__dict__.get(arg_name, UNKNOWN)
-        if value is UNKNOWN:
-            continue
-        if value is None:
-            value = ''
-        log.debug("set %s/%s = %s", cfg_sect, cfg_opt, value)
-        CONFIG.set(cfg_sect, cfg_opt, value)
+    # init app logging with (new) CONFIG settings
+
+    logger = logging.getLogger(FONTLIB_LOGGER)
+
+    if args.debug:
+        CONFIG.set("logging", "level", 'debug')
+
+    level = CONFIG.get("logging", "level").upper()
+    if verbose:
+        _.echo("set log level of logger: %s (%s)" % (logger.name, level))
+
+    logger.setLevel(level)
+
+    log_cfg = CONFIG.getpath("logging", "config", fallback=None)
+
+    if log_cfg is not None:
+        if not log_cfg.EXISTS:
+            raise args.Error( 42, (
+                'log config file does not exists:'
+                ' %s check your [logging]:config= setting at: %s'
+            ) % (log_cfg, args.config))
+        if verbose:
+            _.echo("load logging configuration from: %s" % log_cfg)
+        env = CONFIG.config_env(app='cli', workspace=app_ws)
+        init_log(log_cfg, defaults = env)
+
+
 
 # ==============================================================================
 # call main ...
