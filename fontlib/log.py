@@ -3,52 +3,21 @@
 common logging & setup implementations
 """
 
-import logging
+__all__ = ['DEFAULT_LOG_INI', 'FONTLIB_LOGGER', 'init_log']
 
-from fspath import OS_ENV
+import configparser
+import logging
+from fspath import FSPath
 
 log = logging.getLogger(__name__)
 
-DEFAULT_LOGGER = 'fontlib'
-CONSOLE_LEVEL = 'ERROR'
+DEFAULT_LOG_INI = FSPath(__file__).DIRNAME / "log.ini"
 
-DEBUG_LOG = OS_ENV.get("DEBUG", None)
+FONTLIB_LOGGER = 'fontlib'
+"""Name of :py:object:`fontlib` 's (topmost) logger"""
 
-if DEBUG_LOG is not None:
-    CONSOLE_LEVEL = 'DEBUG'
-    if DEBUG_LOG and DEBUG_LOG.startswith(DEFAULT_LOGGER):
-        DEFAULT_LOGGER = DEBUG_LOG
-
-
-cfg = {
-    'version': 1,
-    'formatters': {
-        'console': {
-            'format': '%(levelname)-8s|%(name)-12s| %(message)s',
-        },
-        'logfile': {
-            'format': '%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
-        }
-    },
-    'handlers': {
-        'console': {
-            'class':        'logging.StreamHandler',
-            'formatter':    'console',
-            'level':        CONSOLE_LEVEL,
-        },
-        'logfile': {
-            'class':        'logging.handlers.RotatingFileHandler',
-            'formatter':    'console',
-            'level':        'DEBUG',
-            'filename':     './fontlib.log',
-            'maxBytes':     1024 * 1024,
-            'backupCount':  3,
-        },
-    },
-    'loggers':  {
-        DEFAULT_LOGGER: {
-            'handlers':     ['console', 'logfile'],
-            'level':        'DEBUG'
-        },
-    },
-}
+def init_log(log_config_ini, defaults=None):
+    log.debug('init log from: %s env: %s', log_config_ini, defaults)
+    log_cfg = configparser.ConfigParser(defaults=defaults)
+    log_cfg.read(log_config_ini)
+    logging.config.fileConfig(log_cfg)
