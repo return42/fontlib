@@ -27,6 +27,16 @@ class Config(configparser.ConfigParser): # pylint: disable=too-many-ancestors
             return []
         return [i.strip() for i in value.split(',')]
 
+    def getpath(self, section, option, *, raw=False, _vars=None,
+                fallback=configparser._UNSET, **kwargs): # pylint: disable=protected-access
+        """Get a :py:class:`fspath.FSPath` object from a config string."""
+        return self._get_conv(
+            section, option, self._convert_to_fspath,
+            raw=raw, vars=_vars, fallback=fallback, **kwargs)
+
+    def _convert_to_fspath(self, value): # pylint: disable=no-self-use
+        return FSPath(value).EXPANDUSER.EXPANDVARS
+
     # direct access to config sections
 
     @property
