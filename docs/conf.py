@@ -43,3 +43,6 @@ html_context = {
 }
 html_logo = 'darmarIT_logo_128.png'
 
+# http://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html
+autoclass_content = 'both'
+autodoc_member_order = 'groupwise'

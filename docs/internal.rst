@@ -8,10 +8,47 @@ Internal
 Internal names are reserved for fontlib_ development use, for external use of
 fontlib_ use the :ref:`fontlib_api`.
 
+
+cli
+===
+
+.. automodule:: fontlib.cli
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+config
+======
+
+.. automodule:: fontlib.config
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
 css
 ===
 
 .. automodule:: fontlib.css
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+font
+====
+
+.. automodule:: fontlib.font
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+fontstack
+=========
+
+.. automodule:: fontlib.fontstack
     :members:
     :undoc-members:
     :show-inheritance:
@@ -25,6 +62,15 @@ googlefont
     :undoc-members:
     :show-inheritance:
 
+log
+===
+
+.. automodule:: fontlib.log
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
 mime
 ====
 
@@ -33,10 +79,11 @@ mime
     :undoc-members:
     :show-inheritance:
 
-log
-===
 
-.. automodule:: fontlib.log
+urlcache
+========
+
+.. automodule:: fontlib.urlcache
     :members:
     :undoc-members:
     :show-inheritance:
