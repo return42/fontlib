@@ -56,6 +56,14 @@ def main():
         , nargs = '?'
         , metavar = 'INI-FILE' )
 
+    cli.add_argument(
+        "--workspace"
+        , dest = 'workspace'
+        , default = CONFIG.get(*MAP_ARG_TO_CFG['workspace'][:2])
+        , type = FSPath
+        , help = "workspace"
+        )
+
     # cmd: list ...
 
     list_fonts = cli.addCMDParser(cli_list_fonts, cmdName='list')
@@ -323,14 +331,6 @@ def add_fontstack_options(cmd):
         , default = CONFIG.get(*MAP_ARG_TO_CFG['google'][:2])
         , nargs = '?', type = str
         , help = "use fonts from fonts.googleapis.com"
-        )
-
-    cmd.add_argument(
-        "--workspace"
-        , dest = 'workspace'
-        , default = CONFIG.get(*MAP_ARG_TO_CFG['workspace'][:2])
-        , type = FSPath
-        , help = "workspace"
         )
 
 def init_main():
