@@ -31,6 +31,7 @@ extensions = [
     #, 'sphinx.ext.mathjax'
     , 'sphinx.ext.viewcode'
     , 'sphinx.ext.intersphinx'
+    , 'sphinxcontrib.programoutput'
 ]
 
 html_theme = "sphinx_rtd_theme"

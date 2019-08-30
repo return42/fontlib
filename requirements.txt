@@ -24,6 +24,7 @@ jedi
 Sphinx
 sphinx_rtd_theme
 sphinx-autobuild
+sphinxcontrib-programoutput
 pip
 twine
 #wheel

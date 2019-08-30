@@ -1,7 +1,15 @@
 # -*- coding: utf-8; mode: python; mode: flycheck -*-
 # pylint: disable=global-statement
 
-u"""fontlib -- main entry point for commandline interfaces"""
+u"""Main fontlib_ console script.
+
+The fontlib_ library comes with a command line, use ``fontlib --help`` for a
+basic help.
+
+.. program-output:: ../local/py3/bin/fontlib --help
+
+For a detailed help to one of the subcommands type ``fontlib <command> --help``.
+"""
 
 import sys
 import configparser

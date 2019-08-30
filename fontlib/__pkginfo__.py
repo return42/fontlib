@@ -37,7 +37,7 @@ def get_entry_points():
     """get entry points of the python package"""
     return {
         'console_scripts': [
-            'fontlib = fontlib.cli:main'
+            'fontlib = fontlib.cli:main' # Main fontlib_ console script
         ]}
 
 # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
