@@ -89,7 +89,7 @@ class Font:
         """The font-name (value of `CSS @font-face:font-family`_)"""
 
         self.aliases = []
-        """A list of alias font-names (values of `CSS font-family`_)"""
+        """A list of alias font-names (values of `CSS @font-face:font-family`_)"""
 
         self.format = _guess_format(src_format)
         """Comma-separated list of format strings (`CSS @font-face:src`_)"""

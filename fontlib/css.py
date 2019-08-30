@@ -18,7 +18,7 @@ from .googlefont import read_google_font_css
 log = logging.getLogger(__name__)
 
 def get_css_at_rules(css_url, at_class):
-    """get at-rules of type ``at_class`` from CSS ``css_url``
+    """Get at-rules of type ``at_class`` from CSS ``css_url``.
 
     The CSS file is read by :py:func:`urlopen`.  If the URL points to the google
     fonts api, the CSS is read by :py:func:`.googlefont.read_google_font_css`.
@@ -157,7 +157,7 @@ class CSSRule:
 
 
 class AtRule(CSSRule):
-    """Internal abstraction of a CSS at-rule."""
+    """Internal abstraction of a CSS `at-rule`_."""
 
     rule_type = 'at-rule'
 

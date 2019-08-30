@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 DEFAULT_LOG_INI = FSPath(__file__).DIRNAME / "log.ini"
 
 FONTLIB_LOGGER = 'fontlib'
-"""Name of :py:object:`fontlib` 's (topmost) logger"""
+"""Name of :py:obj:`fontlib` 's (topmost) logger"""
 
 def init_log(log_config_ini, defaults=None):
     log.debug('init log from: %s env: %s', log_config_ini, defaults)
