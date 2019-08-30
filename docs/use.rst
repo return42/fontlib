@@ -8,7 +8,7 @@ Use
 ===
 
 The fontlib command
-====================
+===================
 
 .. automodule:: fontlib.cli
    :noindex:

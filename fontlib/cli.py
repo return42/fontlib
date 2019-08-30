@@ -1,8 +1,7 @@
 # -*- coding: utf-8; mode: python; mode: flycheck -*-
 # pylint: disable=global-statement
 
-u"""Main fontlib_ console script.
-"""
+"""Command line tools from the fontlib library."""
 
 import sys
 import configparser
@@ -30,12 +29,11 @@ LOG_INI = 'log.ini'
 log = logging.getLogger(__name__)
 
 def main():
-    """Tools from the fontlib library."""
     global CONFIG
     init_main()
     app_ws = CONFIG.getpath('DEFAULT', 'workspace', fallback=DEFAULT_WORKSPACE)
 
-    cli = CLI(description=main.__doc__)
+    cli = CLI(description=__doc__)
     cli.UI = SimpleUserInterface(cli=cli)
 
     # config ...
