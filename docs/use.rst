@@ -35,9 +35,9 @@ Fontstack options
 
 - ``--builtins``: select :ref:`builtin_fonts`
 
-- ``--ep-fonts``: use fonts from entry points
+- ``--ep-fonts``: :ref:`ep_points`
 
-- ``--google``: select fons from google
+- ``--google``: :ref:`googlefont`
 
 fontlib list
 ------------

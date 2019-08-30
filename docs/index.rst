@@ -17,7 +17,9 @@ Content
    install
    use
    config
+   font
    googlefont
+   ep_points
    builtin
    api
    internal

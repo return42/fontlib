@@ -114,7 +114,6 @@ def get_stack(config):
                       font-fredoka-one font-hanken-grotesk font-intuitive \\
                       font-source-sans-pro  font-source-serif-pro
 
-    .. _fonts-python: https://github.com/pimoroni/fonts-python
     """
     stack = FontStack()
 
