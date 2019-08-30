@@ -51,10 +51,15 @@ classifiers = [
 ]
 
 docstring = """
-The python fontlib API helps to manage fonts from different resources .
+The python fontlib API helps to manage fonts from different resources.
 
-- uses ``entry_points`` where clients plug in fonts
-- register MIME types (:py:mod:`mimetypes`) for font types
+To name just some features:
+
+- The fontlib command (see :ref:`use`)
+- fontlib ships some :ref:`builtin fonts <builtin_fonts>`
+- fontlib make use of fonts from :ref:`google fonts <googlefont>`
+- fontlib use fonts from :ref:`entry_points <ep_points>`
+- MIME types (:py:mod:`mimetypes`) for font types (:py:mod:`fontlib.mime`)
 
 ===========  ===============================================
 docs:        %s

@@ -12,6 +12,8 @@ version   = fontlib.__version__
 release   = fontlib.__version__
 
 intersphinx_mapping = {}
+# usage:    :ref:`comparison manual <python:comparisons>`
+intersphinx_mapping['python']  = ('https://docs.python.org/', None)
 # disable tls_verify for intersphinx url's with self signed certifacates
 # tls_verify = False
 
