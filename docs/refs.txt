@@ -26,3 +26,7 @@
 .. _SIL-OFL: https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&item_id=OFL
 .. _`OFL at fontlibrary.org`: https://fontlibrary.org/en/search?license=OFL%20(SIL%20Open%20Font%20License)>`
 .. _`Variable Fonts (css-tricks.com)`: https://css-tricks.com/one-file-many-options-using-variable-fonts-web
+
+
+.. _py-logging INI format: https://docs.python.org/3/library/logging.config.html#configuration-file-format
+.. _py-logging: https://docs.python.org/3/library/logging.html

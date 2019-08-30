@@ -10,6 +10,29 @@ Config
 Fontlib can be configured with a configuration file and/or with command line
 arguments (see :ref:`fontlib_cli_options`).
 
+application defaults
+====================
+
+The default application configuration is taken from the
+:origin:`fontlib/config.ini` file:
+
+.. literalinclude:: ../fontlib/config.ini
+   :language: ini
+   :linenos:
+
+
+logging defaults
+================
+
+Fontlib uses the standard py-logging_ facility.  The default logging
+configuration is taken from the :origin:`fontlib/log.ini` file (shown
+below).  For details options see `py-logging INI format`_.
+
+.. literalinclude:: ../fontlib/log.ini
+   :language: ini
+   :linenos:
+
+
 basic config and logging setup
 ==============================
 
@@ -36,26 +59,6 @@ line:
    config = %(workspace)s/log.ini
 
 
-application defaults
-====================
-
-The default application configuration is taken from the
-:origin:`fontlib/config.ini` file:
-
-.. literalinclude:: ../fontlib/config.ini
-   :language: ini
-   :linenos:
-
-logging defaults
-================
-
-The default logging configuration is taken from the
-:origin:`fontlib/log.ini` file:
-
-.. literalinclude:: ../fontlib/log.ini
-   :language: ini
-   :linenos:
-
 inspect configuration
 =====================
 
@@ -65,6 +68,7 @@ show``.  With switch ``--verbose`` you will get some more information.
 
 .. command-output:: ../local/py3/bin/fontlib --verbose config show
    :ellipsis: 10
+
 
 Source Code Remarks
 ===================
