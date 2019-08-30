@@ -15,6 +15,7 @@ Content
    :maxdepth: 2
 
    install
+   use
    builtin
    api
    internal
