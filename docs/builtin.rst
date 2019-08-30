@@ -1,36 +1,13 @@
 .. -*- coding: utf-8; mode: rst -*-
 .. include:: refs.txt
 
-.. _`builtin_fonts`:
+.. _builtin_fonts:
 
 =============
-builtin fonts
+Builtin fonts
 =============
 
 Some WOFF2 fonts are shipped with :py:mod:`fontlib`.
-
-WOFF2:
-  - `W3C Recommendation <https://www.w3.org/TR/WOFF2>`_
-
-OFL fonts:
-  - SIL-OFL_
-  - `OFL at fontlibrary.org`_
-
-Variable Fonts (VF):
-  - `Variable Fonts (css-tricks.com)`_
-  - `v-fonts.com <https://v-fonts.com>`_
-
-fonttools:
-  Tool for manipulating TrueType and OpenType fonts (`fonttools
-  <https://github.com/fonttools/fonttools>`_).  Install method using python3 &
-  install fonttools and brotli compression::
-
-    $ sudo apt-get install python3-dev
-    $ pip3 install --user fonttools
-    $ git clone https://github.com/google/brotli
-    cd brotli
-    $ python3 setup.py install --user
-
 
 .. _builtin_cantarell:
 

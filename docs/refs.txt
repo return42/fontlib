@@ -31,5 +31,6 @@
 .. _py-logging INI format: https://docs.python.org/3/library/logging.config.html#configuration-file-format
 .. _py-logging: https://docs.python.org/3/library/logging.html
 
+.. _fonttools: https://github.com/fonttools/fonttools
 .. _fonts-python: https://pypi.org/project/fonts/
 .. _PyPi: https://pypi.org
