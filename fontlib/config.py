@@ -45,10 +45,15 @@ class Config(configparser.ConfigParser): # pylint: disable=too-many-ancestors
 
     @property
     def FONTSTACK(self):
-        """Dictionary from config section 'fontstack'"""
+        """Dictionary from config section ``[fontstack]``"""
         return self['fontstack']
 
     @property
     def GOOGLE_FONTS(self):
-        """Dictionary from config section 'google fonts'"""
+        """Dictionary from config section ``[google fonts]``"""
         return self['google fonts']
+
+    @property
+    def LOGGING(self):
+        """Dictionary from config section ``[logging]``"""
+        return self['logging']

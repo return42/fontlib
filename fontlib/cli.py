@@ -367,7 +367,7 @@ def init_app(args, verbose=False):
     app_ws = CONFIG.getpath('DEFAULT', 'workspace', fallback=DEFAULT_WORKSPACE)
     app_ws.makedirs()
     if verbose:
-        _.echo("using workspace: %s" % app_ws)
+        args.ERR.write("using workspace: %s\n" % app_ws)
     app_ws.makedirs()
 
     # init app logging with (new) CONFIG settings
@@ -379,7 +379,7 @@ def init_app(args, verbose=False):
 
     level = CONFIG.get("logging", "level").upper()
     if verbose:
-        _.echo("set log level of logger: %s (%s)" % (logger.name, level))
+        args.ERR.write("set log level of logger: %s (%s)\n" % (logger.name, level))
 
     logger.setLevel(level)
 
@@ -392,10 +392,15 @@ def init_app(args, verbose=False):
                 ' %s check your [logging]:config= setting at: %s'
             ) % (log_cfg, args.config))
         if verbose:
-            _.echo("load logging configuration from: %s" % log_cfg)
+            args.ERR.write("load logging configuration from: %s\n" % log_cfg)
         env = CONFIG.config_env(app='cli', workspace=app_ws)
         init_log(log_cfg, defaults = env)
 
+    if verbose:
+        args.ERR.write(
+            "log goes to:\n - "
+            + "\n - ".join([str(h) for h in logger.handlers])
+            + "\n")
 
 
 # ==============================================================================
