@@ -15,6 +15,10 @@ intersphinx_mapping = {}
 # disable tls_verify for intersphinx url's with self signed certifacates
 # tls_verify = False
 
+extlinks = {}
+extlinks['origin']    = ('https://github.com/return42/fontlib/blob/master/%s', 'git')
+extlinks['commit']    = ('https://github.com/return42/fontlib/commit/%s', '#')
+
 show_authors = True
 master_doc = 'index'
 templates_path = ['_templates']

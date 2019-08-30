@@ -4,11 +4,28 @@
 u"""Main fontlib_ console script.
 
 The fontlib_ library comes with a command line, use ``fontlib --help`` for a
-basic help.
+basic help.  For a detailed help to one of the subcommands type ``fontlib``
+<command> --help``.
 
 .. program-output:: ../local/py3/bin/fontlib --help
 
-For a detailed help to one of the subcommands type ``fontlib <command> --help``.
+Common Options
+==============
+
+- ``--config``: :origin:`fontlib/config.ini`
+
+- ``--workspace``: place where application persists its data
+
+
+Fontstack options
+=================
+
+- ``--builtins``: select :ref:`builtin_fonts`
+
+- ``--ep-fonts``: use fonts from entry points
+
+- ``--google``: select fons from google
+
 """
 
 import sys
