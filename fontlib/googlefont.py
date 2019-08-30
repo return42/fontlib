@@ -1,9 +1,8 @@
 # -*- coding: utf-8; mode: python; mode: flycheck -*-
 # pylint: disable=missing-docstring, too-few-public-methods
-"""
-googlefont -- implememt tools to manage fonts from fonts.google.com
+"""The googlefont module serves stuff to manage fonts from `fonts.google.com
+<https://www.google.com/fonts>`__
 
-Manage fonts from `Google Fonts <https://www.google.com/fonts>`__
 """
 
 __all__ = ['GOOGLE_FONTS_HOST', 'GOOGLE_FONT_FORMATS', 'is_google_font_url', 'read_google_font_css' ]

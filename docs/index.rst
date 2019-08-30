@@ -17,6 +17,7 @@ Content
    install
    use
    config
+   googlefont
    builtin
    api
    internal
