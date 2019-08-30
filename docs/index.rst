@@ -16,6 +16,7 @@ Content
 
    install
    use
+   config
    builtin
    api
    internal

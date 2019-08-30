@@ -1,5 +1,8 @@
 # -*- coding: utf-8; mode: python; mode: flycheck -*-
-"""Module that implements the application :py:class:`Config` class."""
+"""The implementation of application's configuration is given in class
+:py:class:`Config`.
+
+"""
 
 __all__ = ['Config']
 
