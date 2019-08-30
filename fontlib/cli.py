@@ -4,6 +4,7 @@
 u"""fontlib -- main entry point for commandline interfaces"""
 
 import sys
+import configparser
 import logging.config
 from urllib.parse import urlparse
 
@@ -252,7 +253,15 @@ def cli_config(args):
         return
 
     if args.subcommand == 'show':
+
+        cli.UI.rst_title("config.ini")
         CONFIG.write(cli.OUT)
+
+        cli.UI.rst_title("log.ini")
+        log_cfg = configparser.ConfigParser()
+        log_cfg.read(CONFIG.get("logging", "config", fallback=DEFAULT_LOG_INI))
+        log_cfg.write(cli.OUT)
+
         return
 
 # ==============================================================================
