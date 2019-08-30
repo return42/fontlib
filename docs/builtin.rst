@@ -1,9 +1,11 @@
 .. -*- coding: utf-8; mode: rst -*-
 .. include:: refs.txt
 
-============
-bultin fonts
-============
+.. _`builtin_fonts`:
+
+=============
+builtin fonts
+=============
 
 Some WOFF2 fonts are shipped with :py:mod:`fontlib`.
 
