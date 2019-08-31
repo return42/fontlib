@@ -25,11 +25,19 @@ help:
 	@echo  '  install   - developer install'
 	@echo  '  uninstall - developer uninstall'
 	@echo  ''
+	@echo  '  project   - rebuild generic project files (README, ..)'
+	@echo  ''
 	@$(MAKE) -s -f utils/makefile.include make-help
 	@echo  ''
 	@$(MAKE) -s -f utils/makefile.python python-help
 	@echo  ''
 	@$(MAKE) -s -f utils/makefile.sphinx docs-help
+
+PHONY += project
+project: $(PY_ENV)
+	- rm -f README.rst requirements.txt
+	$(PY_ENV_BIN)/python -c "from fontlib.__pkginfo__ import *; print(docstring)" > README.rst
+	$(PY_ENV_BIN)/python -c "from fontlib.__pkginfo__ import *; print(requirements_txt)" > requirements.txt
 
 PHONY += install
 install: pyinstall pyenvinstall

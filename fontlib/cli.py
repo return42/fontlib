@@ -12,6 +12,7 @@ from fspath import CLI
 from fspath import FSPath
 from fspath.sui import SimpleUserInterface
 
+from . import __pkginfo__
 from .fontstack import FontStack
 from .fontstack import get_stack
 from .log import DEFAULT_LOG_INI
@@ -54,6 +55,10 @@ def main():
         , type = FSPath
         , help = "workspace"
         )
+
+    # cmd: README ...
+
+    readme = cli.addCMDParser(cli_README, cmdName='README')
 
     # cmd: list ...
 
@@ -114,6 +119,11 @@ def main():
     # run ...
     cli()
 
+def cli_README(args):
+    """prints README to stdout"""
+    init_app(args)
+    cli = args.CLI
+    cli.UI.echo(__pkginfo__.docstring)
 
 def cli_list_fonts(args):
     """List fonts from *builtins*, *fonts.googleapis.com* and other resources.

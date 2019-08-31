@@ -11,7 +11,6 @@ from setuptools import setup, find_packages
 
 ROOT   = os.path.abspath(os.path.dirname(__file__))
 SRC    = ospj(ROOT, 'fontlib')
-README = ospj(ROOT, 'README.rst')
 DOCS   = ospj(ROOT, 'docs')
 TESTS  = ospj(ROOT, 'tests')
 
@@ -26,15 +25,26 @@ setup(
     name               = PKG.package
     , version          = PKG.version
     , description      = PKG.description
-    , long_description = readFile(README)
+    , long_description = PKG.docstring
+
     , url              = PKG.url
-    , author           = PKG.authors[0]
-    , author_email     = PKG.emails[0]
+    , project_urls     = PKG.project_urls
+
+    , author           = PKG.author
+    , author_email     = PKG.author_email
+    , maintainer       = PKG.maintainer
+    , maintainer_email = PKG.maintainer_email
+
     , license          = PKG.license
     , keywords         = PKG.keywords
+
     , packages         = find_packages(exclude=['docs', 'tests'])
     , install_requires = PKG.install_requires
+    , extras_require   = {
+        'dev' : PKG.develop_requires
+        , 'test' : PKG.test_requires
+    }
     , entry_points     = PKG.get_entry_points()
     , classifiers      = PKG.classifiers
     , package_data     = PKG.package_data
-    )
+)
