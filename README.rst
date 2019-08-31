@@ -28,7 +28,7 @@ Links
 - Issue tracker:   https://github.com/return42/fontlib/issues
 
 ============ ===============================================
-package:     fontlib (20190831.1)
+package:     fontlib (20190831.1.post)
 copyright:   2019 Markus Heiser
 e-mail:      markus.heiser@darmarIT.de
 license:     GPLv2
