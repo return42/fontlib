@@ -6,6 +6,7 @@
 import sys
 import configparser
 import logging.config
+import platform
 from urllib.parse import urlparse
 
 from fspath import CLI
@@ -59,6 +60,10 @@ def main():
     # cmd: README ...
 
     readme = cli.addCMDParser(cli_README, cmdName='README')
+
+    # cmd: version ...
+
+    _ = cli.addCMDParser(cli_version, cmdName='version')
 
     # cmd: list ...
 
@@ -124,6 +129,17 @@ def cli_README(args):
     init_app(args)
     cli = args.CLI
     cli.UI.echo(__pkginfo__.docstring)
+
+def cli_version(args):
+    """prints version infos to stdout"""
+    init_app(args)
+    cli = args.CLI
+    cli.UI.echo(" | ".join(
+        [ __pkginfo__.version
+          , platform.python_version()
+          , platform.node()
+          , platform.platform()]
+    ))
 
 def cli_list_fonts(args):
     """List fonts from *builtins*, *fonts.googleapis.com* and other resources.

@@ -160,6 +160,7 @@ Links
 - Issue tracker:   %(url)s/issues
 
 ============ ===============================================
+package:     %(package)s (%(version)s)
 copyright:   %(copyright)s
 e-mail:      %(maintainer_email)s
 license:     %(license)s
