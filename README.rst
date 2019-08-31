@@ -1,7 +1,7 @@
 
-The python fontlib package helps to manage fonts from different resources.  It
-comes with an API and the fontlib command line (see `use <http://return42.github.io/fontlib/use.html>`__).
-To name just a few fontlib features:
+The python `fontlib <http://return42.github.io/fontlib>`__ package helps to manage fonts from different
+resources.  It comes with an API and the fontlib command line (see `use
+<http://return42.github.io/fontlib/use.html>`__).  To name just a few fontlib features:
 
 - fontlib ships some `builtin fonts <http://return42.github.io/fontlib/builtin.html>`__
 - fontlib make use of fonts from `google fonts <http://return42.github.io/fontlib/googlefont.html>`__

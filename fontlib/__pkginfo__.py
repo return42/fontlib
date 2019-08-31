@@ -131,9 +131,9 @@ classifiers = [
 ]
 
 docstring = """
-The python fontlib package helps to manage fonts from different resources.  It
-comes with an API and the fontlib command line (see `use <%(docs)s/use.html>`__).
-To name just a few fontlib features:
+The python `fontlib <%(docs)s>`__ package helps to manage fonts from different
+resources.  It comes with an API and the fontlib command line (see `use
+<%(docs)s/use.html>`__).  To name just a few fontlib features:
 
 - fontlib ships some `builtin fonts <%(docs)s/builtin.html>`__
 - fontlib make use of fonts from `google fonts <%(docs)s/googlefont.html>`__
