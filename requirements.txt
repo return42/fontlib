@@ -1,4 +1,4 @@
-	# -*- coding: utf-8; mode: conf -*-
+# -*- coding: utf-8; mode: conf -*-
 # ----------------
 # install requires
 # ----------------
@@ -8,10 +8,11 @@ tinycss2
 requests
 
 # -------------
-# tests_require
+# test requires
 # -------------
 
 pylint
+
 #tox
 #pytest
 #pytest-cov
@@ -27,6 +28,7 @@ sphinx-autobuild
 sphinxcontrib-programoutput
 pip
 twine
+
 #wheel
 #mock
 
@@ -49,3 +51,4 @@ twine
 # font-intuitive
 # font-source-sans-pro
 # font-source-serif-pro
+
