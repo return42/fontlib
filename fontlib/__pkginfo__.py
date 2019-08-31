@@ -8,7 +8,7 @@ python package meta informations used by setup.py
 """
 
 package = 'fontlib'
-version = '20190505'
+version = '20190831'
 
 copyright = '2019 Markus Heiser'
 description = 'Pluginable font library'
