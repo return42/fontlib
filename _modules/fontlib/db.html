@@ -1,0 +1,309 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>fontlib.db &#8212; fontlib 20230220 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">fontlib 20230220 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">fontlib.db</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for fontlib.db</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8; mode: python; mode: flycheck -*-</span>
+<span class="sd">&quot;&quot;&quot;Implementation of application&#39;s database.</span>
+
+<span class="sd">Fontlib&#39;s SQL Toolkit and Object Relational Mapper is based on the</span>
+<span class="sd">SQLAlchemy_ (SQLAlchemy-ORM_)</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;FontLibSchema&#39;</span>
+    <span class="p">,</span> <span class="s1">&#39;fontlib_init&#39;</span>
+    <span class="p">,</span> <span class="s1">&#39;fontlib_scope&#39;</span>
+    <span class="p">,</span> <span class="s1">&#39;fontlib_session&#39;</span>
+    <span class="p">,</span> <span class="s1">&#39;fontlib_engine&#39;</span>
+    <span class="p">,</span> <span class="s1">&#39;TableUtilsMixIn&#39;</span>
+    <span class="p">,</span> <span class="s1">&#39;FontLibSession&#39;</span>
+    <span class="p">,</span> <span class="s1">&#39;fontlib_active_session&#39;</span>
+    <span class="p">,</span> <span class="s1">&#39;fontlib_sessionmaker&#39;</span>
+<span class="p">]</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">contextmanager</span>
+
+<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">create_engine</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm</span> <span class="kn">import</span> <span class="n">sessionmaker</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm</span> <span class="kn">import</span> <span class="n">scoped_session</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.ext.declarative</span> <span class="kn">import</span> <span class="n">declarative_base</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">FontLibSchema</span> <span class="o">=</span> <span class="n">declarative_base</span><span class="p">()</span>
+<span class="n">FontLibSession</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="sd">&quot;&quot;&quot;Session class</span>
+
+<span class="sd">The global session class is inited by :py:func:`fontlib_init`</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">fontlib_engine</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="sd">&quot;&quot;&quot;Engine of DB ``fontlib``.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">fontlib_sessionmaker</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="sd">&quot;&quot;&quot;Sessionmaker of DB ``fontlib``</span>
+
+<span class="sd">The global session maker is inited by :py:func:`fontlib_init`</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">fontlib_active_session</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="sd">&quot;&quot;&quot;active session of DB ``fontlib``</span>
+
+<span class="sd">The surrounding process (or thread) sets the active session, for details see</span>
+<span class="sd">:py:func:`fontlib_scope` and :py:func:`fontlib_session`</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="fontlib_init"><a class="viewcode-back" href="../../internal.html#fontlib.db.fontlib_init">[docs]</a><span class="k">def</span> <span class="nf">fontlib_init</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Init DB engine configured in config.ini ``[DEFAULT]:fontlib_db``</span>
+
+<span class="sd">    1. Create a DB connector to database ``[DEFAULT]:fontlib_db``</span>
+
+<span class="sd">    2. Create a engine with this connector in :py:obj:`fontlib_engine`</span>
+
+<span class="sd">    3. Create a session maker in :py:obj:`fontlib_sessionmaker`</span>
+
+<span class="sd">    4. Create DB schema by calling :py:class:`sqlalchemy.schema.MetaData.create_all`</span>
+
+<span class="sd">    5. Create a session class in :py:obj:`FontLibSession`.</span>
+
+<span class="sd">    .. hint::</span>
+
+<span class="sd">       The :py:obj:`FontLibSession` is a scoped_session_, about session</span>
+<span class="sd">       management (transactions) in application&#39;s code see :py:func:`fontlib_scope`.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">fontlib_engine</span><span class="p">,</span> <span class="n">fontlib_sessionmaker</span><span class="p">,</span> <span class="n">FontLibSession</span>  <span class="c1"># pylint: disable=global-statement</span>
+
+    <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;init_fontlib: START ...&quot;</span><span class="p">)</span>
+    <span class="c1"># https://docs.sqlalchemy.org/engines.html#database-urls</span>
+    <span class="n">fontlib_connector</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;DEFAULT&#39;</span><span class="p">,</span> <span class="s1">&#39;fontlib_db&#39;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s1">&#39;sqlite:///:memory:&#39;</span><span class="p">)</span>
+
+    <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;init_fontlib: create engine connected to DB: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">fontlib_connector</span><span class="p">)</span>
+    <span class="c1"># https://docs.sqlalchemy.org/orm/tutorial.html#connecting</span>
+    <span class="c1"># https://docs.sqlalchemy.org/core/engines.html</span>
+    <span class="n">fontlib_engine</span> <span class="o">=</span> <span class="n">create_engine</span><span class="p">(</span><span class="n">fontlib_connector</span><span class="p">)</span>
+
+    <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;fontlib_db: init schema (create_all) of </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>  <span class="n">FontLibSchema</span><span class="p">)</span>
+    <span class="c1"># https://docs.sqlalchemy.org/en/13/core/metadata.html#creating-and-dropping-database-tables</span>
+    <span class="n">FontLibSchema</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">create_all</span><span class="p">(</span><span class="n">fontlib_engine</span><span class="p">)</span>
+
+    <span class="c1"># https://docs.sqlalchemy.org/en/13/orm/contextual.html#unitofwork-contextual</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;fontlib_db: create sessionmaker binded to engine: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">fontlib_engine</span><span class="p">)</span>
+    <span class="n">fontlib_sessionmaker</span> <span class="o">=</span> <span class="n">sessionmaker</span><span class="p">(</span><span class="n">bind</span><span class="o">=</span><span class="n">fontlib_engine</span><span class="p">,</span> <span class="n">autocommit</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># https://docs.sqlalchemy.org/en/13/orm/session_transaction.html</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;init_fontlib: init contextual (scoped) sessions&quot;</span><span class="p">)</span>
+    <span class="n">FontLibSession</span> <span class="o">=</span> <span class="n">scoped_session</span><span class="p">(</span><span class="n">fontlib_sessionmaker</span><span class="p">)</span>
+
+    <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;init_fontlib: OK&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="fontlib_scope"><a class="viewcode-back" href="../../internal.html#fontlib.db.fontlib_scope">[docs]</a><span class="nd">@contextmanager</span>
+<span class="k">def</span> <span class="nf">fontlib_scope</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Provide a (new) transactional scope for on &#39;fontlib&#39; DB.</span>
+
+<span class="sd">    Creates a instance of :py:obj:`FontLibSession`, stores it under the global</span>
+<span class="sd">    name :py:obj:`fontlib_active_session` and yield it.</span>
+
+<span class="sd">    .. hint::</span>
+
+<span class="sd">       For the *client site* use :py:func:`fontlib_session` to get current</span>
+<span class="sd">       active session.</span>
+
+<span class="sd">    A typical usage is to start (and end) the transaction in your *top function</span>
+<span class="sd">    / main loop* while all other modules get the active session by calling</span>
+<span class="sd">    :py:func:`fontlib_session`.</span>
+
+<span class="sd">    By example; suppose you have a *main* script where you start the transaction</span>
+<span class="sd">    scope named ``session`` and a module which likes to add a new ``Font`` into</span>
+<span class="sd">    the database (into the acrive session).::</span>
+
+<span class="sd">        # ----  file: main.py ----</span>
+
+<span class="sd">        from fontlib import db</span>
+<span class="sd">        from fontlib.config import Config</span>
+<span class="sd">        import foo</span>
+
+<span class="sd">        cfg = Config()</span>
+<span class="sd">        db.init_fontlib(cfg)</span>
+<span class="sd">        ...</span>
+<span class="sd">        with db.fontlib_scope() as session:</span>
+<span class="sd">            ...</span>
+<span class="sd">            foo.add_myfont()</span>
+<span class="sd">            ...</span>
+<span class="sd">            all_fonts = session.query(Font)</span>
+<span class="sd">            ...</span>
+
+<span class="sd">    Modules like the *foo* below are using the :py:func:`fontlib_scope` to get</span>
+<span class="sd">    the session which was set by the surrounding application code (*main*).  The</span>
+<span class="sd">    *foo* module itself does not need to now about transaction start and</span>
+<span class="sd">    transaction end, this is managed by the outer scope in *main*, while both</span>
+<span class="sd">    are using sthe same session instance::</span>
+
+<span class="sd">        # ----  module: foo.py ----</span>
+
+<span class="sd">        from fontlib.db import fontlib_session</span>
+<span class="sd">        from fontlib.font import Font</span>
+
+<span class="sd">        def add_myfont():</span>
+<span class="sd">            my_font = Font(&quot;file:///fontlib/files/dejavu/dejavu.css&quot;)</span>
+<span class="sd">            fontlib_session().add(font)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">fontlib_active_session</span> <span class="c1"># pylint: disable=global-statement</span>
+
+    <span class="c1"># https://docs.sqlalchemy.org/en/13/orm/contextual.html#unitofwork-contextual</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;fontlib_scope: START transactional scope&quot;</span><span class="p">)</span>
+    <span class="n">fontlib_active_session</span> <span class="o">=</span> <span class="n">FontLibSession</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">fontlib_active_session</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;fontlib_scope: COMMIT transactional scope&quot;</span><span class="p">)</span>
+        <span class="n">fontlib_active_session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;fontlib_scope: ROLLBACK transactional scope&quot;</span><span class="p">)</span>
+        <span class="n">fontlib_active_session</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+        <span class="k">raise</span>
+
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;fontlib_scope: CLOSE transactional scope&quot;</span><span class="p">)</span>
+        <span class="n">fontlib_active_session</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;fontlib_scope: END transactional scope&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="fontlib_session"><a class="viewcode-back" href="../../internal.html#fontlib.db.fontlib_session">[docs]</a><span class="k">def</span> <span class="nf">fontlib_session</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns current active fontlib session (see :py:func:`fontlib_scope`)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">fontlib_active_session</span> <span class="c1"># pylint: disable=global-statement</span>
+    <span class="k">return</span> <span class="n">fontlib_active_session</span></div>
+
+
+<div class="viewcode-block" id="TableUtilsMixIn"><a class="viewcode-back" href="../../internal.html#fontlib.db.TableUtilsMixIn">[docs]</a><span class="k">class</span> <span class="nc">TableUtilsMixIn</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;MixIn class for SQLAlchemy ORM classes.</span>
+
+<span class="sd">    usage::</span>
+
+<span class="sd">        class MyClass(MySchema, TableUtilsMixIn):</span>
+<span class="sd">            __tablename__ = &#39;my_class&#39;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TableUtilsMixIn.pkey_exists"><a class="viewcode-back" href="../../internal.html#fontlib.db.TableUtilsMixIn.pkey_exists">[docs]</a>    <span class="k">def</span> <span class="nf">pkey_exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if object with same primary keys exists in the database.</span>
+
+<span class="sd">        .. note::</span>
+
+<span class="sd">           ``inspect(myobject).identity`` will not work:</span>
+
+<span class="sd">           An object which is transient or pending does not have a mapped</span>
+<span class="sd">           identity until it is flushed, even if its attributes include primary</span>
+<span class="sd">           key values, [`ref</span>
+<span class="sd">           &lt;https://docs.sqlalchemy.org/en/13/orm/internals.html#sqlalchemy.orm.state.InstanceState.identity&gt;`__].</span>
+
+<span class="sd">           Thats why :py:meth:`pkey_exists` is based on a real DB query.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_persistent_object</span><span class="p">(</span><span class="n">session</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="TableUtilsMixIn.get_persistent_object"><a class="viewcode-back" href="../../internal.html#fontlib.db.TableUtilsMixIn.get_persistent_object">[docs]</a>    <span class="k">def</span> <span class="nf">get_persistent_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return persistent object from DB or None if ot exists in DB</span>
+
+<span class="sd">        Does a *session query* of the self object by it&#39;s primary keys in the DB</span>
+<span class="sd">        and returns object if one exists. If primary key does not exists in the</span>
+<span class="sd">        database None is returned.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># https://docs.sqlalchemy.org/en/13/orm/mapping_api.html#sqlalchemy.orm.util.identity_key</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">pkey</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">identity_key</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="bp">self</span><span class="p">)[:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pkey</span><span class="p">)</span></div></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+  <span id="sidebar-top"></span>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  
+    
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/darmarIT_logo_128.png" alt="Logo"/>
+            </a></p>
+  
+<h3>Navigation</h3>
+<ul>
+  <li><a href="../../index.html">Overview</a>
+    <ul>
+      <li><a href="../index.html">Module code</a>
+        
+          
+          </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script><div id="ethical-ad-placement"></div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2023 Markus Heiser.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+    </div>
+  <script src="../../_static/version_warning_offset.js"></script>
+
+  </body>
+</html>

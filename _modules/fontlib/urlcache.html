@@ -1,0 +1,422 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>fontlib.urlcache &#8212; fontlib 20230220 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">fontlib 20230220 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">fontlib.urlcache</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for fontlib.urlcache</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8; mode: python; mode: flycheck -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Font library</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;URLBlob&#39;</span>
+    <span class="p">,</span> <span class="s1">&#39;download_blob&#39;</span>
+    <span class="p">,</span> <span class="s1">&#39;URLCache&#39;</span>
+    <span class="p">,</span> <span class="s1">&#39;NoCache&#39;</span>
+    <span class="p">,</span> <span class="s1">&#39;SimpleURLCache&#39;</span>
+<span class="p">]</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">base64</span>
+<span class="kn">import</span> <span class="nn">hashlib</span>
+<span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">urlparse</span>
+<span class="kn">from</span> <span class="nn">urllib.request</span> <span class="kn">import</span> <span class="n">urlopen</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">Column</span><span class="p">,</span> <span class="n">String</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.schema</span> <span class="kn">import</span> <span class="n">ForeignKey</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm</span> <span class="kn">import</span> <span class="n">relationship</span>
+
+<span class="kn">import</span> <span class="nn">fspath</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">event</span>
+
+<span class="kn">from</span> <span class="nn">.db</span> <span class="kn">import</span> <span class="n">FontLibSchema</span>
+<span class="kn">from</span> <span class="nn">.db</span> <span class="kn">import</span> <span class="n">TableUtilsMixIn</span>
+<span class="kn">from</span> <span class="nn">.db</span> <span class="kn">import</span> <span class="n">fontlib_session</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<div class="viewcode-block" id="URLBlob"><a class="viewcode-back" href="../../internal.html#fontlib.api.URLBlob">[docs]</a><span class="k">class</span> <span class="nc">URLBlob</span><span class="p">(</span><span class="n">FontLibSchema</span><span class="p">,</span> <span class="n">TableUtilsMixIn</span><span class="p">):</span>  <span class="c1"># pylint: disable=too-few-public-methods</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A simple BLOB object&quot;&quot;&quot;</span>
+
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s1">&#39;urlcache_blob&#39;</span>
+
+    <span class="n">STATE_REMOTE</span> <span class="o">=</span> <span class="s1">&#39;remote&#39;</span>
+    <span class="n">STATE_LOCAL</span>  <span class="o">=</span> <span class="s1">&#39;local&#39;</span>
+    <span class="n">STATE_CACHED</span> <span class="o">=</span> <span class="s1">&#39;cached&#39;</span>
+    <span class="n">STATE_LIST</span>   <span class="o">=</span> <span class="p">[</span><span class="n">STATE_REMOTE</span><span class="p">,</span> <span class="n">STATE_LOCAL</span><span class="p">,</span> <span class="n">STATE_CACHED</span><span class="p">]</span>
+
+    <span class="n">origin</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">(</span><span class="mi">1024</span><span class="p">),</span> <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The origin URL&quot;&quot;&quot;</span>
+
+    <span class="nb">id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">(</span><span class="mi">22</span><span class="p">),</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="s1">&#39;font.id&#39;</span><span class="p">),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A url-safe hash of :py:class:`URLBlob` resource, used as unique resource ID&quot;&quot;&quot;</span>
+
+    <span class="n">state</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">(</span><span class="mi">80</span><span class="p">))</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;State of the BLOB in the cache: ``[w]``</span>
+
+<span class="sd">    - ``remote`` : BLOB needs replication</span>
+<span class="sd">    - ``local``  : BLOB is not cached but available from common filesystem</span>
+<span class="sd">    - ``cached`` : a copy of the BLOB is localy available</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">font</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">&quot;Font&quot;</span><span class="p">,</span> <span class="n">back_populates</span><span class="o">=</span><span class="s2">&quot;blob&quot;</span><span class="p">,</span> <span class="n">uselist</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">origin</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;origin&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">origin</span>
+
+        <span class="k">if</span> <span class="s1">&#39;state&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;state&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">URLBlob</span><span class="o">.</span><span class="n">STATE_REMOTE</span>
+        <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;state&#39;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">URLBlob</span><span class="o">.</span><span class="n">STATE_LIST</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;URLBlob unknown state:&quot;</span> <span class="o">%</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;state&#39;</span><span class="p">]</span> <span class="p">)</span>
+
+        <span class="k">if</span> <span class="s1">&#39;id&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="n">origin</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">(</span><span class="n">_</span><span class="p">)</span><span class="o">.</span><span class="n">digest</span><span class="p">()</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">urlsafe_b64encode</span><span class="p">(</span><span class="n">_</span><span class="p">)[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;&lt;URLBlob (</span><span class="si">%(id)s</span><span class="s2">), origin=&#39;</span><span class="si">%(origin)s</span><span class="s2">&#39;&gt;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span></div>
+
+
+<div class="viewcode-block" id="download_blob"><a class="viewcode-back" href="../../internal.html#fontlib.api.download_blob">[docs]</a><span class="k">def</span> <span class="nf">download_blob</span><span class="p">(</span><span class="n">blob</span><span class="p">,</span> <span class="n">cache_file</span><span class="p">,</span> <span class="n">chunksize</span><span class="o">=</span><span class="mi">1048576</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Download blob.origin into cache_file.</span>
+
+<span class="sd">    :param fspath.fspath.FSPath cache_file: local filename</span>
+<span class="sd">    :param .urlcache.URLBlob blob: URL from blob.origin</span>
+<span class="sd">    :param int chunkize: The default chunksize is 1048576 bytes.</span>
+
+<span class="sd">    :py:func:`.event.emit`:</span>
+
+<span class="sd">    - ``urlcache.download.tick`` (:py:obj:`url &lt;str&gt;`, :py:obj:`font name</span>
+<span class="sd">      &lt;str&gt;`, :py:obj:`font format &lt;str&gt;`, :py:obj:`local file name</span>
+<span class="sd">      &lt;fspath.fspath.FSPath&gt;`, :py:obj:`down_bytes &lt;int&gt;`, :py:obj:`max_bytes</span>
+<span class="sd">      from &#39;headers:Content-Length&#39; or 0 &lt;int&gt;`) is released, each time a chunk</span>
+<span class="sd">      has been downloaded.  If no more to download, max_bytes is set to -1.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">with</span> <span class="n">urlopen</span><span class="p">(</span><span class="n">blob</span><span class="o">.</span><span class="n">origin</span><span class="p">)</span> <span class="k">as</span> <span class="n">d</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">cache_file</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">max_bytes</span>  <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Content-Length&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+            <span class="n">down_bytes</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">if</span> <span class="n">chunksize</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">chunksize</span> <span class="o">=</span> <span class="n">max_bytes</span> <span class="o">//</span> <span class="mi">100</span>
+            <span class="k">while</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">chunksize</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)):</span>
+                    <span class="n">event</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span>
+                        <span class="s1">&#39;urlcache.download.tick&#39;</span>
+                        <span class="p">,</span> <span class="n">blob</span><span class="o">.</span><span class="n">origin</span><span class="p">,</span> <span class="n">blob</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">blob</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">format</span>
+                        <span class="p">,</span> <span class="n">cache_file</span><span class="p">,</span> <span class="n">down_bytes</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="k">break</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                <span class="n">down_bytes</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                <span class="n">event</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span>
+                    <span class="s1">&#39;urlcache.download.tick&#39;</span>
+                    <span class="p">,</span> <span class="n">blob</span><span class="o">.</span><span class="n">origin</span><span class="p">,</span> <span class="n">blob</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">blob</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">format</span>
+                    <span class="p">,</span> <span class="n">cache_file</span><span class="p">,</span> <span class="n">down_bytes</span><span class="p">,</span> <span class="n">max_bytes</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="URLCache"><a class="viewcode-back" href="../../internal.html#fontlib.api.URLCache">[docs]</a><span class="k">class</span> <span class="nc">URLCache</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract key/value hash for cached BLOBs (response) from origin.</span>
+
+<span class="sd">    The *key* is origin&#39;s URL and the value is the BLOB (response) from this</span>
+<span class="sd">    URL.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">CHUNKSIZE</span> <span class="o">=</span> <span class="mi">1048576</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_ok</span> <span class="o">=</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="URLCache.get_blob_obj"><a class="viewcode-back" href="../../internal.html#fontlib.api.URLCache.get_blob_obj">[docs]</a>    <span class="k">def</span> <span class="nf">get_blob_obj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">origin</span><span class="p">):</span>  <span class="c1"># pylint: disable=no-self-use</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return :py:class:`URLBlob` for &lt;origin&gt; URL or ``None`` if URL is unknown.</span>
+
+<span class="sd">        :param str origin: the URL of the origin</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">session</span> <span class="o">=</span> <span class="n">fontlib_session</span><span class="p">()</span>
+        <span class="n">blob</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">URLBlob</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">origin</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">blob</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;get_blob_obj: no entry for: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">origin</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;get_blob_obj: found entry for: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">origin</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">blob</span></div>
+
+<div class="viewcode-block" id="URLCache.add_url"><a class="viewcode-back" href="../../internal.html#fontlib.api.URLCache.add_url">[docs]</a>    <span class="k">def</span> <span class="nf">add_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">origin</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add URL &lt;origin&gt; to cache&#39;s database.</span>
+
+<span class="sd">        :param str origin: the URL of the origin</span>
+
+<span class="sd">        :returns:  BLOB object</span>
+<span class="sd">        :rtype:    .urlcache.URLBlob</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">blob</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_blob_obj</span><span class="p">(</span><span class="n">origin</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">blob</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;URLCache: sql insert table urlcache_blob: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">blob</span><span class="p">)</span>
+            <span class="n">blob</span> <span class="o">=</span> <span class="n">URLBlob</span><span class="p">(</span><span class="n">origin</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_db</span><span class="p">(</span><span class="n">blob</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">blob</span></div>
+
+<div class="viewcode-block" id="URLCache.update_db"><a class="viewcode-back" href="../../internal.html#fontlib.api.URLCache.update_db">[docs]</a>    <span class="k">def</span> <span class="nf">update_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blob</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update status of :py:class:`URLBlob` in the database.</span>
+
+<span class="sd">        :param blob: instance of class :py:class:`.urlcache.URLBlob`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">cache_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fname_by_blob</span><span class="p">(</span><span class="n">blob</span><span class="p">)</span>
+
+        <span class="n">state</span> <span class="o">=</span> <span class="n">URLBlob</span><span class="o">.</span><span class="n">STATE_REMOTE</span>
+        <span class="k">if</span> <span class="n">cache_file</span> <span class="ow">and</span> <span class="n">cache_file</span><span class="o">.</span><span class="n">EXISTS</span><span class="p">:</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">URLBlob</span><span class="o">.</span><span class="n">STATE_CACHED</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">blob</span><span class="o">.</span><span class="n">origin</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">url</span><span class="o">.</span><span class="n">scheme</span> <span class="o">==</span> <span class="s1">&#39;file&#39;</span><span class="p">:</span>
+                <span class="n">state</span> <span class="o">=</span> <span class="n">URLBlob</span><span class="o">.</span><span class="n">STATE_LOCAL</span>
+
+        <span class="n">blob</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state</span>
+        <span class="n">fontlib_session</span><span class="p">()</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">blob</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="URLCache.cache_url"><a class="viewcode-back" href="../../internal.html#fontlib.api.URLCache.cache_url">[docs]</a>    <span class="k">def</span> <span class="nf">cache_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">origin</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Assure a localy cached copy of the URL response.</span>
+
+<span class="sd">        :param str origin: the URL of the origin</span>
+
+<span class="sd">        :returns:  BLOB object from persistent</span>
+<span class="sd">        :rtype:    .urlcache.URLBlob</span>
+
+<span class="sd">        :py:func:`.event.emit`: see :py:func:`download_blob`</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">blob</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_blob_obj</span><span class="p">(</span><span class="n">origin</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">blob</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># add new BLOB to the persistence</span>
+            <span class="n">blob</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_url</span><span class="p">(</span><span class="n">origin</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># force update of the persistence</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_db</span><span class="p">(</span><span class="n">blob</span><span class="p">)</span>
+
+        <span class="n">cache_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fname_by_blob</span><span class="p">(</span><span class="n">blob</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">blob</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="n">URLBlob</span><span class="o">.</span><span class="n">STATE_CACHED</span><span class="p">:</span>
+            <span class="c1"># sort out dead candidates / for whatever reason the BLOB might gone</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_db</span><span class="p">(</span><span class="n">blob</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">blob</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="n">URLBlob</span><span class="o">.</span><span class="n">STATE_CACHED</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;BLOB [</span><span class="si">%s</span><span class="s2">] already cached from: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="p">,</span> <span class="n">blob</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">blob</span><span class="o">.</span><span class="n">origin</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">blob</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="n">URLBlob</span><span class="o">.</span><span class="n">STATE_LOCAL</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;BLOB [</span><span class="si">%s</span><span class="s2">] caching from local filesystem: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">blob</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">blob</span><span class="o">.</span><span class="n">origin</span><span class="p">)</span>
+
+            <span class="n">url</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">blob</span><span class="o">.</span><span class="n">origin</span><span class="p">)</span>
+            <span class="n">fspath</span><span class="o">.</span><span class="n">FSPath</span><span class="p">(</span><span class="n">url</span><span class="o">.</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">cache_file</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_db</span><span class="p">(</span><span class="n">blob</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">blob</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="n">URLBlob</span><span class="o">.</span><span class="n">STATE_REMOTE</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;BLOB [</span><span class="si">%s</span><span class="s2">] caching from remote: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">blob</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">blob</span><span class="o">.</span><span class="n">origin</span><span class="p">)</span>
+            <span class="n">download_blob</span><span class="p">(</span><span class="n">blob</span><span class="p">,</span> <span class="n">cache_file</span><span class="p">,</span> <span class="n">chunksize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">CHUNKSIZE</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_db</span><span class="p">(</span><span class="n">blob</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">blob</span></div>
+
+<div class="viewcode-block" id="URLCache.save_url"><a class="viewcode-back" href="../../internal.html#fontlib.api.URLCache.save_url">[docs]</a>    <span class="k">def</span> <span class="nf">save_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">origin</span><span class="p">,</span> <span class="n">dest_file</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save (possibly cached) BLOB from &lt;origin&gt; into file &lt;dest_file&gt;</span>
+
+<span class="sd">        :param str origin: URL of the origin</span>
+
+<span class="sd">        :param dest_file: Filename of the destination</span>
+
+<span class="sd">        If &lt;origin&gt; is not already cached, it is downloaded and cached now.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">blob</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_url</span><span class="p">(</span><span class="n">origin</span><span class="p">)</span>
+        <span class="n">cache_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fname_by_blob</span><span class="p">(</span><span class="n">blob</span><span class="p">)</span>
+        <span class="n">cache_file</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">dest_file</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="URLCache.init"><a class="viewcode-back" href="../../internal.html#fontlib.api.URLCache.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Init cache from :py:class:`fontlib.config.Config` object&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="URLCache.fname_by_blob"><a class="viewcode-back" href="../../internal.html#fontlib.api.URLCache.fname_by_blob">[docs]</a>    <span class="k">def</span> <span class="nf">fname_by_blob</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blob</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return file name of cached BLOB data or ``None`` if blob not already cached.</span>
+
+<span class="sd">        :param .urlcache.URLBlob blob: BLOB instance</span>
+
+<span class="sd">        :returns: absolute filename of the cached BLOB</span>
+
+<span class="sd">        :rtype: fspath.fspath.FSPath</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
+
+
+<div class="viewcode-block" id="NoCache"><a class="viewcode-back" href="../../internal.html#fontlib.api.NoCache">[docs]</a><span class="k">class</span> <span class="nc">NoCache</span><span class="p">(</span><span class="n">URLCache</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A dummy cache which never caches&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="NoCache.get_blob_obj"><a class="viewcode-back" href="../../internal.html#fontlib.api.NoCache.get_blob_obj">[docs]</a>    <span class="k">def</span> <span class="nf">get_blob_obj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">origin</span><span class="p">):</span>  <span class="c1"># pylint: disable=no-self-use</span>
+        <span class="k">return</span> <span class="n">URLBlob</span><span class="p">(</span><span class="n">origin</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="NoCache.add_url"><a class="viewcode-back" href="../../internal.html#fontlib.api.NoCache.add_url">[docs]</a>    <span class="k">def</span> <span class="nf">add_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">origin</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="NoCache.update_db"><a class="viewcode-back" href="../../internal.html#fontlib.api.NoCache.update_db">[docs]</a>    <span class="k">def</span> <span class="nf">update_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blob</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="NoCache.cache_url"><a class="viewcode-back" href="../../internal.html#fontlib.api.NoCache.cache_url">[docs]</a>    <span class="k">def</span> <span class="nf">cache_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">origin</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="NoCache.fname_by_blob"><a class="viewcode-back" href="../../internal.html#fontlib.api.NoCache.fname_by_blob">[docs]</a>    <span class="k">def</span> <span class="nf">fname_by_blob</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blob</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="NoCache.init"><a class="viewcode-back" href="../../internal.html#fontlib.api.NoCache.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_ok</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="NoCache.save_url"><a class="viewcode-back" href="../../internal.html#fontlib.api.NoCache.save_url">[docs]</a>    <span class="k">def</span> <span class="nf">save_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">origin</span><span class="p">,</span> <span class="n">dest_file</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Download (un-cached) BLOB from &lt;origin&gt; into file &lt;dest_file&gt;</span>
+
+<span class="sd">        :param str origin: URL of the origin</span>
+<span class="sd">        :param fspath.fspath.FSPath dest_file: Filename of the destination</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">state</span> <span class="o">=</span> <span class="n">URLBlob</span><span class="o">.</span><span class="n">STATE_REMOTE</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">origin</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">url</span><span class="o">.</span><span class="n">scheme</span> <span class="o">==</span> <span class="s1">&#39;file&#39;</span><span class="p">:</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">URLBlob</span><span class="o">.</span><span class="n">STATE_LOCAL</span>
+
+        <span class="k">if</span> <span class="n">state</span> <span class="o">==</span> <span class="n">URLBlob</span><span class="o">.</span><span class="n">STATE_LOCAL</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;BLOB copied from local filesystem: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">origin</span><span class="p">)</span>
+            <span class="n">fspath</span><span class="o">.</span><span class="n">FSPath</span><span class="p">(</span><span class="n">url</span><span class="o">.</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">dest_file</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">state</span> <span class="o">==</span> <span class="n">URLBlob</span><span class="o">.</span><span class="n">STATE_REMOTE</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;BLOB copied from remote: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">origin</span><span class="p">)</span>
+            <span class="n">blob</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_blob_obj</span><span class="p">(</span><span class="n">origin</span><span class="p">)</span>
+            <span class="n">download_blob</span><span class="p">(</span><span class="n">blob</span><span class="p">,</span> <span class="n">dest_file</span><span class="p">,</span> <span class="n">chunksize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">CHUNKSIZE</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="SimpleURLCache"><a class="viewcode-back" href="../../internal.html#fontlib.api.SimpleURLCache">[docs]</a><span class="k">class</span> <span class="nc">SimpleURLCache</span><span class="p">(</span><span class="n">URLCache</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Simple URL cache</span>
+
+<span class="sd">    The BLOBs are stored in folder ``[DEFAULT]&lt;workspace&gt;/urlcache`` in your</span>
+<span class="sd">    &lt;workspace&gt;.  The value for &lt;workspace&gt; is taken from the configuration::</span>
+
+<span class="sd">        [DEFAULT]</span>
+<span class="sd">        workspace = ~/.fontlib</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="SimpleURLCache.init"><a class="viewcode-back" href="../../internal.html#fontlib.api.SimpleURLCache.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_ok</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getpath</span><span class="p">(</span><span class="s1">&#39;DEFAULT&#39;</span><span class="p">,</span> <span class="s1">&#39;workspace&#39;</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;urlcache&#39;</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;init SimpleURLCache at: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">makedirs</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_ok</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="SimpleURLCache.fname_by_blob"><a class="viewcode-back" href="../../internal.html#fontlib.api.SimpleURLCache.fname_by_blob">[docs]</a>    <span class="k">def</span> <span class="nf">fname_by_blob</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blob</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;cache not yet inited!&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">/</span> <span class="n">blob</span><span class="o">.</span><span class="n">id</span></div></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+  <span id="sidebar-top"></span>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  
+    
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/darmarIT_logo_128.png" alt="Logo"/>
+            </a></p>
+  
+<h3>Navigation</h3>
+<ul>
+  <li><a href="../../index.html">Overview</a>
+    <ul>
+      <li><a href="../index.html">Module code</a>
+        
+          
+          </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script><div id="ethical-ad-placement"></div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2023 Markus Heiser.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+    </div>
+  <script src="../../_static/version_warning_offset.js"></script>
+
+  </body>
+</html>

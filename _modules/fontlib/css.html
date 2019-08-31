@@ -1,0 +1,383 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>fontlib.css &#8212; fontlib 20230220 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">fontlib 20230220 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">fontlib.css</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for fontlib.css</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8; mode: python; mode: flycheck -*-</span>
+<span class="c1"># pylint: disable=too-few-public-methods</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">CSS helper</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;get_css_at_rules&#39;</span><span class="p">,</span> <span class="s1">&#39;CSSRule&#39;</span><span class="p">,</span> <span class="s1">&#39;AtRule&#39;</span><span class="p">,</span> <span class="s1">&#39;FontFaceRule&#39;</span><span class="p">]</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">urllib.request</span> <span class="kn">import</span> <span class="n">urlopen</span>
+
+<span class="kn">import</span> <span class="nn">tinycss2</span>
+
+<span class="kn">from</span> <span class="nn">.googlefont</span> <span class="kn">import</span> <span class="n">is_google_font_url</span>
+<span class="kn">from</span> <span class="nn">.googlefont</span> <span class="kn">import</span> <span class="n">read_google_font_css</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<div class="viewcode-block" id="get_css_at_rules"><a class="viewcode-back" href="../../internal.html#fontlib.css.get_css_at_rules">[docs]</a><span class="k">def</span> <span class="nf">get_css_at_rules</span><span class="p">(</span><span class="n">css_url</span><span class="p">,</span> <span class="n">at_class</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get at-rules of type ``at_class`` from CSS ``css_url``.</span>
+
+<span class="sd">    The CSS file is read by :py:func:`urllib.request.urlopen`.  If the URL</span>
+<span class="sd">    points to the google fonts api, the CSS is read by</span>
+<span class="sd">    :py:func:`.googlefont.read_google_font_css`.</span>
+
+<span class="sd">    Both funtions return the byte stream from the URL, which is parsed by</span>
+<span class="sd">    :py:func:`tinycss2.parse_stylesheet_bytes`.  The resulting CSS rules are</span>
+<span class="sd">    filtered by ``at_class``.</span>
+
+<span class="sd">    :type css_url:   str</span>
+<span class="sd">    :param css_url:  URL of the CSS (stylesheet) file</span>
+
+<span class="sd">    :type at_class:  css.AtRule</span>
+<span class="sd">    :param at_class: class of the at-rule</span>
+
+<span class="sd">    :rtype: [css.AtRule]</span>
+<span class="sd">    :return: list of ``at_class`` objects</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">is_google_font_url</span><span class="p">(</span><span class="n">css_url</span><span class="p">):</span>
+        <span class="n">css_bytes</span> <span class="o">=</span> <span class="n">read_google_font_css</span><span class="p">(</span><span class="n">css_url</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">urlopen</span><span class="p">(</span><span class="n">css_url</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+            <span class="n">css_bytes</span><span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+    <span class="c1"># parse css ...</span>
+    <span class="n">css_rules</span><span class="p">,</span> <span class="n">_encoding</span> <span class="o">=</span> <span class="n">tinycss2</span><span class="o">.</span><span class="n">parse_stylesheet_bytes</span><span class="p">(</span><span class="n">css_bytes</span><span class="o">=</span><span class="n">css_bytes</span><span class="p">)</span>
+
+    <span class="c1"># filter @font-face (at rules)</span>
+    <span class="n">font_face_rules</span> <span class="o">=</span>  <span class="p">[</span>
+        <span class="n">rule</span> <span class="k">for</span> <span class="n">rule</span> <span class="ow">in</span> <span class="n">css_rules</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">rule</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;at-rule&#39;</span> <span class="ow">and</span> <span class="n">rule</span><span class="o">.</span><span class="n">at_keyword</span> <span class="o">==</span> <span class="n">at_class</span><span class="o">.</span><span class="n">rule_name</span><span class="p">)</span> <span class="p">]</span>
+
+    <span class="c1"># instances of class CSSRule</span>
+    <span class="n">css_rules</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">rule</span> <span class="ow">in</span> <span class="n">font_face_rules</span><span class="p">:</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">at_class</span><span class="p">(</span><span class="n">css_url</span><span class="o">=</span><span class="n">css_url</span><span class="p">)</span>
+        <span class="n">css_rules</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="n">obj</span><span class="o">.</span><span class="n">parse_css_rule</span><span class="p">(</span><span class="n">rule</span><span class="p">)</span>
+
+    <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;found </span><span class="si">%s</span><span class="s2"> at-rules&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">css_rules</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">css_rules</span></div>
+
+
+<span class="k">def</span> <span class="nf">split_tokens</span><span class="p">(</span><span class="n">rule_tokens</span><span class="p">,</span> <span class="n">t_type</span><span class="o">=</span><span class="s1">&#39;literal&#39;</span><span class="p">,</span> <span class="n">t_value</span><span class="o">=</span><span class="s1">&#39;;&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Split list of tokens into a list of token lists.</span>
+
+<span class="sd">    By a delimiter, the ``rule_tokens`` list is splitted into groups.</span>
+<span class="sd">    Delimiters are tokens with type ``t_type`` and value ``t_value``.</span>
+<span class="sd">    Delimiter tokens and ``whitespace`` tokens are stripped from the</span>
+<span class="sd">    returned lists.</span>
+
+<span class="sd">    The default ``t_type`` and ``t_value`` are good to consume a list of</span>
+<span class="sd">    declarations:</span>
+
+<span class="sd">    - https://drafts.csswg.org/css-syntax-3/#consume-a-list-of-declarations</span>
+
+<span class="sd">    :param rule_tokens:</span>
+<span class="sd">        A list of :class:`tinycss.ast.Node`</span>
+<span class="sd">    :param t_type:</span>
+<span class="sd">        String with the type of the delimiter token (default=``literal``)</span>
+<span class="sd">    :param t_value:</span>
+<span class="sd">        String with the value of the delimiter token (default=``;``)</span>
+<span class="sd">    :returns: a list of lists with token in (:class:`tinycss.ast.Node`)</span>
+<span class="sd">    :return: list</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">decl_tokens</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">current</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">rule_tokens</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">token</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;whitespace&#39;</span><span class="p">,]:</span>
+            <span class="c1"># strip whitespaces</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">token</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">t_type</span> <span class="ow">and</span> <span class="n">token</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="n">t_value</span><span class="p">:</span>
+            <span class="n">decl_tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current</span><span class="p">)</span>
+            <span class="n">current</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">current</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">decl_tokens</span>
+
+
+<div class="viewcode-block" id="CSSRule"><a class="viewcode-back" href="../../internal.html#fontlib.css.CSSRule">[docs]</a><span class="k">class</span> <span class="nc">CSSRule</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for internal abstraction of a CSS rules.&quot;&quot;&quot;</span>
+
+    <span class="n">rule_name</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;String with the name of the rule&quot;&quot;&quot;</span>
+    <span class="n">rule_type</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;String naming the type of the rule&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">css_url</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># pylint: disable=unused-argument</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">css_url</span> <span class="o">=</span> <span class="n">css_url</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;URL of the CSS (stylesheet) file&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">declarations</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Python dict with CSS declarations&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="CSSRule.serialize"><a class="viewcode-back" href="../../internal.html#fontlib.css.CSSRule.serialize">[docs]</a>    <span class="k">def</span> <span class="nf">serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a string of the CSS rule.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">tinycss2</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CSSRule.parse_css_rule"><a class="viewcode-back" href="../../internal.html#fontlib.css.CSSRule.parse_css_rule">[docs]</a>    <span class="k">def</span> <span class="nf">parse_css_rule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rule</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse CSS rule</span>
+
+<span class="sd">        TODO: needs some documentation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="n">rule</span><span class="o">.</span><span class="n">content</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">declarations</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">decl</span> <span class="ow">in</span> <span class="n">split_tokens</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="n">t_type</span><span class="o">=</span><span class="s1">&#39;literal&#39;</span><span class="p">,</span> <span class="n">t_value</span><span class="o">=</span><span class="s1">&#39;;&#39;</span><span class="p">):</span>
+            <span class="n">decl_name</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">colon</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">decl</span><span class="p">:</span>
+                <span class="c1"># iterate until first ident-token</span>
+                <span class="k">if</span> <span class="n">decl_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">token</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;ident&#39;</span><span class="p">:</span>
+                        <span class="n">decl_name</span> <span class="o">=</span> <span class="n">token</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">declarations</span><span class="p">[</span><span class="n">decl_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">continue</span>
+                <span class="c1"># iterate until first colon ``:``</span>
+                <span class="k">if</span> <span class="n">decl_name</span> <span class="ow">and</span> <span class="n">colon</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">token</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;literal&#39;</span> <span class="ow">and</span> <span class="n">token</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;:&#39;</span><span class="p">:</span>
+                        <span class="n">colon</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">continue</span>
+
+                <span class="c1"># parse with method parse_decl_&lt;decl_name&gt;, if this does not</span>
+                <span class="c1"># exists, use self.parse_decl</span>
+
+                <span class="n">method_name</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;[^a-zA-Z0-9]&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="n">decl_name</span><span class="p">)</span>
+                <span class="n">parse_method</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;parse_decl_</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">method_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_decl</span><span class="p">)</span>
+                <span class="n">parse_method</span><span class="p">(</span><span class="n">decl_name</span><span class="p">,</span> <span class="n">token</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CSSRule.parse_decl"><a class="viewcode-back" href="../../internal.html#fontlib.css.CSSRule.parse_decl">[docs]</a>    <span class="k">def</span> <span class="nf">parse_decl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">decl_name</span><span class="p">,</span> <span class="n">token</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default method to parse declarations.&quot;&quot;&quot;</span>
+        <span class="c1"># ignore whitespace and literal tokens</span>
+        <span class="k">if</span> <span class="n">token</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;whitespace&#39;</span><span class="p">,</span> <span class="s1">&#39;literal&#39;</span><span class="p">]:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">declarations</span><span class="p">[</span><span class="n">decl_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="AtRule"><a class="viewcode-back" href="../../internal.html#fontlib.css.AtRule">[docs]</a><span class="k">class</span> <span class="nc">AtRule</span><span class="p">(</span><span class="n">CSSRule</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Internal abstraction of a CSS `at-rule`_.&quot;&quot;&quot;</span>
+
+    <span class="n">rule_type</span> <span class="o">=</span> <span class="s1">&#39;at-rule&#39;</span></div>
+
+    <span class="c1"># def declaration_token_values(self, decl_name, *token_types):</span>
+    <span class="c1">#     &quot;&quot;&quot;Get token values from tokens of ``decl_name`` and ``token_types``.</span>
+
+    <span class="c1">#     Select token values from *this* at-rule declarations.  E.g. to get all</span>
+    <span class="c1">#     ``url`` tokens from the declaration ``src`` use::</span>
+
+    <span class="c1">#         url_list = my_rule.declaration_token_values(&#39;src&#39;, &#39;url&#39;)</span>
+
+    <span class="c1">#     To select the name of a font-family declaration use ``string`` type::</span>
+
+    <span class="c1">#         font_name = my_rule.declaration_token_values(&#39;font-family&#39;, &#39;string&#39;)</span>
+
+    <span class="c1">#     :param decl_name:</span>
+    <span class="c1">#         A string with the name of the declaration (e.g. ``src`` or</span>
+    <span class="c1">#         ``font-family``).</span>
+
+    <span class="c1">#     :param \\*token_types:</span>
+    <span class="c1">#         A list of string arguments with the name of token&#39;s type (e.g.</span>
+    <span class="c1">#         ``string`` or ``url``).</span>
+
+    <span class="c1">#     :return:</span>
+    <span class="c1">#         A list with the **values** of the selected tokens.</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     ret_val = []</span>
+    <span class="c1">#     decl = self.declarations.get(decl_name, None)</span>
+    <span class="c1">#     if decl is not None:</span>
+    <span class="c1">#         ret_val = [ token.value for token in decl if token.type in token_types ]</span>
+    <span class="c1">#     # log.debug(&quot;declaration_token_values(%s, *%s): --&gt; %s&quot;, decl_name, token_types, ret_val)</span>
+    <span class="c1">#     return ret_val</span>
+
+
+<div class="viewcode-block" id="FontFaceRule"><a class="viewcode-back" href="../../internal.html#fontlib.css.FontFaceRule">[docs]</a><span class="k">class</span> <span class="nc">FontFaceRule</span><span class="p">(</span><span class="n">AtRule</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Internal abstraction of a CSS ``@font-face``.&quot;&quot;&quot;</span>
+    <span class="n">rule_name</span> <span class="o">=</span> <span class="s1">&#39;font-face&#39;</span>
+
+<div class="viewcode-block" id="FontFaceRule.font_family"><a class="viewcode-back" href="../../internal.html#fontlib.css.FontFaceRule.font_family">[docs]</a>    <span class="k">def</span> <span class="nf">font_family</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a string with the font-family name</span>
+
+<span class="sd">        This descriptor defines the font family name that will be used in all</span>
+<span class="sd">        CSS font family name matching.  It is required for the @font-face rule</span>
+<span class="sd">        to be valid (`CSS @font-face:font-family`_).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ret_val</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">decl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">declarations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;font-family&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">decl</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;invalid @font-face rule, missing declartion: font-family&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ret_val</span> <span class="o">=</span> <span class="p">[</span> <span class="n">token</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">decl</span> <span class="k">if</span> <span class="n">token</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;string&#39;</span> <span class="p">]</span>
+        <span class="k">return</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ret_val</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FontFaceRule.src"><a class="viewcode-back" href="../../internal.html#fontlib.css.FontFaceRule.src">[docs]</a>    <span class="k">def</span> <span class="nf">src</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a dictionary with ``src`` values.</span>
+
+<span class="sd">        This descriptor specifies the resource containing font data. It is</span>
+<span class="sd">        required for the @font-face rule to be valid.  Its value is a</span>
+<span class="sd">        prioritized, comma-separated list of external references or</span>
+<span class="sd">        locally-installed font face names (`CSS @font-face:src`_).</span>
+
+<span class="sd">        url:</span>
+<span class="sd">          As with other URLs in CSS, the URL may be relative, in which case it</span>
+<span class="sd">          is resolved relative to the location of the style sheet containing the</span>
+<span class="sd">          @font-face rule.</span>
+
+<span class="sd">          In the case of SVG fonts, the URL points to an element within a</span>
+<span class="sd">          document containing SVG font definitions.</span>
+
+<span class="sd">        local:</span>
+<span class="sd">          When authors would prefer to use a locally available copy of a given</span>
+<span class="sd">          font and download it if it&#39;s not, local() can be used.</span>
+
+<span class="sd">          The local-value in the dictionary contains a comma-separated list of</span>
+<span class="sd">          *local* font-face names (``&lt;font-face-name&gt;, &lt;font-face-name&gt;, ...``)</span>
+
+<span class="sd">        format:</span>
+<span class="sd">          The format hint contains a comma-separated list of format strings that</span>
+<span class="sd">          denote well-known font formats.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># pylint: disable=too-many-branches</span>
+        <span class="n">ret_val</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">local</span><span class="o">=</span><span class="p">[],</span> <span class="p">)</span>
+        <span class="n">decl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">declarations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">decl</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;invalid @font-face rule, missing declartion: src&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">decl</span><span class="p">:</span>
+
+                <span class="k">if</span> <span class="n">token</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;url&#39;</span><span class="p">:</span>
+                    <span class="n">ret_val</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">token</span><span class="o">.</span><span class="n">value</span>
+
+                <span class="k">elif</span> <span class="n">token</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;function&#39;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">token</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;url&#39;</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">token</span><span class="o">.</span><span class="n">arguments</span><span class="p">:</span>
+                            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;invalid @font-face rule, declartion src: url(...) token missing argument&quot;</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">ret_val</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">token</span><span class="o">.</span><span class="n">arguments</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+                    <span class="k">elif</span> <span class="n">token</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;format&#39;</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">token</span><span class="o">.</span><span class="n">arguments</span><span class="p">:</span>
+                            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;invalid @font-face rule, declartion src: format(...) token missing argument&quot;</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">ret_val</span><span class="p">[</span><span class="s1">&#39;format&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">_</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">token</span><span class="o">.</span><span class="n">arguments</span><span class="p">])</span>
+                    <span class="k">elif</span> <span class="n">token</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;local&#39;</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">token</span><span class="o">.</span><span class="n">arguments</span><span class="p">:</span>
+                            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;invalid @font-face rule, declartion src: local(...) token missing argument&quot;</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">ret_val</span><span class="p">[</span><span class="s1">&#39;local&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">_</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">token</span><span class="o">.</span><span class="n">arguments</span><span class="p">])</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;@font-face rule, declartion src: ignore function token: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">token</span><span class="p">)</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;@font-face rule, declartion src: ignore token: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">token</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ret_val</span></div>
+
+
+<div class="viewcode-block" id="FontFaceRule.unicode_range"><a class="viewcode-back" href="../../internal.html#fontlib.css.FontFaceRule.unicode_range">[docs]</a>    <span class="k">def</span> <span class="nf">unicode_range</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a comma separeted string with unicode ranges.</span>
+
+<span class="sd">        This descriptor defines the set of Unicode codepoints that may be</span>
+<span class="sd">        supported by the font face for which it is declared.  The descriptor</span>
+<span class="sd">        value is a comma-delimited list of Unicode range (&lt;urange&gt;) values.  The</span>
+<span class="sd">        union of these ranges defines the set of codepoints that serves as a</span>
+<span class="sd">        hint for user agents when deciding whether or not to download a font</span>
+<span class="sd">        resgource for a given text run (`CSS @font-face:unicode-range`_).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ret_val</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">decl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">declarations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;unicode-range&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">decl</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ret_val</span> <span class="o">=</span> <span class="p">[</span> <span class="n">token</span><span class="o">.</span><span class="n">serialize</span><span class="p">()</span> <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">decl</span> <span class="p">]</span>
+        <span class="k">return</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ret_val</span><span class="p">)</span></div></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+  <span id="sidebar-top"></span>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  
+    
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/darmarIT_logo_128.png" alt="Logo"/>
+            </a></p>
+  
+<h3>Navigation</h3>
+<ul>
+  <li><a href="../../index.html">Overview</a>
+    <ul>
+      <li><a href="../index.html">Module code</a>
+        
+          
+          </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script><div id="ethical-ad-placement"></div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2023 Markus Heiser.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+    </div>
+  <script src="../../_static/version_warning_offset.js"></script>
+
+  </body>
+</html>

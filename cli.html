@@ -1,0 +1,255 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>The fontlib command &#8212; fontlib 20230220 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Config" href="config.html" />
+    <link rel="prev" title="Font and FontStack" href="font.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="config.html" title="Config"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="font.html" title="Font and FontStack"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">fontlib 20230220 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="use.html" accesskey="U">Use</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">The <code class="docutils literal notranslate"><span class="pre">fontlib</span></code> command</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="the-fontlib-command">
+<span id="fontlib-cli"></span><h1>The <code class="docutils literal notranslate"><span class="pre">fontlib</span></code> command<a class="headerlink" href="#the-fontlib-command" title="Permalink to this heading">¶</a></h1>
+<p>Command line tools from the fontlib library.</p>
+<p>Most commands do work with a workspace.  If you haven’t used fontlib before it
+might be good to create one first:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fontlib</span> <span class="n">workspace</span> <span class="n">init</span> <span class="o">&lt;</span><span class="n">dest</span><span class="o">-</span><span class="n">folder</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Which creates a workspace at &lt;dest-folder&gt; and init this workspace with some
+defaults registered.  Use the help option for more details.</p>
+<p>The <a class="reference external" href="https://github.com/return42/fontlib.git">fontlib</a> library comes with a command line.  Use <code class="docutils literal notranslate"><span class="pre">fontlib</span> <span class="pre">--help</span></code> for a
+basic help.</p>
+<div class="rst-example admonition">
+<p class="admonition-title">fontlib –help</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: fontlib [-h] [--debug] [--verbose] [--quiet] [-c [INI-FILE]]
+               [--workspace WORKSPACE] [--debug-sql]
+               {README,SCHEMA,version,list,css-parse,download,config,workspace,google}
+               ...
+
+    Command line tools from the fontlib library.
+
+Most commands do work with a workspace.  If you haven&#39;t used fontlib before it
+might be good to create one first::
+
+  fontlib workspace init &lt;dest-folder&gt; [-h]
+
+Which creates a workspace at &lt;dest-folder&gt; and init this workspace with some
+defaults registered.  Use the help option for more details.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --debug               run in debug mode (default: False)
+  --verbose             run in verbose mode (default: False)
+  --quiet               run in quiet mode (default: False)
+  -c [INI-FILE], --config [INI-FILE]
+                        specify config file (default:
+                        /home/markus/.fontlib/config.ini)
+  --workspace WORKSPACE
+                        workspace (default: ~/.fontlib)
+  --debug-sql           debug sql engine (default: False)
+
+commands:
+  {README,SCHEMA,version,list,css-parse,download,config,workspace,google}
+    README              prints README to stdout
+    SCHEMA              Turn SQLAlchemy DB Model into a graph.
+    version             prints version infos to stdout
+    list                list fonts
+    css-parse           Parse ``@font-face`` rules from &lt;url&gt;.
+    download            Download font-family &lt;family&gt; into folder &lt;dest&gt;.
+    config              Inspect configuration (working with INI files).
+    workspace           Inspect and init workspace.
+    google              tools for Google fonts
+</pre></div>
+</div>
+</div>
+<p>For a more detailed help to one of the sub commands type:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ fontlib &lt;command&gt; --help
+</pre></div>
+</div>
+<section id="fontlib-options">
+<span id="fontlib-cli-options"></span><h2>Fontlib Options<a class="headerlink" href="#fontlib-options" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--verbose</span></code>: more verbose output</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-c</span> <span class="pre">/</span> <span class="pre">--config</span></code>: <a class="reference external" href="https://github.com/return42/fontlib/blob/master/fontlib/config.ini">git://fontlib/config.ini</a> (see <a class="reference internal" href="config.html#config"><span class="std std-ref">Config</span></a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--workspace</span></code>: place where application persists its data</p></li>
+</ul>
+</section>
+<section id="fontstack-options">
+<h2>Fontstack options<a class="headerlink" href="#fontstack-options" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--builtins</span></code>: select <a class="reference internal" href="builtin.html#builtin-fonts"><span class="std std-ref">Builtin fonts</span></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--ep-fonts</span></code>: <a class="reference internal" href="ep_points.html#ep-points"><span class="std std-ref">Fonts from entry points</span></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--google</span></code>: <a class="reference internal" href="googlefont.html#googlefont"><span class="std std-ref">Fonts from google</span></a></p></li>
+</ul>
+<section id="fontlib-list">
+<h3>fontlib list<a class="headerlink" href="#fontlib-list" title="Permalink to this heading">¶</a></h3>
+<div class="rst-example admonition">
+<p class="admonition-title">fontlib list –help</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: fontlib list [-h]
+
+optional arguments:
+  -h, --help  show this help message and exit
+
+list fonts
+</pre></div>
+</div>
+</div>
+</section>
+<section id="fontlib-css-parse">
+<h3>fontlib css-parse<a class="headerlink" href="#fontlib-css-parse" title="Permalink to this heading">¶</a></h3>
+<div class="rst-example admonition">
+<p class="admonition-title">fontlib css-parse –help</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: fontlib css-parse [-h] url
+
+positional arguments:
+  url         URL of stylesheet (CSS) to parse
+
+optional arguments:
+  -h, --help  show this help message and exit
+
+Parse ``@font-face`` rules from &lt;url&gt;.
+
+Load CSS (stylesheet) from &lt;url&gt; and filter ``@font-face`` rules.  E.g. google
+fonts API::
+
+  css-parse &#39;https://fonts.googleapis.com/css?family=Cute+Font|Roboto+Slab&#39;
+
+or built-in *dejavu* fonts from url::
+
+  css-parse  &#39;file:/800GBPCIex4/share/fontlib/fontlib/files/cantarell/cantarell.css&#39;
+  css-parse  &#39;file:/800GBPCIex4/share/fontlib/fontlib/files/dejavu/dejavu.css&#39;
+</pre></div>
+</div>
+</div>
+</section>
+<section id="fontlib-download">
+<h3>fontlib download<a class="headerlink" href="#fontlib-download" title="Permalink to this heading">¶</a></h3>
+<div class="rst-example admonition">
+<p class="admonition-title">fontlib download –help</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: fontlib download [-h] dest family [family ...]
+
+positional arguments:
+  dest        Folder where the download will be placed.
+  family      Font&#39;s name, the value of CSS font-family property.E.g. &#39;Roboto
+              Slab&#39; or &#39;DejaVu Sans Mono&#39;
+
+optional arguments:
+  -h, --help  show this help message and exit
+
+Download font-family &lt;family&gt; into folder &lt;dest&gt;.
+</pre></div>
+</div>
+</div>
+</section>
+<section id="fontlib-config">
+<h3>fontlib config<a class="headerlink" href="#fontlib-config" title="Permalink to this heading">¶</a></h3>
+<p>For more details see <a class="reference internal" href="config.html#config"><span class="std std-ref">Config</span></a>.</p>
+</section>
+</section>
+<section id="source-code-remarks">
+<h2>Source Code Remarks<a class="headerlink" href="#source-code-remarks" title="Permalink to this heading">¶</a></h2>
+<p>Implementation of application’s configuration class <a class="reference internal" href="internal.html#fontlib.config.Config" title="fontlib.config.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a>.</p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+  <span id="sidebar-top"></span>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  
+    
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/darmarIT_logo_128.png" alt="Logo"/>
+            </a></p>
+  
+
+  <h3>Contents</h3>
+  <ul>
+<li><a class="reference internal" href="#">The <code class="docutils literal notranslate"><span class="pre">fontlib</span></code> command</a><ul>
+<li><a class="reference internal" href="#fontlib-options">Fontlib Options</a></li>
+<li><a class="reference internal" href="#fontstack-options">Fontstack options</a><ul>
+<li><a class="reference internal" href="#fontlib-list">fontlib list</a></li>
+<li><a class="reference internal" href="#fontlib-css-parse">fontlib css-parse</a></li>
+<li><a class="reference internal" href="#fontlib-download">fontlib download</a></li>
+<li><a class="reference internal" href="#fontlib-config">fontlib config</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#source-code-remarks">Source Code Remarks</a></li>
+</ul>
+</li>
+</ul>
+<h3>Navigation</h3>
+<ul>
+  <li><a href="index.html">Overview</a>
+    <ul>
+      <li><a href="use.html">Use</a>
+        <ul>
+          <li>Previous: <a href="font.html" title="previous chapter">Font and FontStack</a>
+          <li>Next: <a href="config.html" title="next chapter">Config</a></ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script><div id="ethical-ad-placement"></div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2023 Markus Heiser.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+    </div>
+  <script src="_static/version_warning_offset.js"></script>
+
+  </body>
+</html>

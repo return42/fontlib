@@ -1,0 +1,285 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Config &#8212; fontlib 20230220 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Fonts from google" href="googlefont.html" />
+    <link rel="prev" title="The fontlib command" href="cli.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="googlefont.html" title="Fonts from google"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="cli.html" title="The fontlib command"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">fontlib 20230220 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Config</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="config">
+<span id="id1"></span><h1>Config<a class="headerlink" href="#config" title="Permalink to this heading">¶</a></h1>
+<p>Fontlib can be configured with a configuration file (see <a class="reference internal" href="#basic-config-and-logging-setup">basic config and
+logging setup</a>) and/or with command line arguments (see
+<a class="reference internal" href="cli.html#fontlib-cli-options"><span class="std std-ref">Fontlib Options</span></a>).  If nothing is given, the <a class="reference internal" href="#application-defaults">application defaults</a>
+and <a class="reference internal" href="#logging-defaults">logging defaults</a> come to the effect.</p>
+<section id="basic-config-and-logging-setup">
+<h2>basic config and logging setup<a class="headerlink" href="#basic-config-and-logging-setup" title="Permalink to this heading">¶</a></h2>
+<p>To install templates for indiviual configuration use the <code class="docutils literal notranslate"><span class="pre">config</span> <span class="pre">install</span></code>
+command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ fontlib config install ~/.fontlib
+using workspace: ~/.fontlib
+set log level of logger: fontlib (WARNING)
+log goes to:
+ - &lt;StreamHandler &lt;stderr&gt; (DEBUG)&gt;
+install:  ~/.fontlib/config.ini
+install:  ~/.fontlib/log.ini
+</pre></div>
+</div>
+<p>This will setup a workspace folder <code class="docutils literal notranslate"><span class="pre">.fontlib</span></code> in your home folder where
+templates for <a class="reference internal" href="#application-defaults">application defaults</a> and <a class="reference internal" href="#logging-defaults">logging defaults</a> are copied in.  To
+activate the configuration in <code class="docutils literal notranslate"><span class="pre">.fontlib/log.ini</span></code> just un-comment the <cite>config</cite>
+line:</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[logging]</span>
+<span class="na">...</span>
+<span class="na">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">%(workspace)s/log.ini</span>
+</pre></div>
+</div>
+</section>
+<section id="inspect-configuration">
+<h2>inspect configuration<a class="headerlink" href="#inspect-configuration" title="Permalink to this heading">¶</a></h2>
+<p>With command <code class="docutils literal notranslate"><span class="pre">fontlib</span> <span class="pre">config</span> <span class="pre">show</span></code> you can inspect current configuration
+options.  To show your current configuration use <code class="docutils literal notranslate"><span class="pre">fontlib</span> <span class="pre">config</span> <span class="pre">show</span></code>.  With
+switch <code class="docutils literal notranslate"><span class="pre">--verbose</span></code> you will get some more information.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ fontlib --verbose config show
+using workspace: ~/.fontlib
+set log level of logger: fontlib (WARNING)
+log goes to:
+- &lt;StreamHandler &lt;stderr&gt; (DEBUG)&gt;
+
+config.ini
+==========
+
+[DEFAULT]
+workspace = ~/.fontlib
+
+[fontstack]
+builtin fonts = cantarell, dejavu
+entry points = fonts_ttf, fonts_otf, fonts_woff, fonts_woff2
+cache = fontlib.urlcache.SimpleURLCache
+...
+
+log.ini
+=======
+
+[loggers]
+keys = root, fontlib
+...
+</pre></div>
+</div>
+</section>
+<section id="application-defaults">
+<h2>application defaults<a class="headerlink" href="#application-defaults" title="Permalink to this heading">¶</a></h2>
+<p>The default application configuration is taken from the
+<a class="reference external" href="https://github.com/return42/fontlib/blob/master/fontlib/config.ini">git://fontlib/config.ini</a> file:</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c1"># -*- coding: utf-8; mode: ini -*-</span>
+<span class="linenos"> 2</span>
+<span class="linenos"> 3</span><span class="k">[DEFAULT]</span>
+<span class="linenos"> 4</span>
+<span class="linenos"> 5</span><span class="na">workspace</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">~/.fontlib</span>
+<span class="linenos"> 6</span>
+<span class="linenos"> 7</span><span class="c1"># persistence of fontlib&#39;s applications</span>
+<span class="linenos"> 8</span><span class="c1"># https://docs.sqlalchemy.org/engines.html#database-urls</span>
+<span class="linenos"> 9</span><span class="na">fontlib_db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">sqlite:////%(workspace)s/fontlib.db</span>
+<span class="linenos">10</span><span class="c1"># fontlib_db = sqlite:///:memory:</span>
+<span class="linenos">11</span>
+<span class="linenos">12</span><span class="k">[fontstack]</span>
+<span class="linenos">13</span>
+<span class="linenos">14</span><span class="c1"># Fonts loaded from builtins.</span>
+<span class="linenos">15</span><span class="na">builtin fonts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">cantarell, dejavu</span>
+<span class="linenos">16</span>
+<span class="linenos">17</span><span class="c1"># Fonts loaded from entry points.</span>
+<span class="linenos">18</span><span class="na">entry points</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">fonts_ttf, fonts_otf, fonts_woff, fonts_woff2</span>
+<span class="linenos">19</span>
+<span class="linenos">20</span><span class="c1"># Full qualified name of the URL-cache implementation.  Subclass of</span>
+<span class="linenos">21</span><span class="c1"># fontlib.urlcache.URLCache.  e.g.: fontlib.urlcache.SimpleURLCache</span>
+<span class="linenos">22</span><span class="c1"># or fontlib.urlcache.NoCache</span>
+<span class="linenos">23</span><span class="na">cache</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">fontlib.urlcache.SimpleURLCache</span>
+<span class="linenos">24</span>
+<span class="linenos">25</span><span class="k">[google fonts]</span>
+<span class="linenos">26</span>
+<span class="linenos">27</span><span class="c1"># Select font families from https://fonts.google.com/</span>
+<span class="linenos">28</span><span class="na">family base url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">https://fonts.googleapis.com/css?family=</span>
+<span class="linenos">29</span>
+<span class="linenos">30</span><span class="c1"># https://github.com/googlefonts/robotoslab</span>
+<span class="linenos">31</span><span class="c1"># https://github.com/googlefonts/staatliches</span>
+<span class="linenos">32</span><span class="c1"># https://github.com/graphicore/librebarcode</span>
+<span class="linenos">33</span><span class="na">fonts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">Roboto Slab, Staatliches, Libre Barcode 39 Extended Text</span>
+<span class="linenos">34</span>
+<span class="linenos">35</span><span class="k">[logging]</span>
+<span class="linenos">36</span>
+<span class="linenos">37</span><span class="c1"># Threshold for the logger</span>
+<span class="linenos">38</span><span class="c1"># Value: debug | info | warning | error | critical</span>
+<span class="linenos">39</span><span class="na">level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">warning</span>
+<span class="linenos">40</span><span class="c1">#config = %(workspace)s/log.ini</span>
+</pre></div>
+</div>
+</section>
+<section id="logging-defaults">
+<h2>logging defaults<a class="headerlink" href="#logging-defaults" title="Permalink to this heading">¶</a></h2>
+<p>Fontlib uses the standard <a class="reference external" href="https://docs.python.org/3/library/logging.html">py-logging</a> facility.  The default logging
+configuration is taken from the <a class="reference external" href="https://github.com/return42/fontlib/blob/master/fontlib/log.ini">git://fontlib/log.ini</a> file (shown
+below).  For details options see <a class="reference external" href="https://docs.python.org/3/library/logging.config.html#configuration-file-format">py-logging INI format</a>.</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c1"># -*- coding: utf-8; mode: ini -*-</span>
+<span class="linenos"> 2</span><span class="c1">#</span>
+<span class="linenos"> 3</span><span class="c1"># fontlib logging configuration</span>
+<span class="linenos"> 4</span><span class="c1">#</span>
+<span class="linenos"> 5</span><span class="c1"># https://docs.python.org/3/library/logging.config.html#configuration-file-format</span>
+<span class="linenos"> 6</span><span class="c1">#</span>
+<span class="linenos"> 7</span>
+<span class="linenos"> 8</span><span class="k">[loggers]</span>
+<span class="linenos"> 9</span><span class="na">keys</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">root, fontlib, sqlalchemy_engine</span>
+<span class="linenos">10</span>
+<span class="linenos">11</span><span class="k">[logger_root]</span>
+<span class="linenos">12</span><span class="na">level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">NOTSET</span>
+<span class="linenos">13</span><span class="na">handlers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">null</span>
+<span class="linenos">14</span>
+<span class="linenos">15</span><span class="k">[logger_fontlib]</span>
+<span class="linenos">16</span><span class="na">level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">WARNING</span>
+<span class="linenos">17</span><span class="c1">#handlers = console, logfile</span>
+<span class="linenos">18</span><span class="na">handlers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">console</span>
+<span class="linenos">19</span><span class="c1"># The qualname entry is the hierarchical channel name of the logger, that is to</span>
+<span class="linenos">20</span><span class="c1"># say the name used by the application to get the logger.</span>
+<span class="linenos">21</span><span class="na">qualname</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">fontlib</span>
+<span class="linenos">22</span><span class="na">propagate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
+<span class="linenos">23</span>
+<span class="linenos">24</span><span class="k">[logger_sqlalchemy_engine]</span>
+<span class="linenos">25</span><span class="na">level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">WARNING</span>
+<span class="linenos">26</span><span class="c1">#handlers = console, logfile</span>
+<span class="linenos">27</span><span class="na">handlers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">console</span>
+<span class="linenos">28</span><span class="na">qualname</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">sqlalchemy.engine</span>
+<span class="linenos">29</span><span class="na">propagate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
+<span class="linenos">30</span>
+<span class="linenos">31</span><span class="k">[handlers]</span>
+<span class="linenos">32</span><span class="na">keys</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">null, console, logfile</span>
+<span class="linenos">33</span>
+<span class="linenos">34</span><span class="k">[handler_null]</span>
+<span class="linenos">35</span><span class="na">class</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">NullHandler</span>
+<span class="linenos">36</span><span class="na">level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">NOTSET</span>
+<span class="linenos">37</span><span class="na">args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">()</span>
+<span class="linenos">38</span>
+<span class="linenos">39</span><span class="k">[handler_console]</span>
+<span class="linenos">40</span><span class="na">class</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">StreamHandler</span>
+<span class="linenos">41</span><span class="na">level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">DEBUG</span>
+<span class="linenos">42</span><span class="na">formatter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">console</span>
+<span class="linenos">43</span><span class="c1"># https://docs.python.org/3.7/library/logging.handlers.html#logging.StreamHandler</span>
+<span class="linenos">44</span><span class="na">args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">(sys.stderr, )</span>
+<span class="linenos">45</span>
+<span class="linenos">46</span><span class="k">[handler_logfile]</span>
+<span class="linenos">47</span><span class="na">class</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">handlers.RotatingFileHandler</span>
+<span class="linenos">48</span><span class="na">level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">DEBUG</span>
+<span class="linenos">49</span><span class="na">formatter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">logfile</span>
+<span class="linenos">50</span><span class="c1"># https://docs.python.org/3.7/library/logging.handlers.html#logging.handlers.RotatingFileHandler</span>
+<span class="linenos">51</span><span class="na">args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">(&#39;%(WORKSPACE)s/%(APP)s.log&#39;, )</span>
+<span class="linenos">52</span><span class="na">kwargs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">{&#39;maxBytes&#39; : 1024 * 1024, &#39;backupCount&#39; : 10 }</span>
+<span class="linenos">53</span>
+<span class="linenos">54</span><span class="k">[formatters]</span>
+<span class="linenos">55</span><span class="na">keys</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">console, logfile</span>
+<span class="linenos">56</span>
+<span class="linenos">57</span><span class="k">[formatter_console]</span>
+<span class="linenos">58</span><span class="na">format</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">~~ LOG.%(levelname)s [%(name)-12s] %(message)s</span>
+<span class="linenos">59</span>
+<span class="linenos">60</span><span class="k">[formatter_logfile]</span>
+<span class="linenos">61</span><span class="na">format</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">%(asctime)s| %(levelname)-8s|%(name)-12s| %(message)s</span>
+</pre></div>
+</div>
+</section>
+<section id="source-code-remarks">
+<h2>Source Code Remarks<a class="headerlink" href="#source-code-remarks" title="Permalink to this heading">¶</a></h2>
+<p>Implementation of application’s configuration class <a class="reference internal" href="internal.html#fontlib.config.Config" title="fontlib.config.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a>.</p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+  <span id="sidebar-top"></span>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  
+    
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/darmarIT_logo_128.png" alt="Logo"/>
+            </a></p>
+  
+
+  <h3>Contents</h3>
+  <ul>
+<li><a class="reference internal" href="#">Config</a><ul>
+<li><a class="reference internal" href="#basic-config-and-logging-setup">basic config and logging setup</a></li>
+<li><a class="reference internal" href="#inspect-configuration">inspect configuration</a></li>
+<li><a class="reference internal" href="#application-defaults">application defaults</a></li>
+<li><a class="reference internal" href="#logging-defaults">logging defaults</a></li>
+<li><a class="reference internal" href="#source-code-remarks">Source Code Remarks</a></li>
+</ul>
+</li>
+</ul>
+<h3>Navigation</h3>
+<ul>
+  <li><a href="index.html">Overview</a>
+    <ul>
+          <li>Previous: <a href="cli.html" title="previous chapter">The <code class="docutils literal notranslate"><span class="pre">fontlib</span></code> command</a>
+          <li>Next: <a href="googlefont.html" title="next chapter">Fonts from google</a>
+    </ul>
+  </li>
+</ul>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script><div id="ethical-ad-placement"></div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2023 Markus Heiser.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+    </div>
+  <script src="_static/version_warning_offset.js"></script>
+
+  </body>
+</html>

@@ -1,0 +1,972 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>fontlib.cli &#8212; fontlib 20230220 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">fontlib 20230220 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">fontlib.cli</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for fontlib.cli</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8; mode: python; mode: flycheck -*-</span>
+<span class="c1"># pylint: disable=global-statement, too-few-public-methods</span>
+
+<span class="sd">&quot;&quot;&quot;Command line tools from the fontlib library.</span>
+
+<span class="sd">Most commands do work with a workspace.  If you haven&#39;t used fontlib before it</span>
+<span class="sd">might be good to create one first::</span>
+
+<span class="sd">  fontlib workspace init &lt;dest-folder&gt; [-h]</span>
+
+<span class="sd">Which creates a workspace at &lt;dest-folder&gt; and init this workspace with some</span>
+<span class="sd">defaults registered.  Use the help option for more details.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">configparser</span>
+<span class="kn">import</span> <span class="nn">logging.config</span>
+<span class="kn">import</span> <span class="nn">platform</span>
+<span class="kn">import</span> <span class="nn">urllib.parse</span>
+
+<span class="kn">from</span> <span class="nn">fspath</span> <span class="kn">import</span> <span class="n">CLI</span>
+<span class="kn">from</span> <span class="nn">fspath</span> <span class="kn">import</span> <span class="n">FSPath</span>
+<span class="kn">from</span> <span class="nn">fspath.sui</span> <span class="kn">import</span> <span class="n">SimpleUserInterface</span>
+<span class="kn">from</span> <span class="nn">fspath.progressbar</span> <span class="kn">import</span> <span class="n">humanizeBytes</span>
+<span class="kn">from</span> <span class="nn">fspath.progressbar</span> <span class="kn">import</span> <span class="n">progressbar</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">__pkginfo__</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">db</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">event</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">googlefont</span>
+
+<span class="kn">from</span> <span class="nn">.api</span> <span class="kn">import</span> <span class="n">FontStack</span>
+<span class="kn">from</span> <span class="nn">.api</span> <span class="kn">import</span> <span class="n">BUILTINS</span> <span class="c1"># pylint: disable=unused-import</span>
+<span class="kn">from</span> <span class="nn">.api</span> <span class="kn">import</span> <span class="n">URLBlob</span>
+
+<span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">init_cfg</span>
+<span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">get_cfg</span>
+<span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">DEFAULT_INI</span>
+<span class="kn">from</span> <span class="nn">.log</span> <span class="kn">import</span> <span class="n">DEFAULT_LOG_INI</span>
+<span class="kn">from</span> <span class="nn">.log</span> <span class="kn">import</span> <span class="n">FONTLIB_LOGGER</span>
+<span class="kn">from</span> <span class="nn">.log</span> <span class="kn">import</span> <span class="n">init_log</span>
+
+<span class="n">_development</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">MetaData</span>
+    <span class="kn">from</span> <span class="nn">sqlalchemy_schemadisplay</span> <span class="kn">import</span> <span class="n">create_schema_graph</span>
+<span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+    <span class="n">_development</span> <span class="o">=</span> <span class="kc">False</span>
+
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;fontlib.cli&#39;</span><span class="p">)</span>
+
+<span class="n">UNKNOWN</span> <span class="o">=</span> <span class="nb">object</span><span class="p">()</span>
+<span class="n">CONFIG_INI</span> <span class="o">=</span> <span class="s1">&#39;config.ini&#39;</span>
+<span class="n">LOG_INI</span> <span class="o">=</span> <span class="s1">&#39;log.ini&#39;</span>
+<span class="n">CTX</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="Context"><a class="viewcode-back" href="../../internal.html#fontlib.cli.Context">[docs]</a><span class="k">class</span> <span class="nc">Context</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Application&#39;s context&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cli</span><span class="p">):</span>
+        <span class="n">init_cfg</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">CLI</span> <span class="o">=</span> <span class="n">cli</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">CONFIG</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Global configuration of the command line application.</span>
+
+<span class="sd">        Managed in the *main loop* by :py:func:`init_main` and</span>
+<span class="sd">        :py:func:`init_app`.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">get_cfg</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">WORKSPACE</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Workspace of the command line application.</span>
+
+<span class="sd">        Managed in the *main loop* by :py:func:`init_app`.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG</span><span class="o">.</span><span class="n">getpath</span><span class="p">(</span>
+            <span class="s1">&#39;DEFAULT&#39;</span><span class="p">,</span> <span class="s1">&#39;workspace&#39;</span>
+            <span class="p">,</span> <span class="n">fallback</span> <span class="o">=</span> <span class="n">FSPath</span><span class="p">(</span><span class="s1">&#39;~/.fontlib&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">EXPANDUSER</span> <span class="p">)</span></div>
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../internal.html#fontlib.cli.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;main loop of the command line interface&quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">CTX</span>
+
+    <span class="n">cli</span> <span class="o">=</span> <span class="n">CLI</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="vm">__doc__</span><span class="p">)</span>
+    <span class="n">cli</span><span class="o">.</span><span class="n">UI</span> <span class="o">=</span> <span class="n">SimpleUserInterface</span><span class="p">(</span><span class="n">cli</span><span class="o">=</span><span class="n">cli</span><span class="p">)</span>
+
+    <span class="n">init_main</span><span class="p">(</span><span class="n">cli</span><span class="p">)</span>
+
+    <span class="c1"># config ...</span>
+
+    <span class="n">cli</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="s1">&#39;--config&#39;</span>
+        <span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s1">&#39;specify config file&#39;</span>
+        <span class="p">,</span> <span class="n">dest</span> <span class="o">=</span> <span class="s1">&#39;config&#39;</span>
+        <span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="n">FSPath</span>
+        <span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="n">CTX</span><span class="o">.</span><span class="n">WORKSPACE</span> <span class="o">/</span> <span class="n">CONFIG_INI</span>
+        <span class="p">,</span> <span class="n">nargs</span> <span class="o">=</span> <span class="s1">&#39;?&#39;</span>
+        <span class="p">,</span> <span class="n">metavar</span> <span class="o">=</span> <span class="s1">&#39;INI-FILE&#39;</span> <span class="p">)</span>
+
+    <span class="n">cli</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--workspace&quot;</span>
+        <span class="p">,</span> <span class="n">dest</span> <span class="o">=</span> <span class="s1">&#39;workspace&#39;</span>
+        <span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="n">CTX</span><span class="o">.</span><span class="n">CONFIG</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="o">*</span><span class="n">MAP_ARG_TO_CFG</span><span class="p">[</span><span class="s1">&#39;workspace&#39;</span><span class="p">][:</span><span class="mi">2</span><span class="p">])</span>
+        <span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="n">FSPath</span>
+        <span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;workspace&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">cli</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--debug-sql&#39;</span>
+        <span class="p">,</span> <span class="n">action</span>  <span class="o">=</span> <span class="s1">&#39;store_true&#39;</span>
+        <span class="p">,</span> <span class="n">help</span>    <span class="o">=</span> <span class="s1">&#39;debug sql engine&#39;</span> <span class="p">)</span>
+
+    <span class="c1"># cmd: README ...</span>
+
+    <span class="n">_</span> <span class="o">=</span> <span class="n">cli</span><span class="o">.</span><span class="n">addCMDParser</span><span class="p">(</span><span class="n">cli_README</span><span class="p">,</span> <span class="n">cmdName</span><span class="o">=</span><span class="s1">&#39;README&#39;</span><span class="p">)</span>
+
+    <span class="c1"># cmd: SCHEMA ...</span>
+
+    <span class="k">if</span> <span class="n">_development</span><span class="p">:</span>
+        <span class="n">schema</span> <span class="o">=</span> <span class="n">cli</span><span class="o">.</span><span class="n">addCMDParser</span><span class="p">(</span><span class="n">cli_SCHEMA</span><span class="p">,</span> <span class="n">cmdName</span><span class="o">=</span><span class="s1">&#39;SCHEMA&#39;</span><span class="p">)</span>
+        <span class="n">schema</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s1">&#39;--force&#39;</span>
+            <span class="p">,</span> <span class="n">action</span>  <span class="o">=</span> <span class="s1">&#39;store_true&#39;</span>
+            <span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s1">&#39;force command&#39;</span>
+        <span class="p">)</span>
+        <span class="n">schema</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;out&quot;</span>
+            <span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="n">FSPath</span>
+            <span class="p">,</span> <span class="n">nargs</span> <span class="o">=</span> <span class="s1">&#39;?&#39;</span>
+            <span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="n">FSPath</span><span class="p">(</span><span class="s1">&#39;./schema_diagram.svg&#39;</span><span class="p">)</span>
+            <span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;output file name of the generated diagram&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># cmd: version ...</span>
+
+    <span class="n">_</span> <span class="o">=</span> <span class="n">cli</span><span class="o">.</span><span class="n">addCMDParser</span><span class="p">(</span><span class="n">cli_version</span><span class="p">,</span> <span class="n">cmdName</span><span class="o">=</span><span class="s1">&#39;version&#39;</span><span class="p">)</span>
+
+    <span class="c1"># cmd: list ...</span>
+
+    <span class="n">_</span> <span class="o">=</span> <span class="n">cli</span><span class="o">.</span><span class="n">addCMDParser</span><span class="p">(</span><span class="n">cli_list_fonts</span><span class="p">,</span> <span class="n">cmdName</span><span class="o">=</span><span class="s1">&#39;list&#39;</span><span class="p">)</span>
+
+    <span class="c1"># cmd: css-parse</span>
+
+    <span class="n">css_parse</span> <span class="o">=</span> <span class="n">cli</span><span class="o">.</span><span class="n">addCMDParser</span><span class="p">(</span><span class="n">cli_parse_css</span><span class="p">,</span> <span class="n">cmdName</span><span class="o">=</span><span class="s1">&#39;css-parse&#39;</span><span class="p">)</span>
+    <span class="n">css_parse</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;url&quot;</span>
+        <span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">str</span>
+        <span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;URL of stylesheet (CSS) to parse&quot;</span>
+    <span class="p">)</span>
+
+    <span class="c1"># cmd: download ...</span>
+
+    <span class="n">download_family</span> <span class="o">=</span> <span class="n">cli</span><span class="o">.</span><span class="n">addCMDParser</span><span class="p">(</span><span class="n">cli_download_family</span><span class="p">,</span> <span class="n">cmdName</span><span class="o">=</span><span class="s1">&#39;download&#39;</span><span class="p">)</span>
+    <span class="n">download_family</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;dest&quot;</span>
+        <span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="n">FSPath</span>
+        <span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;Folder where the download will be placed.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">download_family</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;family&quot;</span>
+        <span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">str</span>
+        <span class="p">,</span> <span class="n">nargs</span> <span class="o">=</span> <span class="s1">&#39;+&#39;</span>
+        <span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;Font&#39;s name, the value of CSS font-family property.&quot;</span>
+            <span class="s2">&quot;E.g. &#39;Roboto Slab&#39; or &#39;DejaVu Sans Mono&#39;&quot;</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="c1"># cmd: config</span>
+
+    <span class="n">cfg</span> <span class="o">=</span> <span class="n">cli</span><span class="o">.</span><span class="n">addCMDParser</span><span class="p">(</span><span class="n">cli_config</span><span class="p">,</span> <span class="n">cmdName</span><span class="o">=</span><span class="s1">&#39;config&#39;</span><span class="p">)</span>
+    <span class="n">add_fontstack_options</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
+    <span class="n">cfg</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--force&#39;</span>
+        <span class="p">,</span> <span class="n">action</span>  <span class="o">=</span> <span class="s1">&#39;store_true&#39;</span>
+        <span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s1">&#39;force command&#39;</span>
+    <span class="p">)</span>
+    <span class="n">cfg</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;subcommand&quot;</span>
+        <span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">str</span>
+        <span class="p">,</span> <span class="n">choices</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;show&#39;</span><span class="p">,</span> <span class="s1">&#39;install&#39;</span><span class="p">]</span>
+        <span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;available subcommands: </span><span class="si">%(choices)s</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+    <span class="n">cfg</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;argument_list&quot;</span>
+        <span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">str</span>
+        <span class="p">,</span> <span class="n">nargs</span> <span class="o">=</span> <span class="s1">&#39;*&#39;</span>
+        <span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;arguments of the subcommand&quot;</span>
+        <span class="p">,</span> <span class="n">metavar</span> <span class="o">=</span> <span class="s1">&#39;ARG&#39;</span>
+    <span class="p">)</span>
+
+    <span class="c1"># cmd: workspace</span>
+
+    <span class="n">workspace</span> <span class="o">=</span> <span class="n">cli</span><span class="o">.</span><span class="n">addCMDParser</span><span class="p">(</span><span class="n">cli_workspace</span><span class="p">,</span> <span class="n">cmdName</span><span class="o">=</span><span class="s1">&#39;workspace&#39;</span><span class="p">)</span>
+    <span class="n">add_fontstack_options</span><span class="p">(</span><span class="n">workspace</span><span class="p">)</span>
+    <span class="n">workspace</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;subcommand&quot;</span>
+        <span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">str</span>
+        <span class="p">,</span> <span class="n">choices</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;show&#39;</span><span class="p">,</span> <span class="s1">&#39;init&#39;</span><span class="p">]</span>
+        <span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;available subcommands: </span><span class="si">%(choices)s</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+    <span class="n">workspace</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;argument_list&quot;</span>
+        <span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">str</span>
+        <span class="p">,</span> <span class="n">nargs</span> <span class="o">=</span> <span class="s1">&#39;*&#39;</span>
+        <span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;arguments of the subcommand&quot;</span>
+        <span class="p">,</span> <span class="n">metavar</span> <span class="o">=</span> <span class="s1">&#39;ARG&#39;</span>
+    <span class="p">)</span>
+
+    <span class="c1"># cmd: google</span>
+
+    <span class="n">google</span> <span class="o">=</span> <span class="n">cli</span><span class="o">.</span><span class="n">addCMDParser</span><span class="p">(</span><span class="n">cli_google</span><span class="p">,</span> <span class="n">cmdName</span><span class="o">=</span><span class="s1">&#39;google&#39;</span><span class="p">)</span>
+    <span class="n">google</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--format&quot;</span>
+        <span class="p">,</span> <span class="n">dest</span> <span class="o">=</span> <span class="s1">&#39;out_format&#39;</span>
+        <span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="s1">&#39;raw&#39;</span>
+        <span class="p">,</span> <span class="n">choices</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;rst&#39;</span><span class="p">,</span> <span class="s1">&#39;raw&#39;</span><span class="p">]</span>
+        <span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">str</span>
+        <span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;output format:&quot;</span>
+                  <span class="s2">&quot; rst: reStructuredText,&quot;</span>
+                  <span class="s2">&quot; raw: unformated&quot;</span> <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="n">google</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;subcommand&quot;</span>
+        <span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">str</span>
+        <span class="p">,</span> <span class="n">choices</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="s1">&#39;add&#39;</span><span class="p">]</span>
+        <span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;available subcommands: </span><span class="si">%(choices)s</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+    <span class="n">google</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;argument_list&quot;</span>
+        <span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">str</span>
+        <span class="p">,</span> <span class="n">nargs</span> <span class="o">=</span> <span class="s1">&#39;*&#39;</span>
+        <span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;arguments of the subcommand&quot;</span>
+        <span class="p">,</span> <span class="n">metavar</span> <span class="o">=</span> <span class="s1">&#39;ARG&#39;</span>
+    <span class="p">)</span>
+
+    <span class="c1"># run ...</span>
+    <span class="n">cli</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="cli_README"><a class="viewcode-back" href="../../internal.html#fontlib.cli.cli_README">[docs]</a><span class="k">def</span> <span class="nf">cli_README</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;prints README to stdout</span>
+
+<span class="sd">    Use ``--verbose`` to print URL auf http links.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">init_app</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">cli</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">CLI</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">cli</span><span class="o">.</span><span class="n">UI</span>
+
+    <span class="n">readme</span> <span class="o">=</span> <span class="n">__pkginfo__</span><span class="o">.</span><span class="n">docstring</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+        <span class="c1"># strip hyperrefs</span>
+        <span class="n">readme</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;`(.*?)\s\&lt;http.*?\&gt;`_+&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;&#39;\1&#39;&quot;</span><span class="p">,</span> <span class="n">readme</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">S</span><span class="p">)</span>
+    <span class="n">_</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="n">readme</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="cli_SCHEMA"><a class="viewcode-back" href="../../internal.html#fontlib.cli.cli_SCHEMA">[docs]</a><span class="k">def</span> <span class="nf">cli_SCHEMA</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="c1"># pylint: disable=line-too-long</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Turn SQLAlchemy DB Model into a graph.</span>
+
+<span class="sd">    !!! EXPERIMENTAL !!!</span>
+
+<span class="sd">    .. hint::</span>
+
+<span class="sd">         This feature is available in the *develop* environment.  To install</span>
+<span class="sd">         requirements of the *develop* environment use::</span>
+
+<span class="sd">            pip install .\\[develop,test\\]</span>
+
+<span class="sd">    - `Declaring Extras &lt;https://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies&gt;`_</span>
+<span class="sd">    - `Install a package with setuptools extras. &lt;https://pip.pypa.io/en/stable/reference/pip_install/#examples&gt;`_</span>
+
+
+<span class="sd">    You will need atleast SQLAlchemy and pydot along with graphviz for</span>
+<span class="sd">    this.  Graphviz-cairo is higly recommended to get tolerable image quality.</span>
+<span class="sd">    Further reading:</span>
+
+<span class="sd">    - `sqlalchemy_schemadisplay &lt;https://github.com/fschulze/sqlalchemy_schemadisplay&gt;`__</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">init_app</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">cli</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">CLI</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">cli</span><span class="o">.</span><span class="n">UI</span>
+
+    <span class="n">fontlib_connector</span> <span class="o">=</span> <span class="n">CTX</span><span class="o">.</span><span class="n">CONFIG</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;DEFAULT&#39;</span><span class="p">,</span> <span class="s1">&#39;fontlib_db&#39;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s1">&#39;sqlite:///:memory:&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">EXISTS</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">force</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">args</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="mi">42</span><span class="p">,</span> <span class="s2">&quot;file </span><span class="si">%s</span><span class="s2"> already exists (use --force to overwrite)&quot;</span> <span class="o">%</span> <span class="n">args</span><span class="o">.</span><span class="n">out</span><span class="p">)</span>
+
+    <span class="n">fmt</span> <span class="o">=</span> <span class="s1">&#39;svg&#39;</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">SUFFIX</span><span class="p">:</span>
+        <span class="n">fmt</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">SUFFIX</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+
+    <span class="c1"># create the pydot graph object by autoloading all tables via a bound metadata object</span>
+    <span class="n">graph</span> <span class="o">=</span> <span class="n">create_schema_graph</span><span class="p">(</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="n">MetaData</span><span class="p">(</span><span class="n">fontlib_connector</span><span class="p">)</span>
+        <span class="p">,</span> <span class="n">show_datatypes</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># The image would get big if we&#39;d show the datatypes</span>
+        <span class="p">,</span> <span class="n">show_indexes</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># ditto for indexes</span>
+        <span class="p">,</span> <span class="n">rankdir</span> <span class="o">=</span> <span class="s1">&#39;LR&#39;</span>  <span class="c1"># From left to right (instead of top to bottom)</span>
+        <span class="p">,</span> <span class="n">concentrate</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Don&#39;t try to join the relation lines together</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">fmt</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">formats</span><span class="p">:</span>
+        <span class="n">_</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s2">&quot;write format </span><span class="si">%s</span><span class="s2"> to file: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">fmt</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">out</span><span class="p">))</span>
+        <span class="n">graph</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">out</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">fmt</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="c1"># write out the file</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">args</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="mi">42</span><span class="p">,</span> <span class="s2">&quot;unknown output format: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">fmt</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="cli_version"><a class="viewcode-back" href="../../internal.html#fontlib.cli.cli_version">[docs]</a><span class="k">def</span> <span class="nf">cli_version</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;prints version infos to stdout&quot;&quot;&quot;</span>
+    <span class="n">init_app</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">cli</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">CLI</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">cli</span><span class="o">.</span><span class="n">UI</span>
+
+    <span class="n">_</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s2">&quot; | &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span>
+        <span class="n">__pkginfo__</span><span class="o">.</span><span class="n">version</span>
+        <span class="p">,</span> <span class="n">platform</span><span class="o">.</span><span class="n">python_version</span><span class="p">()</span>
+        <span class="p">,</span> <span class="n">platform</span><span class="o">.</span><span class="n">node</span><span class="p">()</span>
+        <span class="p">,</span> <span class="n">platform</span><span class="o">.</span><span class="n">platform</span><span class="p">()</span>
+        <span class="p">]))</span></div>
+
+<div class="viewcode-block" id="cli_list_fonts"><a class="viewcode-back" href="../../internal.html#fontlib.cli.cli_list_fonts">[docs]</a><span class="k">def</span> <span class="nf">cli_list_fonts</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;list fonts</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">init_app</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">cli</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">CLI</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">cli</span><span class="o">.</span><span class="n">UI</span>
+
+    <span class="n">stack</span> <span class="o">=</span> <span class="n">FontStack</span><span class="o">.</span><span class="n">get_fontstack</span><span class="p">(</span><span class="n">CTX</span><span class="o">.</span><span class="n">CONFIG</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">table_rows</span><span class="p">():</span>
+
+        <span class="k">for</span> <span class="n">font</span> <span class="ow">in</span> <span class="n">stack</span><span class="o">.</span><span class="n">list_fonts</span><span class="p">():</span>
+
+            <span class="n">blob</span> <span class="o">=</span> <span class="n">stack</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_blob_obj</span><span class="p">(</span><span class="n">font</span><span class="o">.</span><span class="n">origin</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">blob</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">state</span> <span class="o">=</span> <span class="n">URLBlob</span><span class="o">.</span><span class="n">STATE_REMOTE</span>
+                <span class="n">url</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlparse</span><span class="p">(</span><span class="n">blob</span><span class="o">.</span><span class="n">origin</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">url</span><span class="o">.</span><span class="n">scheme</span> <span class="o">==</span> <span class="s1">&#39;file&#39;</span><span class="p">:</span>
+                    <span class="n">state</span> <span class="o">=</span> <span class="n">URLBlob</span><span class="o">.</span><span class="n">STATE_LOCAL</span>
+                <span class="n">blob</span> <span class="o">=</span> <span class="n">URLBlob</span><span class="p">(</span><span class="n">font</span><span class="o">.</span><span class="n">origin</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">)</span>
+
+            <span class="n">closest</span> <span class="o">=</span> <span class="n">blob</span><span class="o">.</span><span class="n">origin</span>
+            <span class="k">if</span> <span class="n">blob</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="n">blob</span><span class="o">.</span><span class="n">STATE_CACHED</span><span class="p">:</span>
+                <span class="n">closest</span> <span class="o">=</span> <span class="n">stack</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">fname_by_blob</span><span class="p">(</span><span class="n">blob</span><span class="p">)</span>
+
+            <span class="k">yield</span> <span class="nb">dict</span><span class="p">(</span>
+                <span class="nb">id</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">id</span>
+                <span class="p">,</span> <span class="n">origin</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">origin</span>
+                <span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">name</span>
+                <span class="p">,</span> <span class="nb">format</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">format</span>
+                <span class="p">,</span> <span class="n">blob_state</span> <span class="o">=</span> <span class="n">blob</span><span class="o">.</span><span class="n">state</span>
+                <span class="p">,</span> <span class="n">closest</span> <span class="o">=</span> <span class="n">closest</span>
+                <span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">db</span><span class="o">.</span><span class="n">fontlib_scope</span><span class="p">():</span>
+
+        <span class="n">_</span><span class="o">.</span><span class="n">rst_table</span><span class="p">(</span>
+            <span class="n">table_rows</span><span class="p">()</span>
+            <span class="c1"># &lt;col-title&gt;,      &lt;format sting&gt;, &lt;attribute name&gt;</span>
+            <span class="p">,</span> <span class="p">(</span><span class="s2">&quot;cache sate&quot;</span><span class="p">,</span>    <span class="s2">&quot;</span><span class="si">%-10s</span><span class="s2">&quot;</span><span class="p">,</span>        <span class="s2">&quot;blob_state&quot;</span><span class="p">)</span>
+            <span class="p">,</span> <span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span>          <span class="s2">&quot;</span><span class="si">%-40s</span><span class="s2">&quot;</span><span class="p">,</span>        <span class="s2">&quot;name&quot;</span><span class="p">)</span>
+            <span class="p">,</span> <span class="p">(</span><span class="s2">&quot;format&quot;</span><span class="p">,</span>        <span class="s2">&quot;</span><span class="si">%-20s</span><span class="s2">&quot;</span><span class="p">,</span>        <span class="s2">&quot;format&quot;</span><span class="p">)</span>
+            <span class="p">,</span> <span class="p">(</span><span class="s2">&quot;font ID&quot;</span><span class="p">,</span>       <span class="s2">&quot;</span><span class="si">%-22s</span><span class="s2">&quot;</span><span class="p">,</span>        <span class="s2">&quot;id&quot;</span><span class="p">)</span>
+            <span class="p">,</span> <span class="p">(</span><span class="s2">&quot;location&quot;</span><span class="p">,</span>      <span class="s2">&quot;</span><span class="si">%-90s</span><span class="s2">&quot;</span><span class="p">,</span>        <span class="s2">&quot;closest&quot;</span><span class="p">)</span> <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="cli_parse_css"><a class="viewcode-back" href="../../internal.html#fontlib.cli.cli_parse_css">[docs]</a><span class="k">def</span> <span class="nf">cli_parse_css</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse ``@font-face`` rules from &lt;url&gt;.</span>
+
+<span class="sd">    Load CSS (stylesheet) from &lt;url&gt; and filter ``@font-face`` rules.  E.g. google</span>
+<span class="sd">    fonts API::</span>
+
+<span class="sd">      css-parse &#39;https://fonts.googleapis.com/css?family=Cute+Font|Roboto+Slab&#39;</span>
+
+<span class="sd">    or built-in *dejavu* fonts from url::</span>
+
+<span class="sd">      css-parse  &#39;file:%(BUILTINS)s/cantarell/cantarell.css&#39;</span>
+<span class="sd">      css-parse  &#39;file:%(BUILTINS)s/dejavu/dejavu.css&#39;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cli</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">CLI</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">cli</span><span class="o">.</span><span class="n">UI</span>
+
+    <span class="c1"># init application with an empty fontstack database</span>
+    <span class="n">CTX</span><span class="o">.</span><span class="n">CONFIG</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;DEFAULT&#39;</span><span class="p">,</span> <span class="s1">&#39;fontlib_db&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s1">&#39;sqlite:///:memory:&#39;</span><span class="p">)</span>
+    <span class="n">init_app</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">table_rows</span><span class="p">():</span>
+
+        <span class="k">for</span> <span class="n">font</span> <span class="ow">in</span> <span class="n">stack</span><span class="o">.</span><span class="n">list_fonts</span><span class="p">():</span>
+            <span class="k">yield</span> <span class="nb">dict</span><span class="p">(</span>
+                <span class="nb">id</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">id</span>
+                <span class="p">,</span> <span class="n">origin</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">origin</span>
+                <span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">name</span>
+                <span class="p">,</span> <span class="nb">format</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">format</span>
+                <span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">db</span><span class="o">.</span><span class="n">fontlib_scope</span><span class="p">():</span>
+
+        <span class="n">stack</span> <span class="o">=</span> <span class="n">FontStack</span><span class="o">.</span><span class="n">get_fontstack</span><span class="p">(</span><span class="n">CTX</span><span class="o">.</span><span class="n">CONFIG</span><span class="p">)</span>
+        <span class="n">_</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s2">&quot;load css from url: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">args</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
+        <span class="n">stack</span><span class="o">.</span><span class="n">load_css</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
+
+        <span class="n">_</span><span class="o">.</span><span class="n">rst_table</span><span class="p">(</span>
+            <span class="n">table_rows</span><span class="p">()</span>
+            <span class="c1"># &lt;col-title&gt;, &lt;format sting&gt;, &lt;attribute name&gt;</span>
+            <span class="p">,</span> <span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span>          <span class="s2">&quot;</span><span class="si">%-40s</span><span class="s2">&quot;</span><span class="p">,</span>        <span class="s2">&quot;name&quot;</span><span class="p">)</span>
+            <span class="p">,</span> <span class="p">(</span><span class="s2">&quot;format&quot;</span><span class="p">,</span>        <span class="s2">&quot;</span><span class="si">%-20s</span><span class="s2">&quot;</span><span class="p">,</span>        <span class="s2">&quot;format&quot;</span><span class="p">)</span>
+            <span class="p">,</span> <span class="p">(</span><span class="s2">&quot;font ID&quot;</span><span class="p">,</span>       <span class="s2">&quot;</span><span class="si">%-22s</span><span class="s2">&quot;</span><span class="p">,</span>        <span class="s2">&quot;id&quot;</span><span class="p">)</span>
+            <span class="p">,</span> <span class="p">(</span><span class="s2">&quot;URL&quot;</span><span class="p">,</span>           <span class="s2">&quot;</span><span class="si">%-90s</span><span class="s2">&quot;</span><span class="p">,</span>        <span class="s2">&quot;origin&quot;</span><span class="p">)</span> <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="download_progress"><a class="viewcode-back" href="../../internal.html#fontlib.cli.download_progress">[docs]</a><span class="k">def</span> <span class="nf">download_progress</span><span class="p">(</span><span class="n">_url</span><span class="p">,</span> <span class="n">font_name</span><span class="p">,</span> <span class="n">font_format</span><span class="p">,</span> <span class="n">_cache_file</span><span class="p">,</span> <span class="n">down_bytes</span><span class="p">,</span> <span class="n">max_bytes</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Callback that prints download progress bar.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">progress_max</span> <span class="o">=</span> <span class="n">max_bytes</span>
+    <span class="k">if</span> <span class="n">max_bytes</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c1"># max_bytes can be zero if content-lenght is not set in the header</span>
+        <span class="n">progress_max</span> <span class="o">=</span> <span class="n">down_bytes</span> <span class="o">*</span> <span class="mi">2</span>
+    <span class="k">if</span> <span class="n">max_bytes</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">progress_max</span> <span class="o">=</span> <span class="n">down_bytes</span>
+
+    <span class="n">progressbar</span><span class="p">(</span>
+        <span class="n">down_bytes</span><span class="p">,</span> <span class="n">progress_max</span>
+        <span class="p">,</span> <span class="n">prompt</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">) [</span><span class="si">%s</span><span class="s2">]&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">font_name</span><span class="p">,</span> <span class="n">font_format</span><span class="p">,</span> <span class="n">humanizeBytes</span><span class="p">(</span><span class="n">progress_max</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="p">,</span> <span class="n">pipe</span> <span class="o">=</span> <span class="n">CTX</span><span class="o">.</span><span class="n">CLI</span><span class="o">.</span><span class="n">OUT</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">max_bytes</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">CTX</span><span class="o">.</span><span class="n">CLI</span><span class="o">.</span><span class="n">OUT</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="cli_download_family"><a class="viewcode-back" href="../../internal.html#fontlib.cli.cli_download_family">[docs]</a><span class="k">def</span> <span class="nf">cli_download_family</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Download font-family &lt;family&gt; into folder &lt;dest&gt;.&quot;&quot;&quot;</span>
+
+    <span class="n">init_app</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">cli</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">CLI</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">cli</span><span class="o">.</span><span class="n">UI</span>
+
+    <span class="n">stack</span> <span class="o">=</span> <span class="n">FontStack</span><span class="o">.</span><span class="n">get_fontstack</span><span class="p">(</span><span class="n">CTX</span><span class="o">.</span><span class="n">CONFIG</span><span class="p">)</span>
+
+    <span class="n">event</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;urlcache.download.tick&#39;</span><span class="p">,</span> <span class="n">download_progress</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">dest</span><span class="o">.</span><span class="n">EXISTS</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;use existing folder </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">dest</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;createfolder </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">dest</span><span class="p">)</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">dest</span><span class="o">.</span><span class="n">makedirs</span><span class="p">()</span>
+
+    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">with</span> <span class="n">db</span><span class="o">.</span><span class="n">fontlib_scope</span><span class="p">():</span>
+
+        <span class="k">for</span> <span class="n">font_family</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">family</span><span class="p">:</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="k">for</span> <span class="n">font</span> <span class="ow">in</span> <span class="n">stack</span><span class="o">.</span><span class="n">list_fonts</span><span class="p">(</span><span class="n">font_family</span><span class="p">):</span>
+                <span class="n">url</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlparse</span><span class="p">(</span><span class="n">font</span><span class="o">.</span><span class="n">origin</span><span class="p">)</span>
+                <span class="n">dest_file</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">dest</span> <span class="o">/</span> <span class="n">FSPath</span><span class="p">(</span><span class="n">url</span><span class="o">.</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">BASENAME</span>
+                <span class="k">if</span> <span class="n">url</span><span class="o">.</span><span class="n">query</span><span class="p">:</span>
+                    <span class="c1"># the resource is not a typical file URL with a file name, lets use</span>
+                    <span class="c1"># the fonts resource ID as a file name</span>
+                    <span class="n">dest_file</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">dest</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="n">font</span><span class="o">.</span><span class="n">id</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.&#39;</span> <span class="o">+</span> <span class="n">font</span><span class="o">.</span><span class="n">format</span>
+                <span class="n">_</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s2">&quot;[</span><span class="si">%s</span><span class="s2">]: download from </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">font</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">font</span><span class="o">.</span><span class="n">origin</span><span class="p">))</span>
+                <span class="n">stack</span><span class="o">.</span><span class="n">save_font</span><span class="p">(</span><span class="n">font</span><span class="p">,</span> <span class="n">dest_file</span><span class="p">)</span>
+                <span class="n">c</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">c</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">_</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s2">&quot;unknow font-family: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">font_family</span><span class="p">)</span>
+            <span class="n">count</span> <span class="o">+=</span> <span class="n">c</span>
+
+    <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;non of selected fonts is registered in the FontStack&quot;</span>
+    <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;downloaded </span><span class="si">%s</span><span class="s2"> files into </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">dest</span><span class="p">)</span>
+
+    <span class="n">_</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">return</span> <span class="ow">not</span> <span class="n">count</span></div>
+
+<div class="viewcode-block" id="cli_config"><a class="viewcode-back" href="../../internal.html#fontlib.cli.cli_config">[docs]</a><span class="k">def</span> <span class="nf">cli_config</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Inspect configuration (working with INI files).</span>
+
+<span class="sd">    commands:</span>
+
+<span class="sd">      :show:</span>
+<span class="sd">         print configuration</span>
+
+<span class="sd">      :install:</span>
+<span class="sd">         install default configuration (optional ARG1: &lt;dest-folder&gt;)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">init_app</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">cli</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">CLI</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">cli</span><span class="o">.</span><span class="n">UI</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">subcommand</span> <span class="o">==</span> <span class="s1">&#39;install&#39;</span><span class="p">:</span>
+
+        <span class="n">folder</span> <span class="o">=</span> <span class="n">CTX</span><span class="o">.</span><span class="n">WORKSPACE</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">argument_list</span><span class="p">:</span>
+            <span class="n">folder</span> <span class="o">=</span> <span class="n">FSPath</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">argument_list</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">folder</span><span class="o">.</span><span class="n">makedirs</span><span class="p">()</span>
+
+        <span class="n">dest</span> <span class="o">=</span> <span class="n">folder</span> <span class="o">/</span> <span class="s1">&#39;config.ini&#39;</span>
+        <span class="n">_</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s2">&quot;install:  </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">dest</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dest</span><span class="o">.</span><span class="n">EXISTS</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">force</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">args</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="mi">42</span><span class="p">,</span> <span class="s2">&quot;file </span><span class="si">%s</span><span class="s2"> already exists (use --force to overwrite)&quot;</span> <span class="o">%</span> <span class="n">dest</span><span class="p">)</span>
+        <span class="n">DEFAULT_INI</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
+
+        <span class="n">dest</span> <span class="o">=</span> <span class="n">folder</span> <span class="o">/</span> <span class="s1">&#39;log.ini&#39;</span>
+        <span class="n">_</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s2">&quot;install:  </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">dest</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dest</span><span class="o">.</span><span class="n">EXISTS</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">force</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">args</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="mi">42</span><span class="p">,</span> <span class="s2">&quot;file </span><span class="si">%s</span><span class="s2"> already exists (use --force to overwrite)&quot;</span> <span class="o">%</span> <span class="n">dest</span><span class="p">)</span>
+        <span class="n">DEFAULT_LOG_INI</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
+
+        <span class="k">return</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">subcommand</span> <span class="o">==</span> <span class="s1">&#39;show&#39;</span><span class="p">:</span>
+
+        <span class="n">_</span><span class="o">.</span><span class="n">rst_title</span><span class="p">(</span><span class="s2">&quot;config.ini&quot;</span><span class="p">)</span>
+        <span class="n">CTX</span><span class="o">.</span><span class="n">CONFIG</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">cli</span><span class="o">.</span><span class="n">OUT</span><span class="p">)</span>
+
+        <span class="n">_</span><span class="o">.</span><span class="n">rst_title</span><span class="p">(</span><span class="s2">&quot;log.ini&quot;</span><span class="p">)</span>
+        <span class="n">log_cfg</span> <span class="o">=</span> <span class="n">configparser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">()</span>
+        <span class="n">log_cfg</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">CTX</span><span class="o">.</span><span class="n">CONFIG</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;logging&quot;</span><span class="p">,</span> <span class="s2">&quot;config&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">DEFAULT_LOG_INI</span><span class="p">))</span>
+        <span class="n">log_cfg</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">cli</span><span class="o">.</span><span class="n">OUT</span><span class="p">)</span>
+
+        <span class="k">return</span></div>
+
+<div class="viewcode-block" id="print_font"><a class="viewcode-back" href="../../internal.html#fontlib.cli.print_font">[docs]</a><span class="k">class</span> <span class="nc">print_font</span><span class="p">:</span>  <span class="c1"># pylint: disable=invalid-name</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;function object to print font to stdout&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">font</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="s1">&#39;add </span><span class="si">%s</span><span class="s1"> // </span><span class="si">%s</span><span class="s1"> // unicode range: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span>
+            <span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">y</span><span class="o">.</span><span class="n">src_format</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">font</span><span class="o">.</span><span class="n">src_formats</span><span class="p">])</span>
+             <span class="p">,</span> <span class="n">font</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">font</span><span class="o">.</span><span class="n">unicode_range</span> <span class="ow">or</span> <span class="s1">&#39;--&#39;</span><span class="p">)</span>
+            <span class="p">,</span> <span class="n">file</span> <span class="o">=</span> <span class="n">CTX</span><span class="o">.</span><span class="n">CLI</span><span class="o">.</span><span class="n">OUT</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="print_msg"><a class="viewcode-back" href="../../internal.html#fontlib.cli.print_msg">[docs]</a><span class="k">class</span> <span class="nc">print_msg</span><span class="p">(</span><span class="nb">str</span><span class="p">):</span>  <span class="c1"># pylint: disable=invalid-name</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;function object to print even-message to stdout&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span> <span class="o">%</span> <span class="n">args</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">file</span> <span class="o">=</span> <span class="n">CTX</span><span class="o">.</span><span class="n">CLI</span><span class="o">.</span><span class="n">OUT</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="cli_workspace"><a class="viewcode-back" href="../../internal.html#fontlib.cli.cli_workspace">[docs]</a><span class="k">def</span> <span class="nf">cli_workspace</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Inspect and init workspace.</span>
+
+<span class="sd">    commands:</span>
+
+<span class="sd">    - show: show current workspace location</span>
+
+<span class="sd">    - init: init workspace from init-options: --builtins, --google, --ep-fonts::</span>
+
+<span class="sd">          workspace init ~/.fontlib</span>
+
+<span class="sd">      Second argument is the destination of the workspace (default: ~/.fontlib).</span>
+
+<span class="sd">      To register fonts from google fonts infrastructure.  Select font families</span>
+<span class="sd">      from: https://fonts.google.com</span>
+
+<span class="sd">      To install fonts (*entry points*) from the *python fonts project*</span>
+<span class="sd">      (https://pypi.org/project/fonts) you can use e.g.::</span>
+
+<span class="sd">        $ pip install --user \\</span>
+<span class="sd">              font-amatic-sc font-caladea font-font-awesome \\</span>
+<span class="sd">              font-fredoka-one font-hanken-grotesk font-intuitive \\</span>
+<span class="sd">              font-source-sans-pro font-source-serif-pro</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">init_app</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">cli</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">CLI</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">cli</span><span class="o">.</span><span class="n">UI</span>
+
+    <span class="n">event</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;FontStack.load_entry_point&#39;</span>
+              <span class="p">,</span> <span class="n">print_msg</span><span class="p">(</span><span class="s1">&#39;load entry point </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">))</span>
+
+    <span class="n">event</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;FontStack.load_css&#39;</span>
+              <span class="p">,</span> <span class="n">print_msg</span><span class="p">(</span><span class="s1">&#39;load CSS </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">))</span>
+
+    <span class="n">event</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;FontStack.add_font&#39;</span>
+              <span class="p">,</span> <span class="n">print_font</span><span class="p">())</span>
+
+    <span class="n">event</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;FontStack.add_alias&#39;</span>
+              <span class="p">,</span> <span class="n">print_msg</span><span class="p">(</span><span class="s1">&#39;add alias </span><span class="si">%s</span><span class="s1"> to font </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">))</span>
+
+    <span class="n">workspace</span> <span class="o">=</span> <span class="n">CTX</span><span class="o">.</span><span class="n">WORKSPACE</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">subcommand</span> <span class="o">==</span> <span class="s1">&#39;init&#39;</span><span class="p">:</span>
+
+        <span class="c1"># get worsspace&#39;s path</span>
+
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">argument_list</span><span class="p">:</span>
+            <span class="n">workspace</span> <span class="o">=</span> <span class="n">FSPath</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">argument_list</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+
+        <span class="c1"># finally check command line</span>
+
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">argument_list</span><span class="p">:</span>
+            <span class="n">_</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">u</span><span class="s2">&quot;WARNING: ignoring arguments: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">argument_list</span><span class="p">)))</span>
+
+        <span class="c1"># init workspace</span>
+
+        <span class="n">_</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s2">&quot;initing workspace at: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">workspace</span><span class="p">)</span>
+        <span class="n">workspace</span><span class="o">.</span><span class="n">makedirs</span><span class="p">()</span>
+
+        <span class="k">with</span> <span class="n">db</span><span class="o">.</span><span class="n">fontlib_scope</span><span class="p">():</span>
+            <span class="n">FontStack</span><span class="o">.</span><span class="n">init_fontstack</span><span class="p">(</span><span class="n">CTX</span><span class="o">.</span><span class="n">CONFIG</span><span class="p">)</span>
+
+        <span class="k">return</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">subcommand</span> <span class="o">==</span> <span class="s1">&#39;show&#39;</span><span class="p">:</span>
+
+        <span class="c1"># finally check command line</span>
+
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">argument_list</span><span class="p">:</span>
+            <span class="n">_</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">u</span><span class="s2">&quot;WARNING: ignoring arguments: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">argument_list</span><span class="p">)))</span>
+
+        <span class="n">_</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">workspace</span><span class="p">)</span>
+        <span class="k">return</span></div>
+
+<div class="viewcode-block" id="cli_google"><a class="viewcode-back" href="../../internal.html#fontlib.cli.cli_google">[docs]</a><span class="k">def</span> <span class="nf">cli_google</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;tools for Google fonts</span>
+
+<span class="sd">    commands:</span>
+
+<span class="sd">    - list: print out list of known font names from fonts.googleapis.com</span>
+
+<span class="sd">    - add: font to FontStack::</span>
+
+<span class="sd">        google --format=rst list &#39;Libre.*39&#39;</span>
+<span class="sd">        google --format=rst add &#39;Libre.*39&#39;</span>
+
+<span class="sd">      The second argument is a optional regular expression to filter font names</span>
+<span class="sd">      by matching this expression (default: *None*).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">init_app</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">CLI</span><span class="o">.</span><span class="n">UI</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">subcommand</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="s1">&#39;add&#39;</span><span class="p">):</span>
+
+        <span class="n">base_url</span> <span class="o">=</span> <span class="n">CTX</span><span class="o">.</span><span class="n">CONFIG</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;google fonts&#39;</span><span class="p">,</span> <span class="s1">&#39;family base url&#39;</span><span class="p">)</span>
+
+        <span class="c1"># get match condition ...</span>
+
+        <span class="n">condition</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">argument_list</span><span class="p">:</span>
+            <span class="n">condition</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">argument_list</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">condition</span><span class="p">:</span>
+            <span class="n">condition</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">condition</span><span class="p">)</span>
+
+        <span class="c1"># finally check command line</span>
+
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">argument_list</span><span class="p">:</span>
+            <span class="n">_</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">u</span><span class="s2">&quot;WARNING: ignoring arguments: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">argument_list</span><span class="p">)))</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">subcommand</span> <span class="o">==</span> <span class="s1">&#39;list&#39;</span><span class="p">:</span>
+
+        <span class="c1"># output list ..</span>
+
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">out_format</span> <span class="o">==</span> <span class="s1">&#39;rst&#39;</span><span class="p">:</span>
+            <span class="n">_</span><span class="o">.</span><span class="n">rst_title</span><span class="p">(</span><span class="s2">&quot;google font names&quot;</span><span class="p">)</span>
+
+        <span class="n">c</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">googlefont</span><span class="o">.</span><span class="n">list_fontnames</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">condition</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">condition</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+                    <span class="k">continue</span>
+            <span class="n">c</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="n">name</span>
+            <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">out_format</span> <span class="o">==</span> <span class="s1">&#39;rst&#39;</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">. </span><span class="si">%s</span><span class="s1"> --&gt; </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">base_url</span> <span class="o">+</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+            <span class="n">_</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">out_format</span> <span class="o">==</span> <span class="s1">&#39;rst&#39;</span><span class="p">:</span>
+            <span class="n">_</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">subcommand</span> <span class="o">==</span> <span class="s1">&#39;add&#39;</span><span class="p">:</span>
+
+        <span class="n">event</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;FontStack.add_font&#39;</span><span class="p">,</span> <span class="n">print_font</span><span class="p">())</span>
+        <span class="n">event</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;FontStack.add_alias&#39;</span><span class="p">,</span> <span class="n">print_msg</span><span class="p">(</span><span class="s1">&#39;add alias </span><span class="si">%s</span><span class="s1"> to font </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">))</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">with</span> <span class="n">db</span><span class="o">.</span><span class="n">fontlib_scope</span><span class="p">():</span>
+
+            <span class="n">stack</span> <span class="o">=</span> <span class="n">FontStack</span><span class="o">.</span><span class="n">get_fontstack</span><span class="p">(</span><span class="n">CTX</span><span class="o">.</span><span class="n">CONFIG</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">googlefont</span><span class="o">.</span><span class="n">list_fontnames</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">condition</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">condition</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+                        <span class="k">continue</span>
+                <span class="n">c</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                <span class="n">css_url</span> <span class="o">=</span> <span class="n">base_url</span> <span class="o">+</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+                <span class="n">_</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%d</span><span class="s1">. read font-family &quot;</span><span class="si">%s</span><span class="s1">&quot; from CSS: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">css_url</span><span class="p">))</span>
+                <span class="n">stack</span><span class="o">.</span><span class="n">load_css</span><span class="p">(</span><span class="n">css_url</span><span class="p">)</span></div>
+
+<span class="c1"># ==============================================================================</span>
+<span class="c1"># helper ...</span>
+<span class="c1"># ==============================================================================</span>
+
+<span class="c1"># pylint: disable=bad-continuation</span>
+<span class="n">MAP_ARG_TO_CFG</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># cli-argument    : (cfg-section, cfg-option) # see ./config.ini</span>
+    <span class="s1">&#39;builtins&#39;</span>        <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;fontstack&#39;</span><span class="p">,</span> <span class="s1">&#39;builtin fonts&#39;</span><span class="p">)</span>
+    <span class="p">,</span> <span class="s1">&#39;epfonts&#39;</span>       <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;fontstack&#39;</span><span class="p">,</span> <span class="s1">&#39;entry points&#39;</span><span class="p">)</span>
+    <span class="p">,</span> <span class="s1">&#39;google&#39;</span>        <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;google fonts&#39;</span><span class="p">,</span> <span class="s1">&#39;fonts&#39;</span><span class="p">)</span>
+    <span class="p">,</span> <span class="s1">&#39;workspace&#39;</span>     <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;DEFAULT&#39;</span><span class="p">,</span> <span class="s1">&#39;workspace&#39;</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="sd">&quot;&quot;&quot;Maps command line arguments to config section &amp; option&quot;&quot;&quot;</span>
+<span class="c1"># pylint: enable=bad-continuation</span>
+
+<div class="viewcode-block" id="map_arg_to_cfg"><a class="viewcode-back" href="../../internal.html#fontlib.cli.map_arg_to_cfg">[docs]</a><span class="k">def</span> <span class="nf">map_arg_to_cfg</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">cfg</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;update application&#39;s CONFIG from command line arguments..&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">arg_name</span><span class="p">,</span> <span class="p">(</span><span class="n">cfg_sect</span><span class="p">,</span> <span class="n">cfg_opt</span><span class="p">)</span> <span class="ow">in</span> <span class="n">MAP_ARG_TO_CFG</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">arg_name</span><span class="p">,</span> <span class="n">UNKNOWN</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="n">UNKNOWN</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;set </span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2"> = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">cfg_sect</span><span class="p">,</span> <span class="n">cfg_opt</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">cfg_sect</span><span class="p">,</span> <span class="n">cfg_opt</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="add_fontstack_options"><a class="viewcode-back" href="../../internal.html#fontlib.cli.add_fontstack_options">[docs]</a><span class="k">def</span> <span class="nf">add_fontstack_options</span><span class="p">(</span><span class="n">cmd</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Adds common fontstack options to command&quot;&quot;&quot;</span>
+
+    <span class="n">cmd</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--builtins&quot;</span>
+        <span class="p">,</span> <span class="n">dest</span> <span class="o">=</span> <span class="s1">&#39;builtins&#39;</span>
+        <span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="n">CTX</span><span class="o">.</span><span class="n">CONFIG</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="o">*</span><span class="n">MAP_ARG_TO_CFG</span><span class="p">[</span><span class="s1">&#39;builtins&#39;</span><span class="p">][:</span><span class="mi">2</span><span class="p">])</span>
+        <span class="p">,</span> <span class="n">nargs</span> <span class="o">=</span> <span class="s1">&#39;?&#39;</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">str</span>
+        <span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;register builtin fonts&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">cmd</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--ep-fonts&quot;</span>
+        <span class="p">,</span> <span class="n">dest</span> <span class="o">=</span> <span class="s1">&#39;epfonts&#39;</span>
+        <span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="n">CTX</span><span class="o">.</span><span class="n">CONFIG</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="o">*</span><span class="n">MAP_ARG_TO_CFG</span><span class="p">[</span><span class="s1">&#39;epfonts&#39;</span><span class="p">][:</span><span class="mi">2</span><span class="p">])</span>
+        <span class="p">,</span> <span class="n">nargs</span> <span class="o">=</span> <span class="s1">&#39;?&#39;</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">str</span>
+        <span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;use fonts from entry points&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">cmd</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--google&quot;</span>
+        <span class="p">,</span> <span class="n">dest</span> <span class="o">=</span> <span class="s1">&#39;google&#39;</span>
+        <span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="n">CTX</span><span class="o">.</span><span class="n">CONFIG</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="o">*</span><span class="n">MAP_ARG_TO_CFG</span><span class="p">[</span><span class="s1">&#39;google&#39;</span><span class="p">][:</span><span class="mi">2</span><span class="p">])</span>
+        <span class="p">,</span> <span class="n">nargs</span> <span class="o">=</span> <span class="s1">&#39;?&#39;</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">str</span>
+        <span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;register fonts from fonts.googleapis.com&quot;</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="init_main"><a class="viewcode-back" href="../../internal.html#fontlib.cli.init_main">[docs]</a><span class="k">def</span> <span class="nf">init_main</span><span class="p">(</span><span class="n">cli</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Init routine for the very first the main function.&quot;&quot;&quot;</span>
+
+    <span class="k">global</span> <span class="n">CTX</span>
+
+    <span class="n">cli_parse_css</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span>  <span class="n">cli_parse_css</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">%</span> <span class="nb">globals</span><span class="p">()</span>
+
+    <span class="c1"># init main&#39;s context</span>
+    <span class="n">CTX</span> <span class="o">=</span> <span class="n">Context</span><span class="p">(</span><span class="n">cli</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;initial using workspace at: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">CTX</span><span class="o">.</span><span class="n">WORKSPACE</span><span class="p">)</span>
+    <span class="n">CTX</span><span class="o">.</span><span class="n">WORKSPACE</span><span class="o">.</span><span class="n">makedirs</span><span class="p">()</span>
+
+    <span class="c1"># init event system</span>
+
+    <span class="n">event</span><span class="o">.</span><span class="n">init_dispatcher</span><span class="p">()</span>
+
+    <span class="c1"># init main logging with (new) CONFIG settings</span>
+
+    <span class="n">log_cfg</span> <span class="o">=</span> <span class="n">CTX</span><span class="o">.</span><span class="n">CONFIG</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;logging&quot;</span><span class="p">,</span> <span class="s2">&quot;config&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">DEFAULT_LOG_INI</span><span class="p">)</span>
+    <span class="n">env</span> <span class="o">=</span> <span class="n">CTX</span><span class="o">.</span><span class="n">CONFIG</span><span class="o">.</span><span class="n">config_env</span><span class="p">(</span><span class="n">app</span><span class="o">=</span><span class="s1">&#39;cli&#39;</span><span class="p">,</span> <span class="n">workspace</span><span class="o">=</span><span class="n">CTX</span><span class="o">.</span><span class="n">WORKSPACE</span><span class="p">)</span>
+    <span class="n">init_log</span><span class="p">(</span><span class="n">log_cfg</span><span class="p">,</span> <span class="n">defaults</span> <span class="o">=</span> <span class="n">env</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="init_app"><a class="viewcode-back" href="../../internal.html#fontlib.cli.init_app">[docs]</a><span class="k">def</span> <span class="nf">init_app</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span> <span class="c1"># pylint: disable=too-many-statements</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Init the application.</span>
+
+<span class="sd">    - init :py:obj:`Context.CONFIG` from arguments &amp; INI file</span>
+<span class="sd">    - init :py:obj:`Context.WORKSPACE`</span>
+<span class="sd">    - init :py:obj:`.log.FONTLIB_LOGGER`</span>
+<span class="sd">    - init DB engine configured in INI ``[DEFAULT]:fontlib_db``</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># pylint: disable=too-many-branches</span>
+
+    <span class="k">global</span> <span class="n">CTX</span>
+
+    <span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span> <span class="ow">or</span> <span class="n">args</span><span class="o">.</span><span class="n">verbose</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">CLI</span><span class="o">.</span><span class="n">UI</span>
+
+    <span class="c1"># init application&#39;s CONFIG from INI file</span>
+
+    <span class="n">cfg</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">config</span> <span class="o">!=</span> <span class="n">CTX</span><span class="o">.</span><span class="n">WORKSPACE</span> <span class="o">/</span> <span class="n">CONFIG_INI</span><span class="p">:</span>
+        <span class="c1"># assert config if --config was explicite set</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">EXISTS</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">args</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="mi">42</span><span class="p">,</span> <span class="s1">&#39;config file does not exists: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">args</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">cfg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">workspace</span><span class="p">:</span>
+        <span class="c1"># assert %(workspace)s/config.ini if --workspace was explicite set but</span>
+        <span class="c1"># not --config</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">workspace</span><span class="o">.</span><span class="n">EXISTS</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">args</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="mi">42</span><span class="p">,</span> <span class="s1">&#39;workspace folder does not exists: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">args</span><span class="o">.</span><span class="n">workspace</span><span class="p">)</span>
+
+        <span class="n">ini_file</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">workspace</span> <span class="o">/</span> <span class="s1">&#39;config.ini&#39;</span>
+        <span class="k">if</span> <span class="n">ini_file</span><span class="o">.</span><span class="n">EXISTS</span><span class="p">:</span>
+            <span class="n">cfg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ini_file</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Config file </span><span class="si">%s</span><span class="s2"> does not exists.&quot;</span><span class="p">,</span> <span class="n">ini_file</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">cfg</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;load additional configuration from: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">cfg</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">_</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="n">CTX</span><span class="o">.</span><span class="n">CONFIG</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
+    <span class="n">map_arg_to_cfg</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">CTX</span><span class="o">.</span><span class="n">CONFIG</span><span class="p">)</span>
+
+    <span class="c1"># init application&#39;s WORKSPACE from (new) CONFIG settings</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">CTX</span><span class="o">.</span><span class="n">WORKSPACE</span><span class="o">.</span><span class="n">EXISTS</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;initing workspace at: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">CTX</span><span class="o">.</span><span class="n">WORKSPACE</span><span class="p">)</span>
+        <span class="n">CTX</span><span class="o">.</span><span class="n">WORKSPACE</span><span class="o">.</span><span class="n">makedirs</span><span class="p">()</span>
+
+    <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;using workspace: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">CTX</span><span class="o">.</span><span class="n">WORKSPACE</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="n">_</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="c1"># init app logging with (new) CONFIG settings</span>
+
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">FONTLIB_LOGGER</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+        <span class="n">CTX</span><span class="o">.</span><span class="n">CONFIG</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;logging&quot;</span><span class="p">,</span> <span class="s2">&quot;level&quot;</span><span class="p">,</span> <span class="s1">&#39;debug&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">debug_sql</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;sqlalchemy.engine&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="s1">&#39;INFO&#39;</span><span class="p">)</span>
+
+    <span class="n">level</span> <span class="o">=</span> <span class="n">CTX</span><span class="o">.</span><span class="n">CONFIG</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;logging&quot;</span><span class="p">,</span> <span class="s2">&quot;level&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">ERR</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;set log level of logger: </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">)</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">logger</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">level</span><span class="p">))</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span><span class="p">)</span>
+
+    <span class="n">log_cfg</span> <span class="o">=</span> <span class="n">CTX</span><span class="o">.</span><span class="n">CONFIG</span><span class="o">.</span><span class="n">getpath</span><span class="p">(</span><span class="s2">&quot;logging&quot;</span><span class="p">,</span> <span class="s2">&quot;config&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">log_cfg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">log_cfg</span><span class="o">.</span><span class="n">EXISTS</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">args</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span> <span class="mi">42</span><span class="p">,</span> <span class="p">(</span>
+                <span class="s1">&#39;log config file does not exists:&#39;</span>
+                <span class="s1">&#39; </span><span class="si">%s</span><span class="s1"> check your [logging]:config= setting at: </span><span class="si">%s</span><span class="s1">&#39;</span>
+            <span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="n">log_cfg</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">config</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">ERR</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;load logging configuration from: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">log_cfg</span><span class="p">)</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="n">CTX</span><span class="o">.</span><span class="n">CONFIG</span><span class="o">.</span><span class="n">config_env</span><span class="p">(</span><span class="n">app</span><span class="o">=</span><span class="s1">&#39;cli&#39;</span><span class="p">,</span> <span class="n">workspace</span><span class="o">=</span><span class="n">CTX</span><span class="o">.</span><span class="n">WORKSPACE</span><span class="p">)</span>
+        <span class="n">init_log</span><span class="p">(</span><span class="n">log_cfg</span><span class="p">,</span> <span class="n">defaults</span> <span class="o">=</span> <span class="n">env</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">ERR</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+            <span class="s2">&quot;log goes to:</span><span class="se">\n</span><span class="s2"> - &quot;</span>
+            <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> - &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">h</span><span class="p">)</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">logger</span><span class="o">.</span><span class="n">handlers</span><span class="p">])</span>
+            <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># init database</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">fontlib_init</span><span class="p">(</span><span class="n">CTX</span><span class="o">.</span><span class="n">CONFIG</span><span class="p">)</span></div>
+
+<span class="c1"># ==============================================================================</span>
+<span class="c1"># call main ...</span>
+<span class="c1"># ==============================================================================</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+  <span id="sidebar-top"></span>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  
+    
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/darmarIT_logo_128.png" alt="Logo"/>
+            </a></p>
+  
+<h3>Navigation</h3>
+<ul>
+  <li><a href="../../index.html">Overview</a>
+    <ul>
+      <li><a href="../index.html">Module code</a>
+        
+          
+          </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script><div id="ethical-ad-placement"></div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2023 Markus Heiser.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+    </div>
+  <script src="../../_static/version_warning_offset.js"></script>
+
+  </body>
+</html>

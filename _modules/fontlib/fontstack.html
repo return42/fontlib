@@ -1,0 +1,274 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>fontlib.fontstack &#8212; fontlib 20230220 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">fontlib 20230220 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">fontlib.fontstack</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for fontlib.fontstack</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8; mode: python; mode: flycheck -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Implementation of class :py:class:`FontStack`.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;FontStack&#39;</span><span class="p">,</span> <span class="s1">&#39;BUILTINS&#39;</span><span class="p">]</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">fspath</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">event</span>
+<span class="kn">from</span> <span class="nn">.db</span> <span class="kn">import</span> <span class="n">fontlib_session</span>
+<span class="kn">from</span> <span class="nn">.font</span> <span class="kn">import</span> <span class="n">Font</span>
+<span class="kn">from</span> <span class="nn">.font</span> <span class="kn">import</span> <span class="n">FontAlias</span>
+<span class="kn">from</span> <span class="nn">.urlcache</span> <span class="kn">import</span> <span class="n">NoCache</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">BUILTINS</span> <span class="o">=</span> <span class="n">fspath</span><span class="o">.</span><span class="n">FSPath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">DIRNAME</span> <span class="o">/</span> <span class="s1">&#39;files&#39;</span>
+<span class="sd">&quot;&quot;&quot;Folder where the builtin fonts are in.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="FontStack"><a class="viewcode-back" href="../../internal.html#fontlib.api.FontStack">[docs]</a><span class="k">class</span> <span class="nc">FontStack</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A collection of :py:class:`.font.Font` objects&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache</span> <span class="o">=</span> <span class="n">NoCache</span><span class="p">()</span>
+
+<div class="viewcode-block" id="FontStack.set_cache"><a class="viewcode-back" href="../../internal.html#fontlib.api.FontStack.set_cache">[docs]</a>    <span class="k">def</span> <span class="nf">set_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;set cache&quot;&quot;&quot;</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;set cache: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">cache</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache</span> <span class="o">=</span> <span class="n">cache</span></div>
+
+<div class="viewcode-block" id="FontStack.add_font"><a class="viewcode-back" href="../../internal.html#fontlib.api.FontStack.add_font">[docs]</a>    <span class="k">def</span> <span class="nf">add_font</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">font</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add :py:class:`.font.Font` object to *this* stack.</span>
+
+<span class="sd">        :param .font.Font font:  font instance.</span>
+
+<span class="sd">        :py:func:`.event.emit`:</span>
+
+<span class="sd">        - ``FontStack.add_font`` (:py:class:`font &lt;.font.Font&gt;`) is released if</span>
+<span class="sd">          the added font is new to *this* stack.</span>
+
+<span class="sd">        - ``FontStack.add_alias`` (:py:class:`alias &lt;.font.FontAlias&gt;`,</span>
+<span class="sd">          :py:class:`font &lt;.font.Font&gt;`) is released if the added font is</span>
+<span class="sd">          detected as an alias.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">session</span> <span class="o">=</span> <span class="n">fontlib_session</span><span class="p">()</span>
+        <span class="n">p_obj</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">get_persistent_object</span><span class="p">(</span><span class="n">session</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">p_obj</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">p_obj</span><span class="o">.</span><span class="n">match_name</span><span class="p">(</span><span class="n">font</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="s2">&quot;Font with identical origin and font name already exists,&quot;</span>
+                    <span class="s2">&quot; skip additional Font &#39;</span><span class="si">%s</span><span class="s2">&#39; with url &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span>
+                    <span class="p">,</span> <span class="n">font</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">font</span><span class="o">.</span><span class="n">origin</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;add alias &#39;</span><span class="si">%s</span><span class="s2">&#39; to url </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">font</span><span class="o">.</span><span class="n">origin</span><span class="p">)</span>
+                <span class="n">alias</span> <span class="o">=</span> <span class="n">FontAlias</span><span class="p">(</span><span class="n">alias_name</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="n">event</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s1">&#39;FontStack.add_alias&#39;</span><span class="p">,</span> <span class="n">alias</span><span class="p">,</span> <span class="n">font</span><span class="p">)</span>
+                <span class="n">p_obj</span><span class="o">.</span><span class="n">aliases</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">alias</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">event</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s1">&#39;FontStack.add_font&#39;</span><span class="p">,</span> <span class="n">font</span><span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;add font-family: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">font</span><span class="p">)</span>
+            <span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">font</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">add_url</span><span class="p">(</span><span class="n">font</span><span class="o">.</span><span class="n">origin</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FontStack.save_font"><a class="viewcode-back" href="../../internal.html#fontlib.api.FontStack.save_font">[docs]</a>    <span class="k">def</span> <span class="nf">save_font</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">font</span><span class="p">,</span> <span class="n">dest_file</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save BLOB of :py:class:`.font.Font` into file &lt;dest_file&gt;</span>
+
+<span class="sd">        :param font.Font font: font instance</span>
+<span class="sd">        :param fspath.fspath.FSPath dest_file: Filename of the destination</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">save_url</span><span class="p">(</span><span class="n">font</span><span class="o">.</span><span class="n">origin</span><span class="p">,</span> <span class="n">dest_file</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FontStack.load_entry_point"><a class="viewcode-back" href="../../internal.html#fontlib.api.FontStack.load_entry_point">[docs]</a>    <span class="k">def</span> <span class="nf">load_entry_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ep_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add :py:class:`.font.Font` objects from ``ep_name``.</span>
+
+<span class="sd">        :param ep_name:</span>
+<span class="sd">           String with the name of the entry point (one of: ``fonts_ttf``,</span>
+<span class="sd">           ``fonts_otf`` ``fonts_woff``, ``fonts_woff2``)</span>
+
+<span class="sd">        :py:func:`.event.emit`:</span>
+
+<span class="sd">        - ``FontStack.load_entry_point`` (:py:obj:`ep_name &lt;str&gt;`) is released</span>
+<span class="sd">          each time funcion is called.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">event</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s1">&#39;FontStack.load_entry_point&#39;</span><span class="p">,</span> <span class="n">ep_name</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">font</span> <span class="ow">in</span> <span class="n">Font</span><span class="o">.</span><span class="n">from_entry_point</span><span class="p">(</span><span class="n">ep_name</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_font</span><span class="p">(</span><span class="n">font</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FontStack.load_css"><a class="viewcode-back" href="../../internal.html#fontlib.api.FontStack.load_css">[docs]</a>    <span class="k">def</span> <span class="nf">load_css</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">css_url</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add :py:class:`.font.Font` objects from `@font-face`_ rules.</span>
+
+<span class="sd">        :param str css_url:</span>
+<span class="sd">            URL of a CSS (stylesheet) file defining ``@font-face`` rules</span>
+
+<span class="sd">        :py:func:`.event.emit`:</span>
+
+<span class="sd">        - ``FontStack.load_css`` (:py:obj:`css_url &lt;str&gt;`) is released each time</span>
+<span class="sd">          function is called.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">event</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s1">&#39;FontStack.load_css&#39;</span><span class="p">,</span> <span class="n">css_url</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">font</span> <span class="ow">in</span> <span class="n">Font</span><span class="o">.</span><span class="n">from_css</span><span class="p">(</span><span class="n">css_url</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_font</span><span class="p">(</span><span class="n">font</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FontStack.list_fonts"><a class="viewcode-back" href="../../internal.html#fontlib.api.FontStack.list_fonts">[docs]</a>    <span class="k">def</span> <span class="nf">list_fonts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>  <span class="c1"># pylint: disable=no-self-use</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return generator of :py:class:`.font.Font` objects selected by ``name``.</span>
+
+<span class="sd">        :param name:</span>
+<span class="sd">            Name of the font</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">session</span> <span class="o">=</span> <span class="n">fontlib_session</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">font</span> <span class="ow">in</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Font</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">font</span><span class="o">.</span><span class="n">match_name</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+                <span class="k">yield</span> <span class="n">font</span></div>
+
+<div class="viewcode-block" id="FontStack.get_fontstack"><a class="viewcode-back" href="../../internal.html#fontlib.api.FontStack.get_fontstack">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_fontstack</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get fonstack instance by configuration &lt;config&gt;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># get FontStack and set cache from configuration</span>
+
+        <span class="n">stack</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">()</span>
+        <span class="n">cache_cls</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfqnobj</span><span class="p">(</span><span class="s1">&#39;fontstack&#39;</span><span class="p">,</span> <span class="s1">&#39;cache&#39;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">NoCache</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;get_fontstack: init cache class </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">cache_cls</span><span class="p">)</span>
+        <span class="n">cache_obj</span> <span class="o">=</span> <span class="n">cache_cls</span><span class="p">()</span>
+        <span class="n">cache_obj</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">stack</span><span class="o">.</span><span class="n">set_cache</span><span class="p">(</span><span class="n">cache_obj</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">stack</span></div>
+
+<div class="viewcode-block" id="FontStack.init_fontstack"><a class="viewcode-back" href="../../internal.html#fontlib.api.FontStack.init_fontstack">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">init_fontstack</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Init fonstack by configuration &lt;config&gt;.</span>
+
+<span class="sd">        Register fonts from various resources into the fontlib database.</span>
+
+<span class="sd">        google fonts:</span>
+
+<span class="sd">        - fonts from fonts.googleapis.com</span>
+
+<span class="sd">        Configuration ``[google fonts]fonts`` controls which font families will</span>
+<span class="sd">        be registered.  Select font families from https://fonts.google.com/</span>
+
+<span class="sd">        available builtin fonts:</span>
+
+<span class="sd">        - :ref:`builtin_cantarell`</span>
+<span class="sd">        - :ref:`builtiin_dejavu`</span>
+
+<span class="sd">        available entry points:</span>
+
+<span class="sd">        - ``fonts_ttf``</span>
+<span class="sd">        - ``fonts_otf``</span>
+<span class="sd">        - ``fonts_woff``</span>
+<span class="sd">        - ``fonts_woff2``</span>
+
+<span class="sd">        E.g. to include all fonts from the fonts-python_ project install::</span>
+
+<span class="sd">            $ pip install font-amatic-sc font-caladea font-font-awesome \\</span>
+<span class="sd">                          font-fredoka-one font-hanken-grotesk font-intuitive \\</span>
+<span class="sd">                          font-source-sans-pro  font-source-serif-pro</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">stack</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">get_fontstack</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+        <span class="c1"># register font files from entry points</span>
+        <span class="k">for</span> <span class="n">ep_name</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">&#39;fontstack&#39;</span><span class="p">,</span> <span class="s1">&#39;entry points&#39;</span><span class="p">):</span>
+            <span class="n">stack</span><span class="o">.</span><span class="n">load_entry_point</span><span class="p">(</span><span class="n">ep_name</span><span class="p">)</span>
+
+        <span class="c1"># register builtin fonts</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">&#39;fontstack&#39;</span><span class="p">,</span> <span class="s1">&#39;builtin fonts&#39;</span><span class="p">):</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;register builtin font: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+            <span class="n">css_file</span> <span class="o">=</span> <span class="n">BUILTINS</span> <span class="o">/</span> <span class="n">name</span> <span class="o">/</span> <span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;.css&quot;</span>
+            <span class="n">stack</span><span class="o">.</span><span class="n">load_css</span><span class="p">(</span><span class="s1">&#39;file:&#39;</span> <span class="o">+</span> <span class="n">css_file</span><span class="p">)</span>
+
+        <span class="c1"># register google fonts</span>
+        <span class="n">base_url</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;google fonts&#39;</span><span class="p">,</span> <span class="s1">&#39;family base url&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">family</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">&#39;google fonts&#39;</span><span class="p">,</span> <span class="s1">&#39;fonts&#39;</span><span class="p">):</span>
+            <span class="n">stack</span><span class="o">.</span><span class="n">load_css</span><span class="p">(</span><span class="n">base_url</span> <span class="o">+</span> <span class="n">family</span><span class="p">)</span></div></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+  <span id="sidebar-top"></span>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  
+    
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/darmarIT_logo_128.png" alt="Logo"/>
+            </a></p>
+  
+<h3>Navigation</h3>
+<ul>
+  <li><a href="../../index.html">Overview</a>
+    <ul>
+      <li><a href="../index.html">Module code</a>
+        
+          
+          </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script><div id="ethical-ad-placement"></div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2023 Markus Heiser.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+    </div>
+  <script src="../../_static/version_warning_offset.js"></script>
+
+  </body>
+</html>
