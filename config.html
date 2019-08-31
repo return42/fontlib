@@ -1,0 +1,456 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Config &mdash; fontlib 20190831.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Font and FontStack" href="font.html" />
+    <link rel="prev" title="Use" href="use.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> fontlib
+          
+
+          
+            
+            <img src="_static/darmarIT_logo_128.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                20190831.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="use.html">Use</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Config</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#application-defaults">application defaults</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#logging-defaults">logging defaults</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#basic-config-and-logging-setup">basic config and logging setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#inspect-configuration">inspect configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#source-code-remarks">Source Code Remarks</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="font.html">Font and FontStack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="googlefont.html">Fonts from google</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ep_points.html">Fonts from entry points</a></li>
+<li class="toctree-l1"><a class="reference internal" href="builtin.html">Builtin fonts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="internal.html">Internal</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">fontlib</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Config</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/config.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="config">
+<span id="id1"></span><h1>Config<a class="headerlink" href="#config" title="Permalink to this headline">¶</a></h1>
+<p>Fontlib can be configured with a configuration file and/or with command line
+arguments (see <a class="reference internal" href="use.html#fontlib-cli-options"><span class="std std-ref">Fontlib Options</span></a>).</p>
+<div class="section" id="application-defaults">
+<h2>application defaults<a class="headerlink" href="#application-defaults" title="Permalink to this headline">¶</a></h2>
+<p>The default application configuration is taken from the
+<a class="reference external" href="https://github.com/return42/fontlib/blob/master/fontlib/config.ini">gitfontlib/config.ini</a> file:</p>
+<div class="highlight-ini notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="c1"># -*- coding: utf-8; mode: ini -*-</span>
+
+<span class="k">[DEFAULT]</span>
+
+<span class="na">workspace</span> <span class="o">=</span> <span class="s">~/.fontlib</span>
+
+<span class="k">[fontstack]</span>
+
+<span class="c1"># Fonts loaded from builtins.</span>
+<span class="na">builtin fonts</span> <span class="o">=</span> <span class="s">cantarell, dejavu</span>
+
+<span class="c1"># Fonts loaded from entry points.</span>
+<span class="na">entry points</span> <span class="o">=</span> <span class="s">fonts_ttf, fonts_otf, fonts_woff, fonts_woff2</span>
+
+<span class="c1"># Full qualified name of the URL-cache implementation</span>
+<span class="na">cache</span> <span class="o">=</span> <span class="s">fontlib.urlcache.URLCache</span>
+
+<span class="k">[google fonts]</span>
+
+<span class="c1"># Select font families from https://fonts.google.com/</span>
+<span class="na">family base url</span> <span class="o">=</span> <span class="s">https://fonts.googleapis.com/css?family=</span>
+<span class="na">fonts</span> <span class="o">=</span> <span class="s">Leckerli One, Roboto Slab</span>
+
+<span class="k">[logging]</span>
+
+<span class="c1"># Threshold for the logger</span>
+<span class="c1"># Value: debug | info | warning | error | critical</span>
+<span class="na">level</span> <span class="o">=</span> <span class="s">warning</span>
+<span class="c1">#config = %(workspace)s/log.ini</span>
+</pre></div>
+</td></tr></table></div>
+</div>
+<div class="section" id="logging-defaults">
+<h2>logging defaults<a class="headerlink" href="#logging-defaults" title="Permalink to this headline">¶</a></h2>
+<p>Fontlib uses the standard <a class="reference external" href="https://docs.python.org/3/library/logging.html">py-logging</a> facility.  The default logging
+configuration is taken from the <a class="reference external" href="https://github.com/return42/fontlib/blob/master/fontlib/log.ini">gitfontlib/log.ini</a> file (shown
+below).  For details options see <a class="reference external" href="https://docs.python.org/3/library/logging.config.html#configuration-file-format">py-logging INI format</a>.</p>
+<div class="highlight-ini notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="c1"># -*- coding: utf-8; mode: ini -*-</span>
+<span class="c1">#</span>
+<span class="c1"># fontlib logging configuration</span>
+<span class="c1">#</span>
+<span class="c1"># https://docs.python.org/3/library/logging.config.html#configuration-file-format</span>
+<span class="c1">#</span>
+
+<span class="k">[loggers]</span>
+<span class="na">keys</span> <span class="o">=</span> <span class="s">root, fontlib</span>
+
+<span class="k">[logger_root]</span>
+<span class="na">level</span> <span class="o">=</span> <span class="s">NOTSET</span>
+<span class="na">handlers</span> <span class="o">=</span> <span class="s">null</span>
+
+<span class="k">[logger_fontlib]</span>
+<span class="na">level</span> <span class="o">=</span> <span class="s">WARNING</span>
+<span class="na">handlers</span> <span class="o">=</span> <span class="s">console</span>
+<span class="c1">#handlers = console, logfile</span>
+
+<span class="c1"># The qualname entry is the hierarchical channel name of the logger, that is to</span>
+<span class="c1"># say the name used by the application to get the logger.</span>
+<span class="na">qualname</span> <span class="o">=</span> <span class="s">fontlib</span>
+<span class="na">propagate</span> <span class="o">=</span> <span class="s">1</span>
+
+<span class="k">[handlers]</span>
+<span class="na">keys</span> <span class="o">=</span> <span class="s">null, console, logfile</span>
+
+<span class="k">[handler_null]</span>
+<span class="na">class</span> <span class="o">=</span> <span class="s">NullHandler</span>
+<span class="na">level</span> <span class="o">=</span> <span class="s">NOTSET</span>
+<span class="na">args</span> <span class="o">=</span> <span class="s">()</span>
+
+<span class="k">[handler_console]</span>
+<span class="na">class</span> <span class="o">=</span> <span class="s">StreamHandler</span>
+<span class="na">level</span> <span class="o">=</span> <span class="s">DEBUG</span>
+<span class="na">formatter</span> <span class="o">=</span> <span class="s">console</span>
+<span class="c1"># https://docs.python.org/3.7/library/logging.handlers.html#logging.StreamHandler</span>
+<span class="na">args</span> <span class="o">=</span> <span class="s">(sys.stderr, )</span>
+
+<span class="k">[handler_logfile]</span>
+<span class="na">class</span> <span class="o">=</span> <span class="s">handlers.RotatingFileHandler</span>
+<span class="na">level</span> <span class="o">=</span> <span class="s">DEBUG</span>
+<span class="na">formatter</span> <span class="o">=</span> <span class="s">logfile</span>
+<span class="c1"># https://docs.python.org/3.7/library/logging.handlers.html#logging.handlers.RotatingFileHandler</span>
+<span class="na">args</span> <span class="o">=</span> <span class="s">(&#39;%(WORKSPACE)s/%(APP)s.log&#39;, )</span>
+<span class="na">kwargs</span> <span class="o">=</span> <span class="s">{&#39;maxBytes&#39; : 1024 * 1024, &#39;backupCount&#39; : 10 }</span>
+
+<span class="k">[formatters]</span>
+<span class="na">keys</span> <span class="o">=</span> <span class="s">console, logfile</span>
+
+<span class="k">[formatter_console]</span>
+<span class="na">format</span> <span class="o">=</span> <span class="s">%(levelname)-8s|%(name)-12s| %(message)s</span>
+
+<span class="k">[formatter_logfile]</span>
+<span class="na">format</span> <span class="o">=</span> <span class="s">%(asctime)s| %(levelname)-8s|%(name)-12s| %(message)s</span>
+</pre></div>
+</td></tr></table></div>
+</div>
+<div class="section" id="basic-config-and-logging-setup">
+<h2>basic config and logging setup<a class="headerlink" href="#basic-config-and-logging-setup" title="Permalink to this headline">¶</a></h2>
+<p>To install templates for indiviual configuration use the <code class="docutils literal notranslate"><span class="pre">config</span> <span class="pre">install</span></code>
+command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ fontlib config install ~/.fontlib
+using workspace: /home/markus/.fontlib
+set log level of logger: fontlib (WARNING)
+log goes to:
+ - &lt;StreamHandler &lt;stderr&gt; (DEBUG)&gt;
+install:  ~/.fontlib/config.ini
+install:  ~/.fontlib/log.ini
+</pre></div>
+</div>
+<p>This will setup a workspace folder <code class="docutils literal notranslate"><span class="pre">.fontlib</span></code> in your home folder where
+templates for <a class="reference internal" href="#application-defaults">application defaults</a> and <a class="reference internal" href="#logging-defaults">logging defaults</a> are copied in.  To
+activate the configuration in <code class="docutils literal notranslate"><span class="pre">.fontlib/log.ini</span></code> just un-comment the <cite>config</cite>
+line:</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[logging]</span>
+<span class="na">...</span>
+<span class="na">config</span> <span class="o">=</span> <span class="s">%(workspace)s/log.ini</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="inspect-configuration">
+<h2>inspect configuration<a class="headerlink" href="#inspect-configuration" title="Permalink to this headline">¶</a></h2>
+<p>With command <code class="docutils literal notranslate"><span class="pre">fontlib</span> <span class="pre">config</span> <span class="pre">show</span></code> you can inspect current configuration
+options.  To show your current configuration use <code class="docutils literal notranslate"><span class="pre">fontlib</span> <span class="pre">--verbose</span> <span class="pre">config</span>
+<span class="pre">show</span></code>.  With switch <code class="docutils literal notranslate"><span class="pre">--verbose</span></code> you will get some more information.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ ../local/py3/bin/fontlib --verbose config show
+load configuration from: /home/markus/.fontlib/config.ini
+
+config.ini
+==========
+
+[DEFAULT]
+workspace = /home/markus/.fontlib
+
+[fontstack]
+builtin fonts = cantarell, dejavu
+...
+</pre></div>
+</div>
+</div>
+<div class="section" id="source-code-remarks">
+<h2>Source Code Remarks<a class="headerlink" href="#source-code-remarks" title="Permalink to this headline">¶</a></h2>
+<p>The implementation of application’s configuration is given in class
+<a class="reference internal" href="internal.html#fontlib.config.Config" title="fontlib.config.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a>.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="font.html" class="btn btn-neutral float-right" title="Font and FontStack" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="use.html" class="btn btn-neutral float-left" title="Use" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019 Markus Heiser
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

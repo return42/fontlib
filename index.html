@@ -1,0 +1,261 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Python fontlib &mdash; fontlib 20190831.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Install" href="install.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="#" class="icon icon-home"> fontlib
+          
+
+          
+            
+            <img src="_static/darmarIT_logo_128.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                20190831.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="use.html">Use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="font.html">Font and FontStack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="googlefont.html">Fonts from google</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ep_points.html">Fonts from entry points</a></li>
+<li class="toctree-l1"><a class="reference internal" href="builtin.html">Builtin fonts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="internal.html">Internal</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">fontlib</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="#">Docs</a> &raquo;</li>
+        
+      <li>Python fontlib</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-fontlib">
+<span id="python-fontlib"></span><h1>Python fontlib<a class="headerlink" href="#module-fontlib" title="Permalink to this headline">¶</a></h1>
+<p>The python <a class="reference external" href="http://return42.github.io/fontlib">fontlib</a> package helps to manage fonts from different
+resources.  It comes with an API and the fontlib command line (see <a class="reference external" href="http://return42.github.io/fontlib/use.html">use</a>).  To name just a few fontlib features:</p>
+<ul class="simple">
+<li><p>fontlib ships some <a class="reference external" href="http://return42.github.io/fontlib/builtin.html">builtin fonts</a></p></li>
+<li><p>fontlib make use of fonts from <a class="reference external" href="http://return42.github.io/fontlib/googlefont.html">google fonts</a></p></li>
+<li><p>fontlib use fonts from <a class="reference external" href="http://return42.github.io/fontlib/ep_points.html">entry points</a></p></li>
+<li><p>Python <a class="reference external" href="https://docs.python.org/3/library/mimetypes.html">mimetypes</a> for font types</p></li>
+</ul>
+<div class="section" id="install">
+<h2>Install<a class="headerlink" href="#install" title="Permalink to this headline">¶</a></h2>
+<p>Install and update using <a class="reference external" href="https://pip.pypa.io/en/stable/quickstart/">pip</a>:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>pip install -U fontlib
+</pre></div>
+</div>
+</div>
+<div class="section" id="links">
+<h2>Links<a class="headerlink" href="#links" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Documentation:   <a class="reference external" href="http://return42.github.io/fontlib">http://return42.github.io/fontlib</a></p></li>
+<li><p>Releases:        <a class="reference external" href="https://pypi.org/project/fontlib/">https://pypi.org/project/fontlib/</a></p></li>
+<li><p>Code:            <a class="reference external" href="https://github.com/return42/fontlib">https://github.com/return42/fontlib</a></p></li>
+<li><p>Issue tracker:   <a class="reference external" href="https://github.com/return42/fontlib/issues">https://github.com/return42/fontlib/issues</a></p></li>
+</ul>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 80%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p>package:</p></td>
+<td><p>fontlib (20190831.1)</p></td>
+</tr>
+<tr class="row-even"><td><p>copyright:</p></td>
+<td><p>2019 Markus Heiser</p></td>
+</tr>
+<tr class="row-odd"><td><p>e-mail:</p></td>
+<td><p><a class="reference external" href="mailto:markus&#46;heiser&#37;&#52;&#48;darmarIT&#46;de">markus<span>&#46;</span>heiser<span>&#64;</span>darmarIT<span>&#46;</span>de</a></p></td>
+</tr>
+<tr class="row-even"><td><p>license:</p></td>
+<td><p>GPLv2</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="toctree-wrapper compound">
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="install.html" class="btn btn-neutral float-right" title="Install" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019 Markus Heiser
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

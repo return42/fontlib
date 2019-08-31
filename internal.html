@@ -1,0 +1,1103 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Internal &mdash; fontlib 20190831.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="API" href="api.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> fontlib
+          
+
+          
+            
+            <img src="_static/darmarIT_logo_128.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                20190831.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="use.html">Use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="font.html">Font and FontStack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="googlefont.html">Fonts from google</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ep_points.html">Fonts from entry points</a></li>
+<li class="toctree-l1"><a class="reference internal" href="builtin.html">Builtin fonts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Internal</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-fontlib.cli">cli</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-fontlib.config">config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-fontlib.css">css</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-fontlib.font">font</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-fontlib.fontstack">fontstack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-fontlib.googlefont">googlefont</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-fontlib.log">log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-fontlib.mime">mime</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-fontlib.urlcache">urlcache</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">fontlib</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Internal</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/internal.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="internal">
+<h1>Internal<a class="headerlink" href="#internal" title="Permalink to this headline">¶</a></h1>
+<p>Internal names are reserved for <a class="reference external" href="https://github.com/return42/fontlib.git">fontlib</a> development use, for external use of
+<a class="reference external" href="https://github.com/return42/fontlib.git">fontlib</a> use the <a class="reference internal" href="api.html#fontlib-api"><span class="std std-ref">API</span></a>.</p>
+<div class="section" id="module-fontlib.cli">
+<span id="cli"></span><h2>cli<a class="headerlink" href="#module-fontlib.cli" title="Permalink to this headline">¶</a></h2>
+<p>Command line tools from the fontlib library.</p>
+<dl class="function">
+<dt id="fontlib.cli.add_fontstack_options">
+<code class="sig-prename descclassname">fontlib.cli.</code><code class="sig-name descname">add_fontstack_options</code><span class="sig-paren">(</span><em class="sig-param">cmd</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/cli.html#add_fontstack_options"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.cli.add_fontstack_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds common fontstack options to comand</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fontlib.cli.cli_README">
+<code class="sig-prename descclassname">fontlib.cli.</code><code class="sig-name descname">cli_README</code><span class="sig-paren">(</span><em class="sig-param">args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/cli.html#cli_README"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.cli.cli_README" title="Permalink to this definition">¶</a></dt>
+<dd><p>prints README to stdout</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fontlib.cli.cli_config">
+<code class="sig-prename descclassname">fontlib.cli.</code><code class="sig-name descname">cli_config</code><span class="sig-paren">(</span><em class="sig-param">args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/cli.html#cli_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.cli.cli_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inspect configuration (working with INI files).</p>
+<dl class="simple">
+<dt>commands:</dt><dd><p>show:       print configuration
+install:    install default configuration (optional ARG1: &lt;dest-folder&gt;)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="fontlib.cli.cli_download_family">
+<code class="sig-prename descclassname">fontlib.cli.</code><code class="sig-name descname">cli_download_family</code><span class="sig-paren">(</span><em class="sig-param">args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/cli.html#cli_download_family"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.cli.cli_download_family" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download font-family &lt;family&gt; into folder &lt;dest&gt;.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fontlib.cli.cli_list_fonts">
+<code class="sig-prename descclassname">fontlib.cli.</code><code class="sig-name descname">cli_list_fonts</code><span class="sig-paren">(</span><em class="sig-param">args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/cli.html#cli_list_fonts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.cli.cli_list_fonts" title="Permalink to this definition">¶</a></dt>
+<dd><p>List fonts from <em>builtins</em>, <em>fonts.googleapis.com</em> and other resources.</p>
+<p>Option –google add fonts from google fonts infrastructure.  Select font
+families from:</p>
+<blockquote>
+<div><p><a class="reference external" href="https://fonts.google.com">https://fonts.google.com</a></p>
+</div></blockquote>
+<p>Option –ep-fonts add fonts from entry points, see:</p>
+<blockquote>
+<div><p><a class="reference external" href="https://pypi.org/project/fonts">https://pypi.org/project/fonts</a></p>
+</div></blockquote>
+<p>To install fonts from the <em>python fonts project</em> e.g. run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install --user \
+      font-amatic-sc font-caladea font-font-awesome \
+      font-fredoka-one font-hanken-grotesk font-intuitive \
+      font-source-sans-pro font-source-serif-pro
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="fontlib.cli.cli_parse_css">
+<code class="sig-prename descclassname">fontlib.cli.</code><code class="sig-name descname">cli_parse_css</code><span class="sig-paren">(</span><em class="sig-param">args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/cli.html#cli_parse_css"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.cli.cli_parse_css" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse <code class="docutils literal notranslate"><span class="pre">&#64;font-face</span></code> rules from &lt;url&gt;.</p>
+<p>Load CSS (stylesheet) from &lt;url&gt; and filter <code class="docutils literal notranslate"><span class="pre">&#64;font-face</span></code> rules.  E.g. google
+fonts API ‘<a class="reference external" href="https://fonts.googleapis.com/css">https://fonts.googleapis.com/css</a>?family=Cute+Font|Roboto+Slab’ or
+built-in <em>dejavu</em> fonts from url ‘<a class="reference external" href="file:./fontlib/files/dejavu/dejavu.css">file:./fontlib/files/dejavu/dejavu.css</a>’.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fontlib.cli.cli_version">
+<code class="sig-prename descclassname">fontlib.cli.</code><code class="sig-name descname">cli_version</code><span class="sig-paren">(</span><em class="sig-param">args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/cli.html#cli_version"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.cli.cli_version" title="Permalink to this definition">¶</a></dt>
+<dd><p>prints version infos to stdout</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fontlib.cli.init_app">
+<code class="sig-prename descclassname">fontlib.cli.</code><code class="sig-name descname">init_app</code><span class="sig-paren">(</span><em class="sig-param">args</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/cli.html#init_app"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.cli.init_app" title="Permalink to this definition">¶</a></dt>
+<dd><p>Init the <code class="xref py py-obj docutils literal notranslate"><span class="pre">CONFIG</span></code> object and LOG settings from command line arguments</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fontlib.cli.init_main">
+<code class="sig-prename descclassname">fontlib.cli.</code><code class="sig-name descname">init_main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/cli.html#init_main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.cli.init_main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Init routine for the very first the main function.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fontlib.cli.main">
+<code class="sig-prename descclassname">fontlib.cli.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/cli.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.cli.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="fontlib.cli.map_arg_to_cfg">
+<code class="sig-prename descclassname">fontlib.cli.</code><code class="sig-name descname">map_arg_to_cfg</code><span class="sig-paren">(</span><em class="sig-param">args</em>, <em class="sig-param">cfg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/cli.html#map_arg_to_cfg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.cli.map_arg_to_cfg" title="Permalink to this definition">¶</a></dt>
+<dd><p>update application’s CONFIG from command line arguments..</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="fontlib.cli.MAP_ARG_TO_CFG">
+<code class="sig-prename descclassname">fontlib.cli.</code><code class="sig-name descname">MAP_ARG_TO_CFG</code><em class="property"> = {'builtins': ('fontstack', 'builtin fonts'), 'epfonts': ('fontstack', 'entry points'), 'google': ('google fonts', 'fonts'), 'workspace': ('DEFAULT', 'workspace')}</em><a class="headerlink" href="#fontlib.cli.MAP_ARG_TO_CFG" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maps comand line arguments to config section &amp; option</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-fontlib.config">
+<span id="config"></span><h2>config<a class="headerlink" href="#module-fontlib.config" title="Permalink to this headline">¶</a></h2>
+<p>The implementation of application’s configuration is given in class
+<a class="reference internal" href="#fontlib.config.Config" title="fontlib.config.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a>.</p>
+<dl class="class">
+<dt id="fontlib.config.Config">
+<em class="property">class </em><code class="sig-prename descclassname">fontlib.config.</code><code class="sig-name descname">Config</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/config.html#Config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.config.Config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/configparser.html#configparser.ConfigParser" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">configparser.ConfigParser</span></code></a></p>
+<p>Configuration object of <a class="reference internal" href="index.html#module-fontlib" title="fontlib"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fontlib</span></code></a></p>
+<dl class="method">
+<dt id="fontlib.config.Config.config_env">
+<code class="sig-name descname">config_env</code><span class="sig-paren">(</span><em class="sig-param">app</em>, <em class="sig-param">workspace</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/config.html#Config.config_env"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.config.Config.config_env" title="Permalink to this definition">¶</a></dt>
+<dd><p>Additional variables that can be used in the INI files</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="fontlib.config.Config.getlist">
+<code class="sig-name descname">getlist</code><span class="sig-paren">(</span><em class="sig-param">section</em>, <em class="sig-param">option</em>, <em class="sig-param">*</em>, <em class="sig-param">raw=False</em>, <em class="sig-param">_vars=None</em>, <em class="sig-param">fallback=&lt;object object&gt;</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/config.html#Config.getlist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.config.Config.getlist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list from a comma separated config string.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="fontlib.config.Config.getpath">
+<code class="sig-name descname">getpath</code><span class="sig-paren">(</span><em class="sig-param">section</em>, <em class="sig-param">option</em>, <em class="sig-param">*</em>, <em class="sig-param">raw=False</em>, <em class="sig-param">_vars=None</em>, <em class="sig-param">fallback=&lt;object object&gt;</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/config.html#Config.getpath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.config.Config.getpath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a <code class="xref py py-class docutils literal notranslate"><span class="pre">fspath.FSPath</span></code> object from a config string.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="fontlib.config.Config.DEFAULT_INI">
+<code class="sig-name descname">DEFAULT_INI</code><em class="property"> = '/x/share/fontlib/fontlib/config.ini'</em><a class="headerlink" href="#fontlib.config.Config.DEFAULT_INI" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="fontlib.config.Config.FONTSTACK">
+<em class="property">property </em><code class="sig-name descname">FONTSTACK</code><a class="headerlink" href="#fontlib.config.Config.FONTSTACK" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary from config section <code class="docutils literal notranslate"><span class="pre">[fontstack]</span></code></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="fontlib.config.Config.GOOGLE_FONTS">
+<em class="property">property </em><code class="sig-name descname">GOOGLE_FONTS</code><a class="headerlink" href="#fontlib.config.Config.GOOGLE_FONTS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary from config section <code class="docutils literal notranslate"><span class="pre">[google</span> <span class="pre">fonts]</span></code></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="fontlib.config.Config.LOGGING">
+<em class="property">property </em><code class="sig-name descname">LOGGING</code><a class="headerlink" href="#fontlib.config.Config.LOGGING" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary from config section <code class="docutils literal notranslate"><span class="pre">[logging]</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-fontlib.css">
+<span id="css"></span><h2>css<a class="headerlink" href="#module-fontlib.css" title="Permalink to this headline">¶</a></h2>
+<p>CSS helper</p>
+<dl class="class">
+<dt id="fontlib.css.CSSRule">
+<em class="property">class </em><code class="sig-prename descclassname">fontlib.css.</code><code class="sig-name descname">CSSRule</code><span class="sig-paren">(</span><em class="sig-param">css_url</em>, <em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/css.html#CSSRule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.css.CSSRule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Base class for internal abstraction of a CSS rules.</p>
+<dl class="method">
+<dt id="fontlib.css.CSSRule.parse_css_rule">
+<code class="sig-name descname">parse_css_rule</code><span class="sig-paren">(</span><em class="sig-param">rule</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/css.html#CSSRule.parse_css_rule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.css.CSSRule.parse_css_rule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse CSS rule</p>
+<p>TODO: needs some documentation</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="fontlib.css.CSSRule.parse_decl">
+<code class="sig-name descname">parse_decl</code><span class="sig-paren">(</span><em class="sig-param">decl_name</em>, <em class="sig-param">token</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/css.html#CSSRule.parse_decl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.css.CSSRule.parse_decl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default method to parse declarations.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="fontlib.css.CSSRule.serialize">
+<code class="sig-name descname">serialize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/css.html#CSSRule.serialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.css.CSSRule.serialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a string of the CSS rule.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="fontlib.css.CSSRule.css_url">
+<code class="sig-name descname">css_url</code><em class="property"> = None</em><a class="headerlink" href="#fontlib.css.CSSRule.css_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>URL of the CSS (stylesheet) file</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="fontlib.css.CSSRule.declarations">
+<code class="sig-name descname">declarations</code><em class="property"> = None</em><a class="headerlink" href="#fontlib.css.CSSRule.declarations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Python dict with CSS declarations</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="fontlib.css.CSSRule.rule_name">
+<code class="sig-name descname">rule_name</code><em class="property"> = None</em><a class="headerlink" href="#fontlib.css.CSSRule.rule_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>String with the name of the rule</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="fontlib.css.CSSRule.rule_type">
+<code class="sig-name descname">rule_type</code><em class="property"> = None</em><a class="headerlink" href="#fontlib.css.CSSRule.rule_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>String naming the type of the rule</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="fontlib.css.AtRule">
+<em class="property">class </em><code class="sig-prename descclassname">fontlib.css.</code><code class="sig-name descname">AtRule</code><span class="sig-paren">(</span><em class="sig-param">css_url</em>, <em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/css.html#AtRule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.css.AtRule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#fontlib.css.CSSRule" title="fontlib.css.CSSRule"><code class="xref py py-class docutils literal notranslate"><span class="pre">fontlib.css.CSSRule</span></code></a></p>
+<p>Internal abstraction of a CSS <a class="reference external" href="https://www.w3.org/TR/css-syntax-3/#at-rule">at-rule</a>.</p>
+<dl class="attribute">
+<dt id="fontlib.css.AtRule.rule_type">
+<code class="sig-name descname">rule_type</code><em class="property"> = 'at-rule'</em><a class="headerlink" href="#fontlib.css.AtRule.rule_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="fontlib.css.FontFaceRule">
+<em class="property">class </em><code class="sig-prename descclassname">fontlib.css.</code><code class="sig-name descname">FontFaceRule</code><span class="sig-paren">(</span><em class="sig-param">css_url</em>, <em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/css.html#FontFaceRule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.css.FontFaceRule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#fontlib.css.AtRule" title="fontlib.css.AtRule"><code class="xref py py-class docutils literal notranslate"><span class="pre">fontlib.css.AtRule</span></code></a></p>
+<p>Internal abstraction of a CSS <code class="docutils literal notranslate"><span class="pre">&#64;font-face</span></code>.</p>
+<dl class="method">
+<dt id="fontlib.css.FontFaceRule.font_family">
+<code class="sig-name descname">font_family</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/css.html#FontFaceRule.font_family"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.css.FontFaceRule.font_family" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a string with the font-family name</p>
+<p>This descriptor defines the font family name that will be used in all
+CSS font family name matching.  It is required for the &#64;font-face rule
+to be valid (<a class="reference external" href="https://www.w3.org/TR/css-fonts-3/#descdef-font-family">CSS &#64;font-face:font-family</a>).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="fontlib.css.FontFaceRule.src">
+<code class="sig-name descname">src</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/css.html#FontFaceRule.src"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.css.FontFaceRule.src" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dictionary with <code class="docutils literal notranslate"><span class="pre">src</span></code> values.</p>
+<p>This descriptor specifies the resource containing font data. It is
+required for the &#64;font-face rule to be valid.  Its value is a
+prioritized, comma-separated list of external references or
+locally-installed font face names (<a class="reference external" href="https://www.w3.org/TR/css-fonts-3/#descdef-src">CSS &#64;font-face:src</a>).</p>
+<dl>
+<dt>url:</dt><dd><p>As with other URLs in CSS, the URL may be relative, in which case it
+is resolved relative to the location of the style sheet containing the
+&#64;font-face rule.</p>
+<p>In the case of SVG fonts, the URL points to an element within a
+document containing SVG font definitions.</p>
+</dd>
+<dt>local:</dt><dd><p>When authors would prefer to use a locally available copy of a given
+font and download it if it’s not, local() can be used.</p>
+<p>The local-value in the dictionary contains a comma-separated list of
+<em>local</em> font-face names (<code class="docutils literal notranslate"><span class="pre">&lt;font-face-name&gt;,</span> <span class="pre">&lt;font-face-name&gt;,</span> <span class="pre">...</span></code>)</p>
+</dd>
+<dt>format:</dt><dd><p>The format hint contains a comma-separated list of format strings that
+denote well-known font formats.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="fontlib.css.FontFaceRule.unicode_range">
+<code class="sig-name descname">unicode_range</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/css.html#FontFaceRule.unicode_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.css.FontFaceRule.unicode_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a comma separeted string with unicode ranges.</p>
+<p>This descriptor defines the set of Unicode codepoints that may be
+supported by the font face for which it is declared.  The descriptor
+value is a comma-delimited list of Unicode range (&lt;urange&gt;) values.  The
+union of these ranges defines the set of codepoints that serves as a
+hint for user agents when deciding whether or not to download a font
+resgource for a given text run (<a class="reference external" href="https://www.w3.org/TR/css-fonts-3/#descdef-unicode-range">CSS &#64;font-face:unicode-range</a>).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="fontlib.css.FontFaceRule.rule_name">
+<code class="sig-name descname">rule_name</code><em class="property"> = 'font-face'</em><a class="headerlink" href="#fontlib.css.FontFaceRule.rule_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="fontlib.css.get_css_at_rules">
+<code class="sig-prename descclassname">fontlib.css.</code><code class="sig-name descname">get_css_at_rules</code><span class="sig-paren">(</span><em class="sig-param">css_url</em>, <em class="sig-param">at_class</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/css.html#get_css_at_rules"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.css.get_css_at_rules" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get at-rules of type <code class="docutils literal notranslate"><span class="pre">at_class</span></code> from CSS <code class="docutils literal notranslate"><span class="pre">css_url</span></code>.</p>
+<p>The CSS file is read by <code class="xref py py-func docutils literal notranslate"><span class="pre">urlopen()</span></code>.  If the URL points to the google
+fonts api, the CSS is read by <a class="reference internal" href="#fontlib.googlefont.read_google_font_css" title="fontlib.googlefont.read_google_font_css"><code class="xref py py-func docutils literal notranslate"><span class="pre">googlefont.read_google_font_css()</span></code></a>.
+Both funtions return the byte stream from the URL, which is parsed by
+<code class="xref py py-func docutils literal notranslate"><span class="pre">tinycss2.parse_stylesheet_bytes()</span></code>.  The resulting CSS rules are
+filtered by <code class="docutils literal notranslate"><span class="pre">at_class</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>css_url</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – URL of the CSS (stylesheet) file</p></li>
+<li><p><strong>at_class</strong> (<a class="reference internal" href="#fontlib.css.AtRule" title="fontlib.css.AtRule"><em>css.AtRule</em></a>) – class of the at-rule</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>[<a class="reference internal" href="#fontlib.css.AtRule" title="fontlib.css.AtRule">css.AtRule</a>]</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>list of <code class="docutils literal notranslate"><span class="pre">at_class</span></code> objects</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-fontlib.font">
+<span id="font"></span><h2>font<a class="headerlink" href="#module-fontlib.font" title="Permalink to this headline">¶</a></h2>
+<p>Implemtation of <a class="reference internal" href="#fontlib.font.Font" title="fontlib.font.Font"><code class="xref py py-class docutils literal notranslate"><span class="pre">Font</span></code></a></p>
+<dl class="class">
+<dt id="fontlib.font.Font">
+<em class="property">class </em><code class="sig-prename descclassname">fontlib.font.</code><code class="sig-name descname">Font</code><span class="sig-paren">(</span><em class="sig-param">origin</em>, <em class="sig-param">font_name</em>, <em class="sig-param">unicode_range=None</em>, <em class="sig-param">src_format=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/font.html#Font"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.font.Font" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>A font resource identified by URL.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>url</strong> – URL of the font resource file</p></li>
+<li><p><strong>font_name</strong> – Name of the font</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="fontlib.font.Font.from_at_rule">
+<em class="property">classmethod </em><code class="sig-name descname">from_at_rule</code><span class="sig-paren">(</span><em class="sig-param">at_rule</em>, <em class="sig-param">css_url</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/font.html#Font.from_at_rule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.font.Font.from_at_rule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build Font instances from <a class="reference internal" href="#fontlib.css.AtRule" title="fontlib.css.AtRule"><code class="xref py py-class docutils literal notranslate"><span class="pre">css.AtRule</span></code></a> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>at_rule</strong> – <code class="docutils literal notranslate"><span class="pre">&#64;font-face</span></code> rule, object of type <a class="reference internal" href="#fontlib.css.AtRule" title="fontlib.css.AtRule"><code class="xref py py-class docutils literal notranslate"><span class="pre">css.AtRule</span></code></a></p></li>
+<li><p><strong>css_url</strong> – URL of the CSS this <code class="docutils literal notranslate"><span class="pre">&#64;font-face</span></code> rule comes from.  We need this
+base URL to calculate relative path names for the <code class="docutils literal notranslate"><span class="pre">src</span></code>
+declarations.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>[<a class="reference internal" href="api.html#fontlib.api.Font" title="fontlib.api.Font">api.Font</a>]</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A generator of <a class="reference internal" href="#fontlib.font.Font" title="fontlib.font.Font"><code class="xref py py-class docutils literal notranslate"><span class="pre">Font</span></code></a> instances.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="fontlib.font.Font.from_css">
+<em class="property">classmethod </em><code class="sig-name descname">from_css</code><span class="sig-paren">(</span><em class="sig-param">css_url</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/font.html#Font.from_css"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.font.Font.from_css" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get <a class="reference internal" href="#fontlib.font.Font" title="fontlib.font.Font"><code class="xref py py-class docutils literal notranslate"><span class="pre">Font</span></code></a> objects from CSS Stylesheet</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>css_url</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – URL of the CSS (stylesheet) file</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>[<a class="reference internal" href="api.html#fontlib.api.Font" title="fontlib.api.Font">api.Font</a>]</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A generator of <a class="reference internal" href="#fontlib.font.Font" title="fontlib.font.Font"><code class="xref py py-class docutils literal notranslate"><span class="pre">Font</span></code></a> instances.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="fontlib.font.Font.from_entry_point">
+<em class="property">classmethod </em><code class="sig-name descname">from_entry_point</code><span class="sig-paren">(</span><em class="sig-param">ep_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/font.html#Font.from_entry_point"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.font.Font.from_entry_point" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build Font instances from python entry point</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ep_name</strong> – Name of the python entry point (e.g. <code class="docutils literal notranslate"><span class="pre">fonts_ttf</span></code> or <code class="docutils literal notranslate"><span class="pre">fonts_woff2</span></code>)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>[<a class="reference internal" href="api.html#fontlib.api.Font" title="fontlib.api.Font">api.Font</a>]</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A generator of <a class="reference internal" href="#fontlib.font.Font" title="fontlib.font.Font"><code class="xref py py-class docutils literal notranslate"><span class="pre">Font</span></code></a> instances.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="fontlib.font.Font.match_name">
+<code class="sig-name descname">match_name</code><span class="sig-paren">(</span><em class="sig-param">font_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/font.html#Font.match_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.font.Font.match_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <code class="docutils literal notranslate"><span class="pre">True</span></code> if <code class="docutils literal notranslate"><span class="pre">font_name</span></code> match one of the names</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="fontlib.font.Font.ID">
+<code class="sig-name descname">ID</code><em class="property"> = None</em><a class="headerlink" href="#fontlib.font.Font.ID" title="Permalink to this definition">¶</a></dt>
+<dd><p>A url-safe hash of font’s resource URL, used as unique resource ID</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="fontlib.font.Font.aliases">
+<code class="sig-name descname">aliases</code><em class="property"> = None</em><a class="headerlink" href="#fontlib.font.Font.aliases" title="Permalink to this definition">¶</a></dt>
+<dd><p>A list of alias font-names (values of <a class="reference external" href="https://www.w3.org/TR/css-fonts-3/#descdef-font-family">CSS &#64;font-face:font-family</a>)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="fontlib.font.Font.font_name">
+<code class="sig-name descname">font_name</code><em class="property"> = None</em><a class="headerlink" href="#fontlib.font.Font.font_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The font-name (value of <a class="reference external" href="https://www.w3.org/TR/css-fonts-3/#descdef-font-family">CSS &#64;font-face:font-family</a>)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="fontlib.font.Font.format">
+<code class="sig-name descname">format</code><em class="property"> = None</em><a class="headerlink" href="#fontlib.font.Font.format" title="Permalink to this definition">¶</a></dt>
+<dd><p>Comma-separated list of format strings (<a class="reference external" href="https://www.w3.org/TR/css-fonts-3/#descdef-src">CSS &#64;font-face:src</a>)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="fontlib.font.Font.origin">
+<code class="sig-name descname">origin</code><em class="property"> = None</em><a class="headerlink" href="#fontlib.font.Font.origin" title="Permalink to this definition">¶</a></dt>
+<dd><p>The URL from <a class="reference external" href="https://www.w3.org/TR/css-fonts-3/#descdef-src">CSS &#64;font-face:src</a> of the font resource.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="fontlib.font.Font.unicode_range">
+<code class="sig-name descname">unicode_range</code><em class="property"> = None</em><a class="headerlink" href="#fontlib.font.Font.unicode_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>A string with the value of <a class="reference external" href="https://www.w3.org/TR/css-fonts-3/#descdef-unicode-range">CSS &#64;font-face:unicode-range</a></p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-fontlib.fontstack">
+<span id="fontstack"></span><h2>fontstack<a class="headerlink" href="#module-fontlib.fontstack" title="Permalink to this headline">¶</a></h2>
+<p>Font library</p>
+<dl class="class">
+<dt id="fontlib.fontstack.FontStack">
+<em class="property">class </em><code class="sig-prename descclassname">fontlib.fontstack.</code><code class="sig-name descname">FontStack</code><a class="reference internal" href="_modules/fontlib/fontstack.html#FontStack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.fontstack.FontStack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>A collection of <a class="reference internal" href="api.html#fontlib.api.Font" title="fontlib.api.Font"><code class="xref py py-class docutils literal notranslate"><span class="pre">api.Font</span></code></a> objects</p>
+<dl class="method">
+<dt id="fontlib.fontstack.FontStack.add_font">
+<code class="sig-name descname">add_font</code><span class="sig-paren">(</span><em class="sig-param">font</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/fontstack.html#FontStack.add_font"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.fontstack.FontStack.add_font" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add <a class="reference internal" href="api.html#fontlib.api.Font" title="fontlib.api.Font"><code class="xref py py-class docutils literal notranslate"><span class="pre">api.Font</span></code></a> object to <em>this</em> stack.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="fontlib.fontstack.FontStack.list_fonts">
+<code class="sig-name descname">list_fonts</code><span class="sig-paren">(</span><em class="sig-param">font_name=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/fontstack.html#FontStack.list_fonts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.fontstack.FontStack.list_fonts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return generator of <a class="reference internal" href="api.html#fontlib.api.Font" title="fontlib.api.Font"><code class="xref py py-class docutils literal notranslate"><span class="pre">api.Font</span></code></a> objects selected by <code class="docutils literal notranslate"><span class="pre">font_name</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>font_name</strong> – Name of the font</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="fontlib.fontstack.FontStack.load_css">
+<code class="sig-name descname">load_css</code><span class="sig-paren">(</span><em class="sig-param">css_url</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/fontstack.html#FontStack.load_css"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.fontstack.FontStack.load_css" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add <a class="reference internal" href="api.html#fontlib.api.Font" title="fontlib.api.Font"><code class="xref py py-class docutils literal notranslate"><span class="pre">api.Font</span></code></a> objects from <a class="reference external" href="https://www.w3.org/TR/css-fonts-3/#font-face-rule">&#64;font-face</a> rules.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>css_url</strong> – URL of a CSS (stylesheet) file defining <code class="docutils literal notranslate"><span class="pre">&#64;font-face</span></code> rules</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="fontlib.fontstack.FontStack.load_entry_point">
+<code class="sig-name descname">load_entry_point</code><span class="sig-paren">(</span><em class="sig-param">ep_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/fontstack.html#FontStack.load_entry_point"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.fontstack.FontStack.load_entry_point" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add <a class="reference internal" href="api.html#fontlib.api.Font" title="fontlib.api.Font"><code class="xref py py-class docutils literal notranslate"><span class="pre">api.Font</span></code></a> objects from <code class="docutils literal notranslate"><span class="pre">ep_name</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ep_name</strong> – String with the name of the entry point (one of: <code class="docutils literal notranslate"><span class="pre">fonts_ttf</span></code>,
+<code class="docutils literal notranslate"><span class="pre">fonts_otf</span></code> <code class="docutils literal notranslate"><span class="pre">fonts_woff</span></code>, <code class="docutils literal notranslate"><span class="pre">fonts_woff2</span></code>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="fontlib.fontstack.FontStack.save_font">
+<code class="sig-name descname">save_font</code><span class="sig-paren">(</span><em class="sig-param">font</em>, <em class="sig-param">dest_file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/fontstack.html#FontStack.save_font"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.fontstack.FontStack.save_font" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save BLOB of <a class="reference internal" href="api.html#fontlib.api.Font" title="fontlib.api.Font"><code class="xref py py-class docutils literal notranslate"><span class="pre">api.Font</span></code></a> into file &lt;dest_file&gt;</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>origin</strong> – <a class="reference internal" href="api.html#fontlib.api.Font" title="fontlib.api.Font"><code class="xref py py-class docutils literal notranslate"><span class="pre">api.Font</span></code></a> object</p></li>
+<li><p><strong>dest_file</strong> – Filename of the destination</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="fontlib.fontstack.get_FQN">
+<code class="sig-prename descclassname">fontlib.fontstack.</code><code class="sig-name descname">get_FQN</code><span class="sig-paren">(</span><em class="sig-param">name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/fontstack.html#get_FQN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.fontstack.get_FQN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return Python Objekt that is refered by full qualiffied name</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_FQN</span><span class="p">(</span><span class="s2">&quot;fontlib.urlcache.URLCache&quot;</span><span class="p">)</span>
+<span class="go">&lt;class &#39;fontlib.urlcache.URLCache&#39;&gt;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="fontlib.fontstack.get_stack">
+<code class="sig-prename descclassname">fontlib.fontstack.</code><code class="sig-name descname">get_stack</code><span class="sig-paren">(</span><em class="sig-param">config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/fontstack.html#get_stack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.fontstack.get_stack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a <a class="reference internal" href="#fontlib.fontstack.FontStack" title="fontlib.fontstack.FontStack"><code class="xref py py-class docutils literal notranslate"><span class="pre">FontStack</span></code></a> instance with fonts loaded.</p>
+<p>Fonts are loaded from builtin fonts and entry points.</p>
+<p>available builtin fonts:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="builtin.html#builtin-cantarell"><span class="std std-ref">Cantarell</span></a></p></li>
+<li><p><a class="reference internal" href="builtin.html#builtiin-dejavu"><span class="std std-ref">DejaVu</span></a></p></li>
+</ul>
+<p>available entry points:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">fonts_ttf</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fonts_otf</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fonts_woff</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fonts_woff2</span></code></p></li>
+</ul>
+<p>E.g. to include all fonts from the <a class="reference external" href="https://pypi.org/project/fonts/">fonts-python</a> project install:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install font-amatic-sc font-caladea font-font-awesome \
+              font-fredoka-one font-hanken-grotesk font-intuitive \
+              font-source-sans-pro  font-source-serif-pro
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="module-fontlib.googlefont">
+<span id="googlefont"></span><h2>googlefont<a class="headerlink" href="#module-fontlib.googlefont" title="Permalink to this headline">¶</a></h2>
+<p>The googlefont module serves stuff to manage fonts from <a class="reference external" href="https://www.google.com/fonts">fonts.google.com</a></p>
+<dl class="function">
+<dt id="fontlib.googlefont.is_google_font_url">
+<code class="sig-prename descclassname">fontlib.googlefont.</code><code class="sig-name descname">is_google_font_url</code><span class="sig-paren">(</span><em class="sig-param">url</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/googlefont.html#is_google_font_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.googlefont.is_google_font_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test if <code class="docutils literal notranslate"><span class="pre">url</span></code> is from google font host <code class="docutils literal notranslate"><span class="pre">fonts.googleapis.com</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>url</strong> – URL that match hostname <code class="docutils literal notranslate"><span class="pre">fonts.googleapis.com</span></code> and scheme
+<code class="docutils literal notranslate"><span class="pre">http://</span></code> or <code class="docutils literal notranslate"><span class="pre">https://</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="fontlib.googlefont.read_google_font_css">
+<code class="sig-prename descclassname">fontlib.googlefont.</code><code class="sig-name descname">read_google_font_css</code><span class="sig-paren">(</span><em class="sig-param">url</em>, <em class="sig-param">format_list=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/googlefont.html#read_google_font_css"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.googlefont.read_google_font_css" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read stylesheet’s (CSS) content from <code class="docutils literal notranslate"><span class="pre">url</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>url</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – URL of the google CSS that defines the &#64;font-face rules, e.g.:
+<a class="reference external" href="https://fonts.googleapis.com/css">https://fonts.googleapis.com/css</a>?family=Cute+Font|Roboto+Slab</p></li>
+<li><p><strong>format_list</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – A list with the formats to fetch (default: <code class="docutils literal notranslate"><span class="pre">['woff2',</span> <span class="pre">'ttf',</span> <span class="pre">'svg']</span></code>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>byte</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>CSS loaded from URL (request.content)</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ConnectionError" title="(in Python v3.7)"><strong>ConnectionError</strong></a> – Raised when the URL is not a google font URL (see
+<a class="reference internal" href="#fontlib.googlefont.is_google_font_url" title="fontlib.googlefont.is_google_font_url"><code class="xref py py-func docutils literal notranslate"><span class="pre">is_google_font_url()</span></code></a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="data">
+<dt id="fontlib.googlefont.GOOGLE_FONTS_HOST">
+<code class="sig-prename descclassname">fontlib.googlefont.</code><code class="sig-name descname">GOOGLE_FONTS_HOST</code><em class="property"> = 'fonts.googleapis.com'</em><a class="headerlink" href="#fontlib.googlefont.GOOGLE_FONTS_HOST" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hostname of the google fonts api (url)</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="fontlib.googlefont.GOOGLE_FONT_FORMATS">
+<code class="sig-prename descclassname">fontlib.googlefont.</code><code class="sig-name descname">GOOGLE_FONT_FORMATS</code><em class="property"> = ['woff2', 'ttf', 'svg']</em><a class="headerlink" href="#fontlib.googlefont.GOOGLE_FONT_FORMATS" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of font formats used from google’s font api</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-fontlib.log">
+<span id="log"></span><h2>log<a class="headerlink" href="#module-fontlib.log" title="Permalink to this headline">¶</a></h2>
+<p>common logging &amp; setup implementations</p>
+<dl class="function">
+<dt id="fontlib.log.init_log">
+<code class="sig-prename descclassname">fontlib.log.</code><code class="sig-name descname">init_log</code><span class="sig-paren">(</span><em class="sig-param">log_config_ini</em>, <em class="sig-param">defaults=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/log.html#init_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.log.init_log" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="data">
+<dt id="fontlib.log.FONTLIB_LOGGER">
+<code class="sig-prename descclassname">fontlib.log.</code><code class="sig-name descname">FONTLIB_LOGGER</code><em class="property"> = 'fontlib'</em><a class="headerlink" href="#fontlib.log.FONTLIB_LOGGER" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of <a class="reference internal" href="index.html#module-fontlib" title="fontlib"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fontlib</span></code></a> ‘s (topmost) logger</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-fontlib.mime">
+<span id="mime"></span><h2>mime<a class="headerlink" href="#module-fontlib.mime" title="Permalink to this headline">¶</a></h2>
+<p>MIME type implementations</p>
+<dl class="class">
+<dt id="fontlib.mime.FontlibMimeTypes">
+<em class="property">class </em><code class="sig-prename descclassname">fontlib.mime.</code><code class="sig-name descname">FontlibMimeTypes</code><a class="reference internal" href="_modules/fontlib/mime.html#FontlibMimeTypes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.mime.FontlibMimeTypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/mimetypes.html#mimetypes.MimeTypes" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">mimetypes.MimeTypes</span></code></a></p>
+<p>A class (<a class="reference external" href="https://docs.python.org/3/library/mimetypes.html#mimetypes.MimeTypes" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">mimetypes.MimeTypes</span></code></a> ) with (only) mime types from <code class="docutils literal notranslate"><span class="pre">fontlib/mime.types</span></code></p>
+<dl class="method">
+<dt id="fontlib.mime.FontlibMimeTypes.map_types">
+<code class="sig-name descname">map_types</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/mime.html#FontlibMimeTypes.map_types"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.mime.FontlibMimeTypes.map_types" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return tuples with suffix and mime type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">[('.ttf',</span> <span class="pre">'font/ttf'),</span> <span class="pre">('.woff2',</span> <span class="pre">'font/woff2'),</span> <span class="pre">...]</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="fontlib.mime.add_types">
+<code class="sig-prename descclassname">fontlib.mime.</code><code class="sig-name descname">add_types</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/mime.html#add_types"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.mime.add_types" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add mime types from <code class="docutils literal notranslate"><span class="pre">fontlib/mime.types</span></code> to <a class="reference external" href="https://docs.python.org/3/library/mimetypes.html#module-mimetypes" title="(in Python v3.7)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">mimetypes</span></code></a></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># -*- coding: utf-8; mode: conf -*-</span>
+<span class="c1">#</span>
+<span class="c1"># Font type MIME types</span>
+<span class="c1"># ====================</span>
+<span class="c1">#</span>
+<span class="c1"># - [RFC8081] IETF:  https://tools.ietf.org/html/rfc8081</span>
+<span class="c1"># - IANA: https://www.iana.org/assignments/media-types/media-types.xhtml#font</span>
+<span class="c1">#</span>
+<span class="c1"># TTF Font Type</span>
+<span class="c1">#     https://tools.ietf.org/html/rfc8081#section-4.4.2</span>
+<span class="n">font</span><span class="o">/</span><span class="n">ttf</span>		<span class="n">ttf</span>
+<span class="c1">#</span>
+<span class="c1"># OpenType Layout (OTF) Font Type</span>
+<span class="c1">#     https://tools.ietf.org/html/rfc8081#section-4.4.3</span>
+<span class="n">font</span><span class="o">/</span><span class="n">otf</span>		<span class="n">otf</span>
+<span class="c1">#</span>
+<span class="c1"># Collection Font Type</span>
+<span class="c1">#     https://tools.ietf.org/html/rfc8081#section-4.4.4</span>
+<span class="n">font</span><span class="o">/</span><span class="n">collection</span>		<span class="n">collection</span>
+<span class="c1">#</span>
+<span class="c1"># WOFF 1.0</span>
+<span class="c1">#     https://tools.ietf.org/html/rfc8081#section-4.4.5</span>
+<span class="n">font</span><span class="o">/</span><span class="n">woff</span>		<span class="n">woff</span>
+<span class="c1">#</span>
+<span class="c1"># WOFF 2.0</span>
+<span class="c1">#     https://tools.ietf.org/html/rfc8081#section-4.4.6</span>
+<span class="n">font</span><span class="o">/</span><span class="n">woff2</span>		<span class="n">woff2</span>
+<span class="c1">#</span>
+<span class="c1"># Generic SFNT Font Type</span>
+<span class="c1">#    https://tools.ietf.org/html/rfc8081#section-4.4.1</span>
+<span class="n">font</span><span class="o">/</span><span class="n">sfnt</span>		<span class="n">sfnt</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="module-fontlib.urlcache">
+<span id="urlcache"></span><h2>urlcache<a class="headerlink" href="#module-fontlib.urlcache" title="Permalink to this headline">¶</a></h2>
+<p>Font library</p>
+<dl class="class">
+<dt id="fontlib.urlcache.NoCache">
+<em class="property">class </em><code class="sig-prename descclassname">fontlib.urlcache.</code><code class="sig-name descname">NoCache</code><a class="reference internal" href="_modules/fontlib/urlcache.html#NoCache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.urlcache.NoCache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#fontlib.urlcache.URLCache" title="fontlib.urlcache.URLCache"><code class="xref py py-class docutils literal notranslate"><span class="pre">fontlib.urlcache.URLCache</span></code></a></p>
+<p>A dummy cache which never caches</p>
+<dl class="method">
+<dt id="fontlib.urlcache.NoCache.add_url">
+<code class="sig-name descname">add_url</code><span class="sig-paren">(</span><em class="sig-param">origin</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/urlcache.html#NoCache.add_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.urlcache.NoCache.add_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add URL &lt;origin&gt; to cache’s database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>origin</strong> – the URL of the origin</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="fontlib.urlcache.NoCache.cache_url">
+<code class="sig-name descname">cache_url</code><span class="sig-paren">(</span><em class="sig-param">origin</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/urlcache.html#NoCache.cache_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.urlcache.NoCache.cache_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assure a localy cached copy of the URL response.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>origin</strong> – the URL of the origin</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="fontlib.urlcache.NoCache.fname_by_blob">
+<code class="sig-name descname">fname_by_blob</code><span class="sig-paren">(</span><em class="sig-param">blob</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/urlcache.html#NoCache.fname_by_blob"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.urlcache.NoCache.fname_by_blob" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return local file name of cached blob or None if not already cached.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>blob</strong> – a <a class="reference internal" href="#fontlib.urlcache.URLBlob" title="fontlib.urlcache.URLBlob"><code class="xref py py-class docutils literal notranslate"><span class="pre">URLBlob</span></code></a> instance</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="fontlib.urlcache.NoCache.init">
+<code class="sig-name descname">init</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/urlcache.html#NoCache.init"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.urlcache.NoCache.init" title="Permalink to this definition">¶</a></dt>
+<dd><p>Init cache</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="fontlib.urlcache.NoCache.save_url">
+<code class="sig-name descname">save_url</code><span class="sig-paren">(</span><em class="sig-param">origin</em>, <em class="sig-param">dest_file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/urlcache.html#NoCache.save_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.urlcache.NoCache.save_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download (un-cached) BLOB from &lt;origin&gt; into file &lt;dest_file&gt;</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>origin</strong> – URL of the origin</p></li>
+<li><p><strong>dest_file</strong> – Filename of the destination</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="fontlib.urlcache.SimpleURLCache">
+<em class="property">class </em><code class="sig-prename descclassname">fontlib.urlcache.</code><code class="sig-name descname">SimpleURLCache</code><a class="reference internal" href="_modules/fontlib/urlcache.html#SimpleURLCache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.urlcache.SimpleURLCache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#fontlib.urlcache.URLCache" title="fontlib.urlcache.URLCache"><code class="xref py py-class docutils literal notranslate"><span class="pre">fontlib.urlcache.URLCache</span></code></a></p>
+<p>Simple URL cache</p>
+<dl class="method">
+<dt id="fontlib.urlcache.SimpleURLCache.add_url">
+<code class="sig-name descname">add_url</code><span class="sig-paren">(</span><em class="sig-param">origin</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/urlcache.html#SimpleURLCache.add_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.urlcache.SimpleURLCache.add_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add URL &lt;origin&gt; to cache’s database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>origin</strong> – the URL of the origin</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="fontlib.urlcache.SimpleURLCache.fname_by_blob">
+<code class="sig-name descname">fname_by_blob</code><span class="sig-paren">(</span><em class="sig-param">blob</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/urlcache.html#SimpleURLCache.fname_by_blob"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.urlcache.SimpleURLCache.fname_by_blob" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return local file name of cached blob or None if not already cached.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>blob</strong> – a <a class="reference internal" href="#fontlib.urlcache.URLBlob" title="fontlib.urlcache.URLBlob"><code class="xref py py-class docutils literal notranslate"><span class="pre">URLBlob</span></code></a> instance</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="fontlib.urlcache.SimpleURLCache.init">
+<code class="sig-name descname">init</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/urlcache.html#SimpleURLCache.init"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.urlcache.SimpleURLCache.init" title="Permalink to this definition">¶</a></dt>
+<dd><p>Init cache</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="fontlib.urlcache.URLBlob">
+<em class="property">class </em><code class="sig-prename descclassname">fontlib.urlcache.</code><code class="sig-name descname">URLBlob</code><span class="sig-paren">(</span><em class="sig-param">origin</em>, <em class="sig-param">state='remote'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/urlcache.html#URLBlob"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.urlcache.URLBlob" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>A simple BLOB object</p>
+<dl class="attribute">
+<dt id="fontlib.urlcache.URLBlob.ID">
+<code class="sig-name descname">ID</code><em class="property"> = None</em><a class="headerlink" href="#fontlib.urlcache.URLBlob.ID" title="Permalink to this definition">¶</a></dt>
+<dd><p>A url-safe hash of <a class="reference internal" href="#fontlib.urlcache.URLBlob" title="fontlib.urlcache.URLBlob"><code class="xref py py-class docutils literal notranslate"><span class="pre">URLBlob</span></code></a> resource, used as unique resource ID</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="fontlib.urlcache.URLBlob.STATE_CACHED">
+<code class="sig-name descname">STATE_CACHED</code><em class="property"> = 'cached'</em><a class="headerlink" href="#fontlib.urlcache.URLBlob.STATE_CACHED" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="fontlib.urlcache.URLBlob.STATE_LOCAL">
+<code class="sig-name descname">STATE_LOCAL</code><em class="property"> = 'local'</em><a class="headerlink" href="#fontlib.urlcache.URLBlob.STATE_LOCAL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="fontlib.urlcache.URLBlob.STATE_REMOTE">
+<code class="sig-name descname">STATE_REMOTE</code><em class="property"> = 'remote'</em><a class="headerlink" href="#fontlib.urlcache.URLBlob.STATE_REMOTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="fontlib.urlcache.URLBlob.state">
+<code class="sig-name descname">state</code><em class="property"> = None</em><a class="headerlink" href="#fontlib.urlcache.URLBlob.state" title="Permalink to this definition">¶</a></dt>
+<dd><p>State of the BLOB in the cache: <code class="docutils literal notranslate"><span class="pre">[remote|local|cached]</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">remote</span></code>: BLOB needs replication
+<code class="docutils literal notranslate"><span class="pre">local</span></code>: BLOB is not cached but available from common filesystem
+<code class="docutils literal notranslate"><span class="pre">cached</span></code>: a copy of the BLOB is localy available</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="fontlib.urlcache.URLCache">
+<em class="property">class </em><code class="sig-prename descclassname">fontlib.urlcache.</code><code class="sig-name descname">URLCache</code><a class="reference internal" href="_modules/fontlib/urlcache.html#URLCache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.urlcache.URLCache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Abstract key/value hash for cached BLOBs (response) from origin.</p>
+<p>The <em>key</em> is origin’s URL and the value is the BLOB (response) from this
+URL.</p>
+<dl class="method">
+<dt id="fontlib.urlcache.URLCache.add_url">
+<code class="sig-name descname">add_url</code><span class="sig-paren">(</span><em class="sig-param">origin</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/urlcache.html#URLCache.add_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.urlcache.URLCache.add_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add URL &lt;origin&gt; to cache’s database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>origin</strong> – the URL of the origin</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="fontlib.urlcache.URLCache.cache_url">
+<code class="sig-name descname">cache_url</code><span class="sig-paren">(</span><em class="sig-param">origin</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/urlcache.html#URLCache.cache_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.urlcache.URLCache.cache_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assure a localy cached copy of the URL response.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>origin</strong> – the URL of the origin</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="fontlib.urlcache.URLCache.fname_by_blob">
+<code class="sig-name descname">fname_by_blob</code><span class="sig-paren">(</span><em class="sig-param">blob</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/urlcache.html#URLCache.fname_by_blob"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.urlcache.URLCache.fname_by_blob" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return local file name of cached blob or None if not already cached.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>blob</strong> – a <a class="reference internal" href="#fontlib.urlcache.URLBlob" title="fontlib.urlcache.URLBlob"><code class="xref py py-class docutils literal notranslate"><span class="pre">URLBlob</span></code></a> instance</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="fontlib.urlcache.URLCache.fname_by_url">
+<code class="sig-name descname">fname_by_url</code><span class="sig-paren">(</span><em class="sig-param">origin</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/urlcache.html#URLCache.fname_by_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.urlcache.URLCache.fname_by_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return file name of cached blob or None if URL is not already cached.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>origin</strong> – URL of the origin</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="fontlib.urlcache.URLCache.get_blob_obj">
+<code class="sig-name descname">get_blob_obj</code><span class="sig-paren">(</span><em class="sig-param">origin</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/urlcache.html#URLCache.get_blob_obj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.urlcache.URLCache.get_blob_obj" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <a class="reference internal" href="#fontlib.urlcache.URLBlob" title="fontlib.urlcache.URLBlob"><code class="xref py py-class docutils literal notranslate"><span class="pre">URLBlob</span></code></a> from cache or <code class="docutils literal notranslate"><span class="pre">None</span></code> if URL is unknown.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="fontlib.urlcache.URLCache.init">
+<code class="sig-name descname">init</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/urlcache.html#URLCache.init"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.urlcache.URLCache.init" title="Permalink to this definition">¶</a></dt>
+<dd><p>Init cache</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="fontlib.urlcache.URLCache.save_url">
+<code class="sig-name descname">save_url</code><span class="sig-paren">(</span><em class="sig-param">origin</em>, <em class="sig-param">dest_file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/urlcache.html#URLCache.save_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.urlcache.URLCache.save_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save (possibly cached) BLOB from &lt;origin&gt; into file &lt;dest_file&gt;</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>origin</strong> – URL of the origin</p></li>
+<li><p><strong>dest_file</strong> – Filename of the destination</p></li>
+</ul>
+</dd>
+</dl>
+<p>If &lt;origin&gt; is not already cached, it is downloaded and cached now.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="fontlib.urlcache.URLCache.url_state">
+<code class="sig-name descname">url_state</code><span class="sig-paren">(</span><em class="sig-param">origin</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fontlib/urlcache.html#URLCache.url_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fontlib.urlcache.URLCache.url_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns BLOB state of &lt;origin&gt; or <code class="docutils literal notranslate"><span class="pre">None</span></code> if URL is unknown.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>origin</strong> – the URL of the origin</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="api.html" class="btn btn-neutral float-left" title="API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019 Markus Heiser
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

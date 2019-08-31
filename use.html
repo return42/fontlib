@@ -1,0 +1,366 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Use &mdash; fontlib 20190831.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Config" href="config.html" />
+    <link rel="prev" title="Install" href="install.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> fontlib
+          
+
+          
+            
+            <img src="_static/darmarIT_logo_128.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                20190831.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Install</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Use</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#the-fontlib-command">The fontlib command</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#fontlib-options">Fontlib Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fontstack-options">Fontstack options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fontlib-list">fontlib list</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fontlib-css-parse">fontlib css-parse</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fontlib-download">fontlib download</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fontlib-config">fontlib config</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#source-code-remarks">Source Code Remarks</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="font.html">Font and FontStack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="googlefont.html">Fonts from google</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ep_points.html">Fonts from entry points</a></li>
+<li class="toctree-l1"><a class="reference internal" href="builtin.html">Builtin fonts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="internal.html">Internal</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">fontlib</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Use</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/use.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="use">
+<span id="id1"></span><h1>Use<a class="headerlink" href="#use" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="the-fontlib-command">
+<h2>The fontlib command<a class="headerlink" href="#the-fontlib-command" title="Permalink to this headline">¶</a></h2>
+<p>Command line tools from the fontlib library.</p>
+<p>The <a class="reference external" href="https://github.com/return42/fontlib.git">fontlib</a> library comes with a command line, use <code class="docutils literal notranslate"><span class="pre">fontlib</span> <span class="pre">--help</span></code> for a
+basic help.  For a detailed help to one of the subcommands type <code class="docutils literal notranslate"><span class="pre">fontlib</span></code>
+&lt;command&gt; –help``.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: fontlib [-h] [--debug] [--verbose] [--quiet] [-c [INI-FILE]]
+               [--workspace WORKSPACE]
+               {README,version,list,css-parse,download,config} ...
+
+Command line tools from the fontlib library.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --debug               run in debug mode (default: False)
+  --verbose             run in verbose mode (default: False)
+  --quiet               run in quiet mode (default: False)
+  -c [INI-FILE], --config [INI-FILE]
+                        specify config file (default:
+                        /home/markus/.fontlib/config.ini)
+  --workspace WORKSPACE
+                        workspace (default: ~/.fontlib)
+
+commands:
+  {README,version,list,css-parse,download,config}
+    README              prints README to stdout
+    version             prints version infos to stdout
+    list                List fonts from *builtins*, *fonts.googleapis.com* and
+                        other resources.
+    css-parse           Parse ``@font-face`` rules from &lt;url&gt;.
+    download            Download font-family &lt;family&gt; into folder &lt;dest&gt;.
+    config              Inspect configuration (working with INI files).
+</pre></div>
+</div>
+<div class="section" id="fontlib-options">
+<span id="fontlib-cli-options"></span><h3>Fontlib Options<a class="headerlink" href="#fontlib-options" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--verbose</span></code>: more verbose output</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-c</span> <span class="pre">/</span> <span class="pre">--config</span></code>: <a class="reference external" href="https://github.com/return42/fontlib/blob/master/fontlib/config.ini">gitfontlib/config.ini</a> (see <a class="reference internal" href="config.html#config"><span class="std std-ref">Config</span></a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--workspace</span></code>: place where application persists its data</p></li>
+</ul>
+</div>
+<div class="section" id="fontstack-options">
+<h3>Fontstack options<a class="headerlink" href="#fontstack-options" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--builtins</span></code>: select <a class="reference internal" href="builtin.html#builtin-fonts"><span class="std std-ref">Builtin fonts</span></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--ep-fonts</span></code>: <a class="reference internal" href="ep_points.html#ep-points"><span class="std std-ref">Fonts from entry points</span></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--google</span></code>: <a class="reference internal" href="googlefont.html#googlefont"><span class="std std-ref">Fonts from google</span></a></p></li>
+</ul>
+</div>
+<div class="section" id="fontlib-list">
+<h3>fontlib list<a class="headerlink" href="#fontlib-list" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: fontlib list [-h] [--builtins [BUILTINS]] [--ep-fonts [EPFONTS]]
+                    [--google [GOOGLE]]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --builtins [BUILTINS]
+                        use builtin fonts (default: cantarell, dejavu)
+  --ep-fonts [EPFONTS]  use fonts from entry points (default: fonts_ttf,
+                        fonts_otf, fonts_woff, fonts_woff2)
+  --google [GOOGLE]     use fonts from fonts.googleapis.com (default: Leckerli
+                        One, Roboto Slab)
+
+List fonts from *builtins*, *fonts.googleapis.com* and other resources.
+
+Option --google add fonts from google fonts infrastructure.  Select font
+families from:
+
+    https://fonts.google.com
+
+Option --ep-fonts add fonts from entry points, see:
+
+    https://pypi.org/project/fonts
+
+To install fonts from the *python fonts project* e.g. run::
+
+    $ pip install --user \
+          font-amatic-sc font-caladea font-font-awesome \
+          font-fredoka-one font-hanken-grotesk font-intuitive \
+          font-source-sans-pro font-source-serif-pro
+</pre></div>
+</div>
+</div>
+<div class="section" id="fontlib-css-parse">
+<h3>fontlib css-parse<a class="headerlink" href="#fontlib-css-parse" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: fontlib css-parse [-h] url
+
+positional arguments:
+  url         URL of stylesheet (CSS) to parse
+
+optional arguments:
+  -h, --help  show this help message and exit
+
+Parse ``@font-face`` rules from &lt;url&gt;.
+
+Load CSS (stylesheet) from &lt;url&gt; and filter ``@font-face`` rules.  E.g. google
+fonts API &#39;https://fonts.googleapis.com/css?family=Cute+Font|Roboto+Slab&#39; or
+built-in *dejavu* fonts from url &#39;file:./fontlib/files/dejavu/dejavu.css&#39;.
+</pre></div>
+</div>
+</div>
+<div class="section" id="fontlib-download">
+<h3>fontlib download<a class="headerlink" href="#fontlib-download" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: fontlib download [-h] [--builtins [BUILTINS]] [--ep-fonts [EPFONTS]]
+                        [--google [GOOGLE]]
+                        dest family [family ...]
+
+positional arguments:
+  dest                  Folder where the download will be placed.
+  family                Font&#39;s name, the value of CSS font-family
+                        property.E.g. &#39;Roboto Slab&#39; or &#39;DejaVu Sans Mono&#39;
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --builtins [BUILTINS]
+                        use builtin fonts (default: cantarell, dejavu)
+  --ep-fonts [EPFONTS]  use fonts from entry points (default: fonts_ttf,
+                        fonts_otf, fonts_woff, fonts_woff2)
+  --google [GOOGLE]     use fonts from fonts.googleapis.com (default: Leckerli
+                        One, Roboto Slab)
+
+Download font-family &lt;family&gt; into folder &lt;dest&gt;.
+</pre></div>
+</div>
+</div>
+<div class="section" id="fontlib-config">
+<h3>fontlib config<a class="headerlink" href="#fontlib-config" title="Permalink to this headline">¶</a></h3>
+<p>For more details see <a class="reference internal" href="config.html#config"><span class="std std-ref">Config</span></a>.</p>
+</div>
+</div>
+<div class="section" id="source-code-remarks">
+<h2>Source Code Remarks<a class="headerlink" href="#source-code-remarks" title="Permalink to this headline">¶</a></h2>
+<p>The implementation of application’s configuration is given in class
+<a class="reference internal" href="internal.html#fontlib.config.Config" title="fontlib.config.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a>.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="config.html" class="btn btn-neutral float-right" title="Config" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="install.html" class="btn btn-neutral float-left" title="Install" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019 Markus Heiser
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

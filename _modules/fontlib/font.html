@@ -1,0 +1,384 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>fontlib.font &mdash; fontlib 20190831.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/theme_overrides.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> fontlib
+          
+
+          
+            
+            <img src="../../_static/darmarIT_logo_128.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                20190831.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../use.html">Use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../font.html">Font and FontStack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../googlefont.html">Fonts from google</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ep_points.html">Fonts from entry points</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../builtin.html">Builtin fonts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../internal.html">Internal</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">fontlib</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>fontlib.font</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for fontlib.font</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8; mode: python; mode: flycheck -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Implemtation of :py:class:`Font`</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Font&quot;</span><span class="p">,</span> <span class="p">]</span>
+
+<span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="k">import</span> <span class="n">urlparse</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">base64</span>
+<span class="kn">import</span> <span class="nn">hashlib</span>
+<span class="kn">import</span> <span class="nn">pkg_resources</span>
+<span class="kn">import</span> <span class="nn">mimetypes</span>
+<span class="kn">import</span> <span class="nn">collections</span>
+
+<span class="kn">from</span> <span class="nn">.css</span> <span class="k">import</span> <span class="n">get_css_at_rules</span>
+<span class="kn">from</span> <span class="nn">.css</span> <span class="k">import</span> <span class="n">FontFaceRule</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="c1"># !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!</span>
+<span class="c1"># please pay attention whe adding new formats to FONTFACE_SRC_FORMAT; it is an</span>
+<span class="c1"># ordered dict and the first &#39;.startswith&#39; will match!</span>
+<span class="c1"># !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!</span>
+
+<span class="n">FONTFACE_SRC_FORMAT</span> <span class="o">=</span> <span class="n">_</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">()</span>
+
+<span class="c1"># https://css-tricks.com/one-file-many-options-using-variable-fonts-web/</span>
+<span class="n">_</span><span class="p">[</span><span class="s1">&#39;woff2-variations&#39;</span><span class="p">]</span>  <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;.woff2&#39;</span><span class="p">,</span> <span class="p">)</span>
+
+<span class="c1"># https://www.w3.org/TR/2018/REC-css-fonts-3-20180920/#src-desc</span>
+<span class="n">_</span><span class="p">[</span><span class="s1">&#39;woff2&#39;</span><span class="p">]</span>  <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;.woff2&#39;</span><span class="p">,</span> <span class="p">)</span>           <span class="c1"># WOFF 2.0 https://www.w3.org/TR/WOFF2/</span>
+<span class="n">_</span><span class="p">[</span><span class="s1">&#39;woff&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;.woff&#39;</span><span class="p">,</span> <span class="p">)</span>              <span class="c1"># WOFF 1.0 https://www.w3.org/TR/WOFF/</span>
+<span class="n">_</span><span class="p">[</span><span class="s1">&#39;truetype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;.ttf&#39;</span><span class="p">)</span>             <span class="c1"># TrueType --&gt; https://docs.microsoft.com/en-us/typography/opentype/spec/</span>
+<span class="n">_</span><span class="p">[</span><span class="s1">&#39;opentype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;.otf&#39;</span><span class="p">,</span> <span class="s1">&#39;ttf&#39;</span> <span class="p">)</span>    <span class="c1"># OpenType --&gt; https://docs.microsoft.com/en-us/typography/opentype/spec/</span>
+<span class="n">_</span><span class="p">[</span><span class="s1">&#39;embedded-opentype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;.eot&#39;</span><span class="p">,</span> <span class="p">)</span>  <span class="c1"># Embedded OpenType --&gt; https://www.w3.org/Submission/2008/SUBM-EOT-20080305/</span>
+<span class="n">_</span><span class="p">[</span><span class="s1">&#39;svg&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;.svg&#39;</span><span class="p">,</span> <span class="s1">&#39;.svgz&#39;</span><span class="p">)</span>         <span class="c1"># SVG Font --&gt; https://www.w3.org/TR/SVG11/fonts.html</span>
+
+<span class="k">def</span> <span class="nf">_guess_format</span><span class="p">(</span><span class="n">src_format_string</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">src_format_string</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">src_format_string</span> <span class="o">=</span> <span class="n">src_format_string</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">src_format_string</span> <span class="ow">in</span> <span class="n">FONTFACE_SRC_FORMAT</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">src_format_string</span>
+
+    <span class="n">found_format</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">for</span> <span class="n">_format</span><span class="p">,</span> <span class="n">extensions</span> <span class="ow">in</span> <span class="n">FONTFACE_SRC_FORMAT</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">extensions</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span> <span class="n">src_format_string</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">ext</span><span class="p">)</span>           <span class="c1"># match &#39;.&lt;suffix&gt;&#39;</span>
+                 <span class="ow">or</span> <span class="n">src_format_string</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">ext</span><span class="p">[</span><span class="mi">1</span><span class="p">:])):</span>  <span class="c1"># match &#39;&lt;suffix&gt;&#39;</span>
+                <span class="n">found_format</span> <span class="o">=</span> <span class="n">_format</span>
+                <span class="k">break</span>
+
+        <span class="k">if</span> <span class="n">found_format</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">break</span>
+
+    <span class="k">if</span> <span class="n">found_format</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">src_format_string</span> <span class="o">=</span> <span class="n">found_format</span>
+    <span class="k">return</span> <span class="n">src_format_string</span>
+
+
+<div class="viewcode-block" id="Font"><a class="viewcode-back" href="../../internal.html#fontlib.api.Font">[docs]</a><span class="k">class</span> <span class="nc">Font</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;A font resource identified by URL.</span>
+
+<span class="sd">    :param url:</span>
+<span class="sd">        URL of the font resource file</span>
+<span class="sd">    :param font_name:</span>
+<span class="sd">        Name of the font</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># pylint: disable=too-few-public-methods</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">origin</span><span class="p">,</span> <span class="n">font_name</span><span class="p">,</span> <span class="n">unicode_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">src_format</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">origin</span> <span class="o">=</span> <span class="n">origin</span>
+        <span class="sd">&quot;&quot;&quot;The URL from `CSS @font-face:src`_ of the font resource.&quot;&quot;&quot;</span>
+
+        <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">origin</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">(</span><span class="n">_</span><span class="p">)</span><span class="o">.</span><span class="n">digest</span><span class="p">()</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">urlsafe_b64encode</span><span class="p">(</span><span class="n">_</span><span class="p">)[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ID</span> <span class="o">=</span> <span class="n">_</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;A url-safe hash of font&#39;s resource URL, used as unique resource ID&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">font_name</span> <span class="o">=</span> <span class="n">font_name</span>
+        <span class="sd">&quot;&quot;&quot;The font-name (value of `CSS @font-face:font-family`_)&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">aliases</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="sd">&quot;&quot;&quot;A list of alias font-names (values of `CSS @font-face:font-family`_)&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">format</span> <span class="o">=</span> <span class="n">_guess_format</span><span class="p">(</span><span class="n">src_format</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;Comma-separated list of format strings (`CSS @font-face:src`_)&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">unicode_range</span> <span class="o">=</span> <span class="n">unicode_range</span>
+        <span class="sd">&quot;&quot;&quot;A string with the value of `CSS @font-face:unicode-range`_&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;&lt;font_name=&#39;</span><span class="si">%s</span><span class="s2">&#39;, format=&#39;</span><span class="si">%s</span><span class="s2">&#39;, ID=&#39;</span><span class="si">%s</span><span class="s2">&#39;, origin=&#39;</span><span class="si">%s</span><span class="s2">&#39;&gt;&quot;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">font_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ID</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">origin</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="Font.match_name"><a class="viewcode-back" href="../../internal.html#fontlib.api.Font.match_name">[docs]</a>    <span class="k">def</span> <span class="nf">match_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">font_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns ``True`` if ``font_name`` match one of the names&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">font_name</span> <span class="o">==</span> <span class="n">font_name</span> <span class="ow">or</span> <span class="n">font_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">aliases</span></div>
+
+<div class="viewcode-block" id="Font.from_entry_point"><a class="viewcode-back" href="../../internal.html#fontlib.api.Font.from_entry_point">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_entry_point</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">ep_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Build Font instances from python entry point</span>
+
+<span class="sd">        :param ep_name:</span>
+<span class="sd">            Name of the python entry point (e.g. ``fonts_ttf`` or ``fonts_woff2``)</span>
+
+<span class="sd">        :rtype: [api.Font]</span>
+<span class="sd">        :return:</span>
+<span class="sd">            A generator of :py:class:`Font` instances.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">ep_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">pkg_resources</span><span class="o">.</span><span class="n">iter_entry_points</span><span class="p">(</span><span class="n">ep_name</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">entry_point</span> <span class="ow">in</span> <span class="n">ep_list</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;loading from entry point: </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="n">ep_name</span><span class="p">,</span> <span class="n">entry_point</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">file_name</span> <span class="ow">in</span> <span class="n">entry_point</span><span class="o">.</span><span class="n">load</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">src_format</span> <span class="o">=</span> <span class="n">mimetypes</span><span class="o">.</span><span class="n">guess_type</span><span class="p">(</span><span class="n">file_name</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">src_format</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">src_format</span> <span class="o">=</span> <span class="n">src_format</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">src_format</span> <span class="o">=</span> <span class="n">file_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="c1"># add font ...</span>
+                <span class="n">font</span> <span class="o">=</span> <span class="n">Font</span><span class="p">(</span><span class="s1">&#39;file:&#39;</span> <span class="o">+</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">src_format</span><span class="o">=</span><span class="n">src_format</span><span class="p">)</span>
+                <span class="k">yield</span> <span class="n">font</span></div>
+
+<div class="viewcode-block" id="Font.from_css"><a class="viewcode-back" href="../../internal.html#fontlib.api.Font.from_css">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_css</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">css_url</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get :py:class:`Font` objects from CSS Stylesheet</span>
+
+<span class="sd">        :type css_url:   str</span>
+<span class="sd">        :param css_url:  URL of the CSS (stylesheet) file</span>
+
+<span class="sd">        :rtype: [api.Font]</span>
+<span class="sd">        :return:</span>
+<span class="sd">            A generator of :py:class:`Font` instances.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">at_rules</span> <span class="o">=</span> <span class="n">get_css_at_rules</span><span class="p">(</span><span class="n">css_url</span><span class="p">,</span> <span class="n">FontFaceRule</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">rule</span> <span class="ow">in</span> <span class="n">at_rules</span><span class="p">:</span>
+            <span class="k">yield</span>  <span class="bp">cls</span><span class="o">.</span><span class="n">from_at_rule</span><span class="p">(</span><span class="n">rule</span><span class="p">,</span> <span class="n">css_url</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Font.from_at_rule"><a class="viewcode-back" href="../../internal.html#fontlib.api.Font.from_at_rule">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_at_rule</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">at_rule</span><span class="p">,</span> <span class="n">css_url</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Build Font instances from :py:class:`.css.AtRule` object.</span>
+
+<span class="sd">        :param at_rule:</span>
+<span class="sd">            ``@font-face`` rule, object of type :py:class:`.css.AtRule`</span>
+
+<span class="sd">        :param css_url:</span>
+<span class="sd">            URL of the CSS this ``@font-face`` rule comes from.  We need this</span>
+<span class="sd">            base URL to calculate relative path names for the ``src``</span>
+<span class="sd">            declarations.</span>
+
+<span class="sd">        :rtype: [api.Font]</span>
+<span class="sd">        :return:</span>
+<span class="sd">            A generator of :py:class:`Font` instances.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">base_url</span> <span class="o">=</span> <span class="s2">&quot;/&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">css_url</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">src</span> <span class="o">=</span> <span class="n">at_rule</span><span class="o">.</span><span class="n">src</span><span class="p">()</span>
+        <span class="n">font_family</span> <span class="o">=</span> <span class="n">at_rule</span><span class="o">.</span><span class="n">font_family</span><span class="p">()</span>
+        <span class="n">origin</span> <span class="o">=</span> <span class="n">src</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">]</span>
+
+        <span class="n">url</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">origin</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">url</span><span class="o">.</span><span class="n">scheme</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span> <span class="ow">and</span> <span class="n">url</span><span class="o">.</span><span class="n">netloc</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span> <span class="ow">and</span> <span class="n">url</span><span class="o">.</span><span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;/&#39;</span><span class="p">:</span>
+            <span class="c1"># is relative path name</span>
+            <span class="n">origin</span> <span class="o">=</span> <span class="n">base_url</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">origin</span>
+
+        <span class="k">return</span> <span class="n">Font</span><span class="p">(</span>
+            <span class="n">origin</span>
+            <span class="p">,</span> <span class="n">font_family</span>
+            <span class="p">,</span> <span class="n">at_rule</span><span class="o">.</span><span class="n">unicode_range</span><span class="p">()</span>
+            <span class="p">,</span> <span class="n">src_format</span> <span class="o">=</span> <span class="n">src</span><span class="p">[</span><span class="s1">&#39;format&#39;</span><span class="p">]</span>
+            <span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019 Markus Heiser
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
