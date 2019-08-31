@@ -66,8 +66,11 @@ With command ``fontlib config show`` you can inspect current configuration
 options.  To show your current configuration use ``fontlib --verbose config
 show``.  With switch ``--verbose`` you will get some more information.
 
-.. command-output:: ../local/py3/bin/fontlib --verbose config show
-   :ellipsis: 10
+.. admonition:: fontlib --verbose config show
+   :class: rst-example
+
+   .. command-output:: ../local/py3/bin/fontlib --verbose config show
+      :ellipsis: 10
 
 
 Source Code Remarks
