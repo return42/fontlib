@@ -25,7 +25,7 @@ maintainers = [maintainer, ]
 
 url = 'https://github.com/return42/fontlib'
 docs = 'http://return42.github.io/fontlib'
-issues = 'http://return42.github.io/fontlib/issues'
+issues = 'https://github.com/return42/fontlib/issues'
 
 project_urls = {
     'Documentation'      : docs
