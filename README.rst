@@ -6,7 +6,7 @@ To name just a few fontlib features:
 - fontlib ships some `builtin fonts <http://return42.github.io/fontlib/builtin.html>`__
 - fontlib make use of fonts from `google fonts <http://return42.github.io/fontlib/googlefont.html>`__
 - fontlib use fonts from `entry points <http://return42.github.io/fontlib/ep_points.html>`__
-- Python `mimetypes <https://docs.python.org/3/library/mimetypes.html>`__ for font types (:py:mod:`fontlib.mime`)
+- Python `mimetypes <https://docs.python.org/3/library/mimetypes.html>`__ for font types
 
 
 Install

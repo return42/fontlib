@@ -138,7 +138,7 @@ To name just a few fontlib features:
 - fontlib ships some `builtin fonts <%(docs)s/builtin.html>`__
 - fontlib make use of fonts from `google fonts <%(docs)s/googlefont.html>`__
 - fontlib use fonts from `entry points <%(docs)s/ep_points.html>`__
-- Python `mimetypes <https://docs.python.org/3/library/mimetypes.html>`__ for font types (:py:mod:`fontlib.mime`)
+- Python `mimetypes <https://docs.python.org/3/library/mimetypes.html>`__ for font types
 
 
 Install
