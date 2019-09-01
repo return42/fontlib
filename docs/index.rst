@@ -14,7 +14,6 @@ Python fontlib
    install
    use
    config
-   font
    googlefont
    ep_points
    builtin

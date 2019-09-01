@@ -189,7 +189,7 @@ def cli_list_fonts(args):
         # <col-title>,      <format sting>, <attribute name>
         , ("cache sate",    "%-10s",        "blob_state")
         , ("name",          "%-40s",        "font_name")
-        , ("format",        "%-10s",        "format")
+        , ("format",        "%-20s",        "format")
         , ("font ID",       "%-22s",        "ID")
         , ("location",      "%-90s",        "closest") )
 
@@ -213,7 +213,7 @@ def cli_parse_css(args):
         font_stack.stack.values()
         # <col-title>, <format sting>, <attribute name>
         , ("name",          "%-40s",        "font_name")
-        , ("format",        "%-10s",        "format")
+        , ("format",        "%-20s",        "format")
         , ("font ID",       "%-22s",        "ID")
         , ("URL",           "%-90s",        "origin") )
 

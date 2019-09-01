@@ -2,6 +2,7 @@
 .. include:: refs.txt
 
 .. _font:
+.. _fontstack:
 
 ==================
 Font and FontStack
@@ -13,6 +14,15 @@ class Font are managed in a :py:class:`fontlib.api.FontStack`.  The factory
 function :py:class:`fontlib.api.get_stack` can be used to build an FontStack
 instance inited from a :py:class:`fontlib.config.Config` object.  See
 :ref:`config`, there is a section named ``[fontstack]``.
+
+Source Code Remarks
+===================
+
+.. automodule:: fontlib.font
+   :noindex:
+
+.. automodule:: fontlib.fontstack
+   :noindex:
 
 Further Reading
 ===============
@@ -41,5 +51,3 @@ fonttools:
     cd brotli
     $ python3 setup.py install --user
 
-.. automodule:: fontlib.font
-   :noindex:

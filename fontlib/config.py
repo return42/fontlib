@@ -1,8 +1,5 @@
 # -*- coding: utf-8; mode: python; mode: flycheck -*-
-"""The implementation of application's configuration is given in class
-:py:class:`Config`.
-
-"""
+"""Implementation of application's configuration class :py:class:`Config`."""
 
 __all__ = ['Config']
 

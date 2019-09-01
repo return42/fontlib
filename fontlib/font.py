@@ -1,6 +1,6 @@
 # -*- coding: utf-8; mode: python; mode: flycheck -*-
 """
-Implemtation of :py:class:`Font`
+Implemtation of class :py:class:`Font`.
 """
 
 __all__ = ["Font", ]

@@ -1,7 +1,9 @@
 # -*- coding: utf-8; mode: python; mode: flycheck -*-
 """
-Font library
+Implementation of class :py:class:`FontStack`.
 """
+
+__all__ = ['FontStack', 'get_stack']
 
 import logging
 import fspath
