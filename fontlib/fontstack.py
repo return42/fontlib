@@ -9,31 +9,19 @@ import logging
 import fspath
 
 from .font import Font
+from .urlcache import NoCache
 
 log = logging.getLogger(__name__)
-
-def get_FQN(name):
-    """
-    Return Python Objekt that is refered by full qualiffied name
-
-    .. code-block:: python
-
-      >>> get_FQN("fontlib.urlcache.URLCache")
-      <class 'fontlib.urlcache.URLCache'>
-    """
-    (modulename, name) = name.rsplit('.', 1)
-    m = __import__(modulename, {}, {}, [name], 0)
-    return getattr(m, name)
-
 
 class FontStack:
     """A collection of :py:class:`.api.Font` objects"""
 
     def __init__(self):
-        #cache_cls = get_FQN("fontlib.urlcache.SimpleURLCache")
-        cache_cls = get_FQN("fontlib.urlcache.NoCache")
-        self.cache = cache_cls()
+        self.cache = NoCache()
         self.stack = dict()
+
+    def set_cache(self, cache):
+        self.cache = cache
 
     def add_font(self, font):
         """Add :py:class:`.api.Font` object to *this* stack."""
@@ -117,7 +105,12 @@ def get_stack(config):
                       font-source-sans-pro  font-source-serif-pro
 
     """
+    # get FontStack and set cache from configuration
+
     stack = FontStack()
+    cache_cls = config.getfqnobj('fontstack', 'cache', fallback=NoCache)
+    cache_obj = cache_cls()
+    stack.set_cache(cache_obj)
 
     # register builtin fonts
     base = fspath.FSPath(__file__).DIRNAME / 'files'

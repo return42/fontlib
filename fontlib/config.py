@@ -15,6 +15,19 @@ class Config(configparser.ConfigParser): # pylint: disable=too-many-ancestors
         super().__init__(*args, **kwargs)
         self.read(Config.DEFAULT_INI)
 
+    def getfqnobj(self, section, option, *, raw=False, _vars=None,
+                  fallback=configparser._UNSET, **kwargs): # pylint: disable=protected-access
+        """Get python object refered by full qualiffied name (FQN) in the config string.
+        """
+        return self._get_conv(
+            section, option, self._convert_fqn_to_pyobj,
+            raw=raw, vars=_vars, fallback=fallback, **kwargs)
+
+    def _convert_fqn_to_pyobj(self, value):  # pylint: disable=no-self-use
+        (modulename, name) = value.rsplit('.', 1)
+        m = __import__(modulename, {}, {}, [name], 0)
+        return getattr(m, name)
+
     def getlist(self, section, option, *, raw=False, _vars=None,
                 fallback=configparser._UNSET, **kwargs): # pylint: disable=protected-access
         """Get a list from a comma separated config string."""
