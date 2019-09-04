@@ -46,13 +46,11 @@ PHONY += uninstall
 uninstall: pyuninstall pyenvuninstall
 
 PHONY += docs
-docs:  sphinx-doc
-	@$(PY_ENV_BIN)/pip install $(PIP_VERBOSE) -e .
+docs:  pyenvinstall sphinx-doc
 	$(call cmd,sphinx,html,docs,docs)
 
 PHONY += docs-live
-docs-live:  sphinx-live
-	@$(PY_ENV_BIN)/pip install $(PIP_VERBOSE) -e .
+docs-live:  pyenvinstall sphinx-live
 	$(call cmd,sphinx_autobuild,html,docs,docs)
 
 PHONY += slides
