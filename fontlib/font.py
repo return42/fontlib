@@ -7,21 +7,20 @@ __all__ = ["Font", ]
 
 from urllib.parse import urlparse
 
+import mimetypes
+import collections
 import logging
 import base64
 import hashlib
 import pkg_resources
-import mimetypes
-import collections
 
 from .css import get_css_at_rules
 from .css import FontFaceRule
 
 log = logging.getLogger(__name__)
 
-
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-# please pay attention whe adding new formats to FONTFACE_SRC_FORMAT; it is an
+# please pay attention when adding new formats to FONTFACE_SRC_FORMAT; it is an
 # ordered dict and the first '.startswith' will match!
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
