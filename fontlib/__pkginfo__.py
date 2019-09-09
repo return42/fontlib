@@ -41,7 +41,6 @@ install_requires = [
     'fspath'
     , 'tinycss2'
     , 'requests'
-    , 'sqlalchemy'
 ]
 install_requires_txt = "\n".join(install_requires)
 
