@@ -12,10 +12,12 @@ import collections
 import logging
 import base64
 import hashlib
+from sqlalchemy import Column, String
 import pkg_resources
 
 from .css import get_css_at_rules
 from .css import FontFaceRule
+from .db import FontLibSchema
 
 log = logging.getLogger(__name__)
 
@@ -62,7 +64,33 @@ def _guess_format(src_format_string):
     return src_format_string
 
 
-class Font:
+class _Font(FontLibSchema):
+
+    __tablename__ = 'font'
+
+    origin = Column(String(1024), primary_key=True, nullable=False)
+    """The URL from `CSS @font-face:src`_ of the font resource."""
+
+    font_id = Column(String(22), index=True, unique=True, nullable=False)
+    """A url-safe hash of font's resource URL, used as unique resource ID"""
+
+    font_name = Column(String(80), index=True, unique=False)
+    """The font-name (value of `CSS @font-face:font-family`_)"""
+
+    # FIXME ..
+    aliases = Column(String(80*12))
+    """A list of alias font-names (values of `CSS @font-face:font-family`_)"""
+
+    # FIXME ..
+    format = Column(String(22*6))
+    """Comma-separated list of format strings (`CSS @font-face:src`_)"""
+
+    # FIXME ..
+    unicode_range = Column(String(4098))
+    """A string with the value of `CSS @font-face:unicode-range`_"""
+
+class Font(FontLibSchema):
+
     """A font resource identified by URL.
 
     :param url:
