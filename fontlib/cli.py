@@ -176,7 +176,7 @@ def cli_list_fonts(args):
                 closest = stack.cache.fname_by_url(font.origin)
 
             yield dict(
-                ID = font.ID
+                font_id = font.font__id
                 , font_name = font.font_name
                 , format = font.format
                 , origin = font.origin
@@ -190,7 +190,7 @@ def cli_list_fonts(args):
         , ("cache sate",    "%-10s",        "blob_state")
         , ("name",          "%-40s",        "font_name")
         , ("format",        "%-20s",        "format")
-        , ("font ID",       "%-22s",        "ID")
+        , ("font ID",       "%-22s",        "font_id")
         , ("location",      "%-90s",        "closest") )
 
 
@@ -214,7 +214,7 @@ def cli_parse_css(args):
         # <col-title>, <format sting>, <attribute name>
         , ("name",          "%-40s",        "font_name")
         , ("format",        "%-20s",        "format")
-        , ("font ID",       "%-22s",        "ID")
+        , ("font ID",       "%-22s",        "font_id")
         , ("URL",           "%-90s",        "origin") )
 
 
@@ -241,7 +241,7 @@ def cli_download_family(args):
             if url.query:
                 # the resource is not a typical file URL with a file name, lets use
                 # the fonts resource ID as a file name
-                dest_file = args.dest / str(font.ID) + '.' + font.format
+                dest_file = args.dest / str(font.font_id) + '.' + font.format
 
             cli.UI.echo("[%s]: download %s from %s" % (
                 font.font_name, dest_file, font.origin))

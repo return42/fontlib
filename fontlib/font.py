@@ -81,7 +81,7 @@ class Font:
         _ = self.origin.encode('utf-8')
         _ = hashlib.md5(_).digest()
         _ = base64.urlsafe_b64encode(_)[:-2]
-        self.ID = _.decode('utf-8')
+        self.font_id = _.decode('utf-8')
         """A url-safe hash of font's resource URL, used as unique resource ID"""
 
         self.font_name = font_name
@@ -97,8 +97,8 @@ class Font:
         """A string with the value of `CSS @font-face:unicode-range`_"""
 
     def __repr__(self):
-        return "<font_name='%s', format='%s', ID='%s', origin='%s'>" % (
-            self.font_name, self.format, self.ID, self.origin
+        return "<font_name='%s', format='%s', font_id='%s', origin='%s'>" % (
+            self.font_name, self.format, self.font_id, self.origin
         )
 
     def match_name(self, font_name):
