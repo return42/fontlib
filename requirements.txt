@@ -6,6 +6,7 @@
 fspath
 tinycss2
 requests
+sqlalchemy
 
 # -------------
 # test requires
