@@ -21,6 +21,7 @@ class FontStack:
         self.stack = dict()
 
     def set_cache(self, cache):
+        """set cache"""
         log.debug('set cache: %s', str(cache))
         self.cache = cache
 

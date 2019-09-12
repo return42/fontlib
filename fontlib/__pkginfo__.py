@@ -28,6 +28,7 @@ docs = 'http://return42.github.io/fontlib'
 issues = 'https://github.com/return42/fontlib/issues'
 
 project_urls = {
+    # pylint: disable=bad-continuation
     'Documentation'      : docs
     , 'Code'             : url
     , 'Issue tracker'    : issues
@@ -53,11 +54,11 @@ test_requires_txt = "\n".join(test_requires)
 
 develop_requires = [
     'jedi'
-    ,'Sphinx'
-    ,'sphinx_rtd_theme'
-    ,'sphinx-autobuild'
-    ,'sphinxcontrib-programoutput'
-    ,'pip'
+    , 'Sphinx'
+    , 'sphinx_rtd_theme'
+    , 'sphinx-autobuild'
+    , 'sphinxcontrib-programoutput'
+    , 'pip'
     , 'twine'
 ]
 

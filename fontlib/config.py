@@ -50,7 +50,7 @@ class Config(configparser.ConfigParser): # pylint: disable=too-many-ancestors
     def _convert_to_fspath(self, value): # pylint: disable=no-self-use
         return FSPath(value).EXPANDUSER.EXPANDVARS
 
-    def config_env(self, app, workspace):
+    def config_env(self, app, workspace):  # pylint: disable=no-self-use
         """Additional variables that can be used in the INI files"""
         return {'app' : app, 'workspace' : workspace}
 

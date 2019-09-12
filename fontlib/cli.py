@@ -31,6 +31,7 @@ LOG_INI = 'log.ini'
 log = logging.getLogger(__name__)
 
 def main():
+    """main loop of the command line interface"""
     global CONFIG
     init_main()
     app_ws = CONFIG.getpath('DEFAULT', 'workspace', fallback=DEFAULT_WORKSPACE)
@@ -59,7 +60,7 @@ def main():
 
     # cmd: README ...
 
-    readme = cli.addCMDParser(cli_README, cmdName='README')
+    _ = cli.addCMDParser(cli_README, cmdName='README')
 
     # cmd: version ...
 

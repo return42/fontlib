@@ -65,6 +65,7 @@ def _guess_format(src_format_string):
 
 
 class _Font(FontLibSchema):
+    # pylint: disable=too-few-public-methods
 
     __tablename__ = 'font'
 
@@ -89,7 +90,7 @@ class _Font(FontLibSchema):
     unicode_range = Column(String(4098))
     """A string with the value of `CSS @font-face:unicode-range`_"""
 
-class Font(FontLibSchema):
+class Font:
 
     """A font resource identified by URL.
 

@@ -17,6 +17,7 @@ FONTLIB_LOGGER = 'fontlib'
 """Name of :py:obj:`fontlib` 's (topmost) logger"""
 
 def init_log(log_config_ini, defaults=None):
+    """Init logging from a log.ini"""
     log.debug('init log from: %s env: %s', log_config_ini, defaults)
     log_cfg = configparser.ConfigParser(defaults=defaults)
     log_cfg.read(log_config_ini)
