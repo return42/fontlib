@@ -1,9 +1,11 @@
 # -*- coding: utf-8; mode: python; mode: flycheck -*-
+# pylint: disable=too-few-public-methods
+
 """
 Implemtation of class :py:class:`Font`.
 """
 
-__all__ = ["Font", ]
+__all__ = ['Font', 'FontAlias', 'FontSrcFormat']
 
 from urllib.parse import urlparse
 
@@ -13,13 +15,18 @@ import logging
 import base64
 import hashlib
 from sqlalchemy import Column, String
+from sqlalchemy.schema import ForeignKey
+from sqlalchemy.orm import relationship
+
 import pkg_resources
 
+from .db import FontLibSchema
+from .db import TableUtilsMixIn
 from .css import get_css_at_rules
 from .css import FontFaceRule
-from .db import FontLibSchema
 
 log = logging.getLogger(__name__)
+
 
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # please pay attention when adding new formats to FONTFACE_SRC_FORMAT; it is an
@@ -63,80 +70,64 @@ def _guess_format(src_format_string):
         src_format_string = found_format
     return src_format_string
 
+class Font(FontLibSchema, TableUtilsMixIn):
 
-class _Font(FontLibSchema):
-    # pylint: disable=too-few-public-methods
+    """A font resource identified by URL (ID).
+
+    Object of table 'font'
+
+    """
 
     __tablename__ = 'font'
 
-    origin = Column(String(1024), primary_key=True, nullable=False)
-    """The URL from `CSS @font-face:src`_ of the font resource."""
-
-    font_id = Column(String(22), index=True, unique=True, nullable=False)
+    id = Column(String(22), primary_key=True)
     """A url-safe hash of font's resource URL, used as unique resource ID"""
 
-    font_name = Column(String(80), index=True, unique=False)
+    origin = Column(String(1024), unique=True, nullable=False)
+    """The URL from `CSS @font-face:src`_ of the font resource."""
+
+    name = Column(String(80), unique=False)
     """The font-name (value of `CSS @font-face:font-family`_)"""
 
-    # FIXME ..
-    aliases = Column(String(80*12))
-    """A list of alias font-names (values of `CSS @font-face:font-family`_)"""
-
-    # FIXME ..
-    format = Column(String(22*6))
-    """Comma-separated list of format strings (`CSS @font-face:src`_)"""
-
-    # FIXME ..
     unicode_range = Column(String(4098))
     """A string with the value of `CSS @font-face:unicode-range`_"""
 
-class Font:
 
-    """A font resource identified by URL.
+    # https://docs.sqlalchemy.org/orm/backref.html
 
-    :param url:
-        URL of the font resource file
-    :param font_name:
-        Name of the font
+    aliases = relationship(
+        'FontAlias'
+        , back_populates = 'font'
+        , uselist = True
+        , cascade = 'all, delete-orphan'  # 1:N aggregation
+        , doc = """A list of alias font-names (values of `CSS @font-face:font-family`_)""")
 
-    """
-    # pylint: disable=too-few-public-methods
+    src_formats = relationship(
+        'FontSrcFormat'
+        , back_populates = 'font'
+        , uselist = True
+        , cascade = 'all, delete-orphan'   # 1:N aggregation
+        , doc = "A list of format strings (`CSS @font-face:src`_)")
 
-    def __init__(self, origin, font_name, unicode_range=None, src_format=None):
-
-        self.origin = origin
-        """The URL from `CSS @font-face:src`_ of the font resource."""
-
-        _ = self.origin.encode('utf-8')
-        _ = hashlib.md5(_).digest()
-        _ = base64.urlsafe_b64encode(_)[:-2]
-        self.font_id = _.decode('utf-8')
-        """A url-safe hash of font's resource URL, used as unique resource ID"""
-
-        self.font_name = font_name
-        """The font-name (value of `CSS @font-face:font-family`_)"""
-
-        self.aliases = []
-        """A list of alias font-names (values of `CSS @font-face:font-family`_)"""
-
-        self.format = _guess_format(src_format)
-        """Comma-separated list of format strings (`CSS @font-face:src`_)"""
-
-        self.unicode_range = unicode_range
-        """A string with the value of `CSS @font-face:unicode-range`_"""
+    def __init__(self, origin, **kwargs):
+        kwargs['origin'] = origin
+        if 'id' not in kwargs:
+            _ = origin.encode('utf-8')
+            _ = hashlib.md5(_).digest()
+            _ = base64.urlsafe_b64encode(_)[:-2]
+            kwargs['id'] = _.decode('utf-8')
+        super(Font, self).__init__(**kwargs)
 
     def __repr__(self):
-        return "<font_name='%s', format='%s', font_id='%s', origin='%s'>" % (
-            self.font_name, self.format, self.font_id, self.origin
-        )
+        return "<Font %(name)s id='%(id)s', origin='%(id)s'>" % self.__dict__
 
-    def match_name(self, font_name):
-        """Returns ``True`` if ``font_name`` match one of the names"""
-        return self.font_name == font_name or font_name in self.aliases
+    def match_name(self, name):
+        """Returns ``True`` if ``name`` match one of the names"""
+        return self.name == name or name in self.aliases
 
     @classmethod
     def from_entry_point(cls, ep_name):
-        """Build Font instances from python entry point
+        """Build Font instances from python entry point.
 
         :param ep_name:
             Name of the python entry point (e.g. ``fonts_ttf`` or ``fonts_woff2``)
@@ -147,6 +138,7 @@ class Font:
         """
 
         ep_list = list(pkg_resources.iter_entry_points(ep_name))
+
         for entry_point in ep_list:
             log.debug("loading from entry point: %s (%s)", ep_name, entry_point)
             for name, file_name in entry_point.load().items():
@@ -155,8 +147,10 @@ class Font:
                     src_format = src_format.split('/')[1]
                 else:
                     src_format = file_name.split('.')[-1]
-                # add font ...
-                font = Font('file:' + file_name, name, src_format=src_format)
+                # FIXME
+                #font = Font('file:' + file_name, name=name, src_format=src_format)
+                font = Font('file:' + file_name, name=name)
+                font.src_formats.append(FontSrcFormat(src_format=src_format))
                 yield font
 
     @classmethod
@@ -201,9 +195,46 @@ class Font:
             # is relative path name
             origin = base_url + "/" + origin
 
+        # FIXME
         return Font(
             origin
             , font_family
             , at_rule.unicode_range()
             , src_format = src['format']
             )
+
+
+class FontAlias(FontLibSchema, TableUtilsMixIn):
+
+    """Object of table 'font_alias'"""
+
+    __tablename__ = 'font_alias'
+
+    id = Column(String(22), ForeignKey('font.id'), primary_key=True)
+    id.__doc__ = Font.id.__doc__
+
+    alias_name = Column(String(80), primary_key=True)
+    """Alias font-name (value of `CSS @font-face:font-family`_)"""
+
+    font = relationship(Font, back_populates="aliases", uselist=False)
+
+    def __repr__(self):
+        return "<FontAlias %(alias_name)s>" % self.__dict__
+
+
+class FontSrcFormat(FontLibSchema, TableUtilsMixIn):
+
+    """Object of table 'font_src_format.'"""
+
+    __tablename__ = 'font_src_format'
+
+    id = Column(String(22), ForeignKey('font.id'), primary_key=True)
+    id.__doc__ = Font.id.__doc__
+
+    src_format = Column(String(22), primary_key=True)
+    """Format string (`CSS @font-face:src`_)"""
+
+    font = relationship(Font, back_populates="src_formats", uselist=False)
+
+    def __repr__(self):
+        return "<FontSrcFormat %(src_format)s>" % self.__dict__

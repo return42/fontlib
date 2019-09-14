@@ -3,12 +3,14 @@
 Implementation of class :py:class:`FontStack`.
 """
 
-__all__ = ['FontStack', 'get_stack']
+__all__ = ['FontStack', ]
 
 import logging
 import fspath
 
+from .db import fontlib_session
 from .font import Font
+from .font import FontAlias
 from .urlcache import NoCache
 
 log = logging.getLogger(__name__)
@@ -18,7 +20,6 @@ class FontStack:
 
     def __init__(self):
         self.cache = NoCache()
-        self.stack = dict()
 
     def set_cache(self, cache):
         """set cache"""
@@ -27,20 +28,28 @@ class FontStack:
 
     def add_font(self, font):
         """Add :py:class:`.api.Font` object to *this* stack."""
-        exists = self.stack.get(font.origin, None)
 
-        if exists is None:
-            log.debug("add font-family: %s", font)
-            self.stack[font.origin] = font
-            self.cache.add_url(font.origin)
+        session = fontlib_session()
+
+        # FIXME ..
+        # import pdb
+        # pdb.set_trace()
+
+        p_obj = font.get_persistent_object(session)
+
+        if p_obj:
+            if p_obj.match_name(font.name):
+                log.info(
+                    "Font with identical origin and font name already exists,"
+                    " skip additional Font '%s' with url '%s'"
+                    , font.name, font.origin)
+            else:
+                log.debug("add alias '%s' to url %s", font.name, font.origin)
+                p_obj.aliases.append(FontAlias(alias = font.name))
 
         else:
-            if exists.match_name(font.font_name):
-                log.warning("Font already exists, skip additional Font '%s' with url '%s'"
-                            , font.font_name, font.origin)
-            else:
-                log.debug("add alias '%s' to url %s", font.font_name, font.origin)
-                exists.aliases.append(font.font_name)
+            log.debug("add font-family: %s", font)
+            session.add(font)
 
         self.cache.add_url(font.origin)
 
@@ -71,63 +80,69 @@ class FontStack:
         for font in Font.from_css(css_url):
             self.add_font(font)
 
-    def list_fonts(self, font_name=None):
-        """Return generator of :py:class:`.api.Font` objects selected by ``font_name``.
+    def list_fonts(self, name=None):
+        """Return generator of :py:class:`.api.Font` objects selected by ``name``.
 
-        :param font_name:
+        :param name:
             Name of the font
         """
+        # FIXME
         for font in self.stack.values():
-            if font_name is None or font.match_name(font_name):
+            if name is None or font.match_name(name):
                 yield font
 
+    @classmethod
+    def from_cfg(cls, config):
+        """
+        Returns a :py:class:`FontStack` instance with fonts loaded.
 
-def get_stack(config):
-    """
-    Returns a :py:class:`FontStack` instance with fonts loaded.
+        FIXME
 
-    Fonts are loaded from builtin fonts and entry points.
+        Fonts are loaded from builtin fonts and entry points.
 
-    available builtin fonts:
+        available builtin fonts:
 
-    - :ref:`builtin_cantarell`
-    - :ref:`builtiin_dejavu`
+        - :ref:`builtin_cantarell`
+        - :ref:`builtiin_dejavu`
 
-    available entry points:
+        available entry points:
 
-    - ``fonts_ttf``
-    - ``fonts_otf``
-    - ``fonts_woff``
-    - ``fonts_woff2``
+        - ``fonts_ttf``
+        - ``fonts_otf``
+        - ``fonts_woff``
+        - ``fonts_woff2``
 
-    E.g. to include all fonts from the fonts-python_ project install::
+        E.g. to include all fonts from the fonts-python_ project install::
 
-        $ pip install font-amatic-sc font-caladea font-font-awesome \\
-                      font-fredoka-one font-hanken-grotesk font-intuitive \\
-                      font-source-sans-pro  font-source-serif-pro
+            $ pip install font-amatic-sc font-caladea font-font-awesome \\
+                          font-fredoka-one font-hanken-grotesk font-intuitive \\
+                          font-source-sans-pro  font-source-serif-pro
 
-    """
-    # get FontStack and set cache from configuration
+        """
+        # get FontStack and set cache from configuration
 
-    stack = FontStack()
-    cache_cls = config.getfqnobj('fontstack', 'cache', fallback=NoCache)
-    cache_obj = cache_cls()
-    stack.set_cache(cache_obj)
+        stack = cls()
+        cache_cls = config.getfqnobj('fontstack', 'cache', fallback=NoCache)
+        cache_obj = cache_cls()
+        stack.set_cache(cache_obj)
 
-    # register builtin fonts
-    base = fspath.FSPath(__file__).DIRNAME / 'files'
-    for name in config.getlist('fontstack', 'builtin fonts'):
-        log.debug('register builtin font: %s', name)
-        css_file = base / name / name + ".css"
-        stack.load_css('file:' + css_file)
+        # register font files from entry points
+        for ep_name in config.getlist('fontstack', 'entry points'):
+            stack.load_entry_point(ep_name)
 
-    # register font files from entry points
-    for ep_name in config.getlist('fontstack', 'entry points'):
-        stack.load_entry_point(ep_name)
+        # FIXME ..
 
-    # register google fonts
-    base_url = config.get('google fonts', 'family base url')
-    for family in config.getlist('google fonts', 'fonts'):
-        stack.load_css(base_url + family)
+        # # register builtin fonts
+        # base = fspath.FSPath(__file__).DIRNAME / 'files'
+        # for name in config.getlist('fontstack', 'builtin fonts'):
+        #     log.debug('register builtin font: %s', name)
+        #     css_file = base / name / name + ".css"
+        #     stack.load_css('file:' + css_file)
 
-    return stack
+
+        # # register google fonts
+        # base_url = config.get('google fonts', 'family base url')
+        # for family in config.getlist('google fonts', 'fonts'):
+        #     stack.load_css(base_url + family)
+
+        return stack

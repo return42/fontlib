@@ -14,8 +14,8 @@ from fspath import FSPath
 from fspath.sui import SimpleUserInterface
 
 from . import __pkginfo__
+from . import db
 from .fontstack import FontStack
-from .fontstack import get_stack
 from .log import DEFAULT_LOG_INI
 from .log import FONTLIB_LOGGER
 from .log import init_log
@@ -163,9 +163,10 @@ def cli_list_fonts(args):
 
     """
     init_app(args)
-
     cli = args.CLI
-    stack = get_stack(CONFIG)
+
+    with db.fontlib_scope():
+        stack = FontStack.from_cfg(CONFIG)
 
     def table_rows():
 
@@ -177,8 +178,8 @@ def cli_list_fonts(args):
                 closest = stack.cache.fname_by_url(font.origin)
 
             yield dict(
-                font_id = font.font__id
-                , font_name = font.font_name
+                id = font.font__id
+                , name = font.name
                 , format = font.format
                 , origin = font.origin
                 , blob_state = blob_state
@@ -189,9 +190,9 @@ def cli_list_fonts(args):
         table_rows()
         # <col-title>,      <format sting>, <attribute name>
         , ("cache sate",    "%-10s",        "blob_state")
-        , ("name",          "%-40s",        "font_name")
+        , ("name",          "%-40s",        "name")
         , ("format",        "%-20s",        "format")
-        , ("font ID",       "%-22s",        "font_id")
+        , ("font ID",       "%-22s",        "id")
         , ("location",      "%-90s",        "closest") )
 
 
@@ -199,8 +200,8 @@ def cli_parse_css(args):
     """Parse ``@font-face`` rules from <url>.
 
     Load CSS (stylesheet) from <url> and filter ``@font-face`` rules.  E.g. google
-    fonts API 'https://fonts.googleapis.com/css?family=Cute+Font|Roboto+Slab' or
-    built-in *dejavu* fonts from url 'file:./fontlib/files/dejavu/dejavu.css'.
+    fonts API ``https://fonts.googleapis.com/css?family=Cute+Font|Roboto+Slab`` or
+    built-in *dejavu* fonts from url ``file:./fontlib/files/dejavu/dejavu.css``.
 
     """
     init_app(args)
@@ -211,11 +212,12 @@ def cli_parse_css(args):
     font_stack.load_css(args.url)
 
     cli.UI.rst_table(
+        # FIXME
         font_stack.stack.values()
         # <col-title>, <format sting>, <attribute name>
-        , ("name",          "%-40s",        "font_name")
+        , ("name",          "%-40s",        "name")
         , ("format",        "%-20s",        "format")
-        , ("font ID",       "%-22s",        "font_id")
+        , ("font ID",       "%-22s",        "id")
         , ("URL",           "%-90s",        "origin") )
 
 
@@ -242,10 +244,10 @@ def cli_download_family(args):
             if url.query:
                 # the resource is not a typical file URL with a file name, lets use
                 # the fonts resource ID as a file name
-                dest_file = args.dest / str(font.font_id) + '.' + font.format
+                dest_file = args.dest / str(font.id) + '.' + font.format
 
             cli.UI.echo("[%s]: download %s from %s" % (
-                font.font_name, dest_file, font.origin))
+                font.name, dest_file, font.origin))
             stack.save_font(font, dest_file)
             c += 1
         if c == 0:
@@ -402,6 +404,7 @@ def init_app(args, verbose=False):
 
     if args.debug:
         CONFIG.set("logging", "level", 'debug')
+        logging.getLogger('sqlalchemy.engine').setLevel('INFO')
 
     level = CONFIG.get("logging", "level").upper()
     if verbose:
@@ -427,6 +430,9 @@ def init_app(args, verbose=False):
             "log goes to:\n - "
             + "\n - ".join([str(h) for h in logger.handlers])
             + "\n")
+
+    # init database
+    db.fontlib_init(CONFIG)
 
 
 # ==============================================================================

@@ -27,7 +27,7 @@ class URLBlob:  # pylint: disable=too-few-public-methods
         _ = hashlib.md5(_).digest()
         _ = base64.urlsafe_b64encode(_)[:-2]
 
-        self.font_id = _.decode('utf-8')
+        self.id = _.decode('utf-8')
         """A url-safe hash of :py:class:`URLBlob` resource, used as unique resource ID"""
 
         self.state = state
@@ -74,11 +74,11 @@ class URLCache:
         cache_file = self.fname_by_blob(blob)
 
         if blob.state == URLBlob.STATE_CACHED:
-            log.debug("BLOB [%s] already cached from: %s" , blob.font_id, blob.origin)
+            log.debug("BLOB [%s] already cached from: %s" , blob.id, blob.origin)
 
         elif blob.state == URLBlob.STATE_LOCAL:
             if not cache_file.EXISTS:
-                log.debug("BLOB [%s] is cached (copied) from: %s", blob.font_id, blob.origin)
+                log.debug("BLOB [%s] is cached (copied) from: %s", blob.id, blob.origin)
                 url = urlparse(blob.origin)
                 fspath.FSPath(url.path).copyfile(cache_file)
                 blob.state = URLBlob.STATE_CACHED
@@ -86,7 +86,7 @@ class URLCache:
         elif blob.state == URLBlob.STATE_REMOTE:
             if not cache_file.EXISTS:
                 log.debug("BLOB [%s] is cached (downloaded) from: %s"
-                          , blob.font_id, blob.origin)
+                          , blob.id, blob.origin)
                 cache_file.download(blob.origin)
                 blob.state = URLBlob.STATE_CACHED
 
@@ -173,12 +173,12 @@ class NoCache(URLCache):
         blob = self.blobs[origin]
 
         if blob.state == URLBlob.STATE_LOCAL:
-            log.debug("BLOB [%s] is copied from: %s", blob.font_id, blob.origin)
+            log.debug("BLOB [%s] is copied from: %s", blob.id, blob.origin)
             url = urlparse(blob.origin)
             fspath.FSPath(url.path).copyfile(dest_file)
 
         elif blob.state == URLBlob.STATE_REMOTE:
-            log.debug("BLOB [%s] is downloaded from: %s", blob.font_id, blob.origin)
+            log.debug("BLOB [%s] is downloaded from: %s", blob.id, blob.origin)
             dest_file.download(blob.origin)
 
 class SimpleURLCache(URLCache):
@@ -196,7 +196,7 @@ class SimpleURLCache(URLCache):
         self.init_ok = True
 
     def fname_by_blob(self, blob):
-        return self.root / blob.font_id
+        return self.root / blob.id
 
     def add_url(self, origin):
         blob = self.get_blob_obj(origin)

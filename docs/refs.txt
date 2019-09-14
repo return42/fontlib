@@ -34,3 +34,11 @@
 .. _fonttools: https://github.com/fonttools/fonttools
 .. _fonts-python: https://pypi.org/project/fonts/
 .. _PyPi: https://pypi.org
+
+.. SQLAlchemy
+.. ----------
+..
+.. _SQLAlchemy: https://docs.sqlalchemy.org
+.. _SQLAlchemy-ORM: https://docs.sqlalchemy.org/orm
+
+.. _scoped_session: https://docs.sqlalchemy.org/orm/contextual.html#sqlalchemy.orm.scoping.scoped_session
