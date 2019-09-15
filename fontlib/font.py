@@ -147,10 +147,18 @@ class Font(FontLibSchema, TableUtilsMixIn):
                     src_format = src_format.split('/')[1]
                 else:
                     src_format = file_name.split('.')[-1]
-                # FIXME
-                #font = Font('file:' + file_name, name=name, src_format=src_format)
-                font = Font('file:' + file_name, name=name)
-                font.src_formats.append(FontSrcFormat(src_format=src_format))
+                origin = 'file:' + file_name
+
+                # create font object
+                font = Font(
+                    origin = origin
+                    , name = name
+                )
+                # create font_src_format object and append it to the font
+                font.src_formats.append(
+                    FontSrcFormat(
+                        src_format=src_format))
+
                 yield font
 
     @classmethod
@@ -187,22 +195,27 @@ class Font(FontLibSchema, TableUtilsMixIn):
 
         base_url = "/".join(css_url.split('/')[:-1])
         src = at_rule.src()
+        src_format = src['format']
         font_family = at_rule.font_family()
-        origin = src['url']
+        unicode_range = at_rule.unicode_range()
 
+        origin = src['url']
         url = urlparse(origin)
         if url.scheme == '' and url.netloc == '' and url.path[0] != '/':
-            # is relative path name
             origin = base_url + "/" + origin
 
-        # FIXME
-        return Font(
+        # create font object
+        font = Font(
             origin
-            , font_family
-            , at_rule.unicode_range()
-            , src_format = src['format']
-            )
-
+            , name = font_family
+            , unicode_range = unicode_range
+        )
+        # create font_src_format object and append it to the font
+        font.src_formats.append(
+            FontSrcFormat(
+                src_format = src_format
+            ))
+        return font
 
 class FontAlias(FontLibSchema, TableUtilsMixIn):
 

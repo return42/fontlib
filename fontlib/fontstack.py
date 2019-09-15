@@ -30,11 +30,6 @@ class FontStack:
         """Add :py:class:`.api.Font` object to *this* stack."""
 
         session = fontlib_session()
-
-        # FIXME ..
-        # import pdb
-        # pdb.set_trace()
-
         p_obj = font.get_persistent_object(session)
 
         if p_obj:
@@ -130,19 +125,16 @@ class FontStack:
         for ep_name in config.getlist('fontstack', 'entry points'):
             stack.load_entry_point(ep_name)
 
-        # FIXME ..
+        # register builtin fonts
+        base = fspath.FSPath(__file__).DIRNAME / 'files'
+        for name in config.getlist('fontstack', 'builtin fonts'):
+            log.debug('register builtin font: %s', name)
+            css_file = base / name / name + ".css"
+            stack.load_css('file:' + css_file)
 
-        # # register builtin fonts
-        # base = fspath.FSPath(__file__).DIRNAME / 'files'
-        # for name in config.getlist('fontstack', 'builtin fonts'):
-        #     log.debug('register builtin font: %s', name)
-        #     css_file = base / name / name + ".css"
-        #     stack.load_css('file:' + css_file)
-
-
-        # # register google fonts
-        # base_url = config.get('google fonts', 'family base url')
-        # for family in config.getlist('google fonts', 'fonts'):
-        #     stack.load_css(base_url + family)
+        # register google fonts
+        base_url = config.get('google fonts', 'family base url')
+        for family in config.getlist('google fonts', 'fonts'):
+            stack.load_css(base_url + family)
 
         return stack
