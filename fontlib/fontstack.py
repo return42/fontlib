@@ -15,6 +15,9 @@ from .urlcache import NoCache
 
 log = logging.getLogger(__name__)
 
+BUILTINS = fspath.FSPath(__file__).DIRNAME / 'files'
+"""Folder where the builtin fonts are in."""
+
 class FontStack:
     """A collection of :py:class:`.api.Font` objects"""
 
@@ -139,10 +142,9 @@ class FontStack:
             stack.load_entry_point(ep_name)
 
         # register builtin fonts
-        base = fspath.FSPath(__file__).DIRNAME / 'files'
         for name in config.getlist('fontstack', 'builtin fonts'):
             log.debug('register builtin font: %s', name)
-            css_file = base / name / name + ".css"
+            css_file = BUILTINS / name / name + ".css"
             stack.load_css('file:' + css_file)
 
         # register google fonts

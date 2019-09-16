@@ -27,6 +27,7 @@ from fspath.sui import SimpleUserInterface
 from . import __pkginfo__
 from . import db
 from .fontstack import FontStack
+from .fontstack import BUILTINS
 from .log import DEFAULT_LOG_INI
 from .log import FONTLIB_LOGGER
 from .log import init_log
@@ -233,8 +234,14 @@ def cli_parse_css(args):
     """Parse ``@font-face`` rules from <url>.
 
     Load CSS (stylesheet) from <url> and filter ``@font-face`` rules.  E.g. google
-    fonts API ``https://fonts.googleapis.com/css?family=Cute+Font|Roboto+Slab`` or
-    built-in *dejavu* fonts from url ``file:./fontlib/files/dejavu/dejavu.css``.
+    fonts API::
+
+      css-parse 'https://fonts.googleapis.com/css?family=Cute+Font|Roboto+Slab'
+
+    or built-in *dejavu* fonts from url::
+
+      css-parse  'file:%(BUILTINS)s/cantarell/cantarell.css'
+      css-parse  'file:%(BUILTINS)s/dejavu/dejavu.css'
 
     """
     init_app(args)
@@ -442,6 +449,8 @@ def add_fontstack_options(cmd):
 def init_main():
     """Init routine for the very first the main function."""
     global CONFIG
+
+    cli_parse_css.__doc__ =  cli_parse_css.__doc__ % globals()
 
     # init main's CONFIG from INI file
 
