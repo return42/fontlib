@@ -27,7 +27,7 @@ from fspath.sui import SimpleUserInterface
 from . import __pkginfo__
 from . import db
 from .fontstack import FontStack
-from .fontstack import BUILTINS
+from .fontstack import BUILTINS # pylint: disable=unused-import
 from .log import DEFAULT_LOG_INI
 from .log import FONTLIB_LOGGER
 from .log import init_log
@@ -91,7 +91,7 @@ def main():
 
     # cmd: list ...
 
-    list_fonts = cli.addCMDParser(cli_list_fonts, cmdName='list')
+    _ = cli.addCMDParser(cli_list_fonts, cmdName='list')
 
     # cmd: css-parse
 
@@ -487,6 +487,7 @@ def init_main():
 
 def init_app(args, verbose=False):
     """Init the :py:obj:`CONFIG` object and LOG settings from command line arguments"""
+    # pylint: disable=too-many-branches
     global CONFIG
 
     verbose = verbose or args.verbose
@@ -510,7 +511,7 @@ def init_app(args, verbose=False):
 
         cfg = args.workspace / 'config.ini'
         if not cfg.EXISTS:
-            log.warn("Config file %s does not exists.", str(cfg))
+            log.warning("Config file %s does not exists.", str(cfg))
 
     if verbose and cfg:
         _.echo("load additional configuration from: %s" % cfg)
