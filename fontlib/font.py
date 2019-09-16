@@ -125,6 +125,15 @@ class Font(FontLibSchema, TableUtilsMixIn):
         """Returns ``True`` if ``name`` match one of the names"""
         return self.name == name or name in self.aliases
 
+    @property
+    def format(self):
+        """String that represents the format"""
+        fmt_list = []
+        for row in self.src_formats:
+            fmt = _guess_format(row.src_format)
+            fmt_list.append(fmt)
+        return ','.join(fmt_list)
+
     @classmethod
     def from_entry_point(cls, ep_name):
         """Build Font instances from python entry point.
