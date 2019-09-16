@@ -244,21 +244,36 @@ def cli_parse_css(args):
       css-parse  'file:%(BUILTINS)s/dejavu/dejavu.css'
 
     """
-    init_app(args)
     cli = args.CLI
-    cli.UI.echo("load css from url: %s" % args.url)
+    _ = cli.UI
 
-    font_stack = FontStack()
-    font_stack.load_css(args.url)
+    # init application with an empty fontstack database
+    CONFIG.set('DEFAULT', 'fontlib_db', value='sqlite:///:memory:')
+    init_app(args)
 
-    cli.UI.rst_table(
-        # FIXME
-        font_stack.stack.values()
-        # <col-title>, <format sting>, <attribute name>
-        , ("name",          "%-40s",        "name")
-        , ("format",        "%-20s",        "format")
-        , ("font ID",       "%-22s",        "id")
-        , ("URL",           "%-90s",        "origin") )
+    def table_rows():
+
+        for font in stack.list_fonts():
+            yield dict(
+                id = font.id
+                , origin = font.origin
+                , name = font.name
+                , format = font.format
+                )
+
+    with db.fontlib_scope():
+
+        stack = FontStack.get_fontstack(CONFIG)
+        _.echo("load css from url: %s" % args.url)
+        stack.load_css(args.url)
+
+        _.rst_table(
+            table_rows()
+            # <col-title>, <format sting>, <attribute name>
+            , ("name",          "%-40s",        "name")
+            , ("format",        "%-20s",        "format")
+            , ("font ID",       "%-22s",        "id")
+            , ("URL",           "%-90s",        "origin") )
 
 
 def cli_download_family(args):
