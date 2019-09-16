@@ -81,19 +81,36 @@ class FontStack:
         :param name:
             Name of the font
         """
-        # FIXME
-        for font in self.stack.values():
+        session = fontlib_session()
+        for font in session.query(Font):
             if name is None or font.match_name(name):
                 yield font
 
     @classmethod
-    def from_cfg(cls, config):
+    def get_fontstack(cls, config):
+        """Get fonstack instance by configuration <config>.
         """
-        Returns a :py:class:`FontStack` instance with fonts loaded.
 
-        FIXME
+        # get FontStack and set cache from configuration
 
-        Fonts are loaded from builtin fonts and entry points.
+        stack = cls()
+        cache_cls = config.getfqnobj('fontstack', 'cache', fallback=NoCache)
+        cache_obj = cache_cls()
+        stack.set_cache(cache_obj)
+        return stack
+
+    @classmethod
+    def init_fontstack(cls, config):
+        """Init fonstack by configuration <config>.
+
+        Register fonts from various resources into the fontlib database.
+
+        google fonts:
+
+        - fonts from fonts.googleapis.com
+
+        Configuration ``[google fonts]fonts`` controls which font families will
+        be registered.  Select font families from https://fonts.google.com/
 
         available builtin fonts:
 
@@ -114,12 +131,8 @@ class FontStack:
                           font-source-sans-pro  font-source-serif-pro
 
         """
-        # get FontStack and set cache from configuration
 
-        stack = cls()
-        cache_cls = config.getfqnobj('fontstack', 'cache', fallback=NoCache)
-        cache_obj = cache_cls()
-        stack.set_cache(cache_obj)
+        stack = cls.get_fontstack(cls, config)
 
         # register font files from entry points
         for ep_name in config.getlist('fontstack', 'entry points'):
@@ -136,5 +149,3 @@ class FontStack:
         base_url = config.get('google fonts', 'family base url')
         for family in config.getlist('google fonts', 'fonts'):
             stack.load_css(base_url + family)
-
-        return stack

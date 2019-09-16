@@ -1,7 +1,17 @@
 # -*- coding: utf-8; mode: python; mode: flycheck -*-
 # pylint: disable=global-statement
 
-"""Command line tools from the fontlib library."""
+"""Command line tools from the fontlib library.
+
+Most commands do work with a workspace.  If you haven't used fontlib before it
+might be good to create one first::
+
+  fontlib workspace init <dest-folder> [-h]
+
+Which creates a workspace at <dest-folder> and init this workspace with some
+defaults registered.  Use the help option for more details.
+
+"""
 
 import re
 import sys
@@ -81,7 +91,6 @@ def main():
     # cmd: list ...
 
     list_fonts = cli.addCMDParser(cli_list_fonts, cmdName='list')
-    add_fontstack_options(list_fonts)
 
     # cmd: css-parse
 
@@ -95,7 +104,6 @@ def main():
     # cmd: download ...
 
     download_family = cli.addCMDParser(cli_download_family, cmdName='download')
-    add_fontstack_options(download_family)
     download_family.add_argument(
         "dest"
         , type = FSPath
@@ -134,6 +142,24 @@ def main():
         , metavar = 'ARG'
     )
 
+    # cmd: workspace
+
+    workspace = cli.addCMDParser(cli_workspace, cmdName='workspace')
+    add_fontstack_options(workspace)
+    workspace.add_argument(
+        "subcommand"
+        , type = str
+        , choices=['show', 'init']
+        , help = "available subcommands: %(choices)s"
+    )
+    workspace.add_argument(
+        "argument_list"
+        , type = str
+        , nargs = '*'
+        , help = "arguments of the subcommand"
+        , metavar = 'ARG'
+    )
+
     # run ...
     cli()
 
@@ -164,30 +190,14 @@ def cli_version(args):
     ))
 
 def cli_list_fonts(args):
-    """List fonts from *builtins*, *fonts.googleapis.com* and other resources.
-
-    Option --google add fonts from google fonts infrastructure.  Select font
-    families from:
-
-        https://fonts.google.com
-
-    Option --ep-fonts add fonts from entry points, see:
-
-        https://pypi.org/project/fonts
-
-    To install fonts from the *python fonts project* e.g. run::
-
-        $ pip install --user \\
-              font-amatic-sc font-caladea font-font-awesome \\
-              font-fredoka-one font-hanken-grotesk font-intuitive \\
-              font-source-sans-pro font-source-serif-pro
+    """list fonts.
 
     """
     init_app(args)
     cli = args.CLI
+    _ = cli.UI
 
-    with db.fontlib_scope():
-        stack = FontStack.from_cfg(CONFIG)
+    stack = FontStack.get_fontstack(CONFIG)
 
     def table_rows():
 
@@ -199,22 +209,24 @@ def cli_list_fonts(args):
                 closest = stack.cache.fname_by_url(font.origin)
 
             yield dict(
-                id = font.font__id
+                id = font.id
+                , origin = font.origin
                 , name = font.name
                 , format = font.format
-                , origin = font.origin
                 , blob_state = blob_state
                 , closest = closest
                 )
 
-    cli.UI.rst_table(
-        table_rows()
-        # <col-title>,      <format sting>, <attribute name>
-        , ("cache sate",    "%-10s",        "blob_state")
-        , ("name",          "%-40s",        "name")
-        , ("format",        "%-20s",        "format")
-        , ("font ID",       "%-22s",        "id")
-        , ("location",      "%-90s",        "closest") )
+    with db.fontlib_scope():
+
+        _.rst_table(
+            table_rows()
+            # <col-title>,      <format sting>, <attribute name>
+            , ("cache sate",    "%-10s",        "blob_state")
+            , ("name",          "%-40s",        "name")
+            , ("format",        "%-20s",        "format")
+            , ("font ID",       "%-22s",        "id")
+            , ("location",      "%-90s",        "closest") )
 
 
 def cli_parse_css(args):
@@ -281,8 +293,12 @@ def cli_config(args):
     """Inspect configuration (working with INI files).
 
     commands:
-      show:       print configuration
-      install:    install default configuration (optional ARG1: <dest-folder>)
+
+      :show:
+         print configuration
+
+      :install:
+         install default configuration (optional ARG1: <dest-folder>)
 
     """
     global CONFIG
@@ -322,6 +338,54 @@ def cli_config(args):
 
         return
 
+
+def cli_workspace(args):
+    """Inspect and init workspace.
+
+    commands:
+        :show:
+           show current workspace location
+        :init:
+           init workspace (optional ARG1: <dest-folder>) from init-options:
+           "--builtins", "--google", ""--ep-fonts"
+
+    To register fonts from google fonts infrastructure.  Select font families
+    from: https://fonts.google.com
+
+    To install fonts (*entry points*) from the *python fonts project*
+    (https://pypi.org/project/fonts) you can use e.g.::
+
+        $ pip install --user \\
+              font-amatic-sc font-caladea font-font-awesome \\
+              font-fredoka-one font-hanken-grotesk font-intuitive \\
+              font-source-sans-pro font-source-serif-pro
+
+    """
+    global CONFIG
+    init_app(args)
+
+    cli = args.CLI
+    _ = cli.UI
+
+    workspace = CONFIG.getpath('DEFAULT', 'workspace')
+
+    if args.subcommand == 'init':
+
+        if args.argument_list:
+            workspace = FSPath(args.argument_list[0])
+
+        _.echo("initing workspace at: %s" % workspace)
+        workspace.makedirs()
+
+        with db.fontlib_scope():
+            FontStack.init_fontstack(CONFIG)
+
+        return
+
+    if args.subcommand == 'show':
+        _.echo("%s" % workspace)
+        return
+
 # ==============================================================================
 # helper ...
 # ==============================================================================
@@ -356,7 +420,7 @@ def add_fontstack_options(cmd):
         , dest = 'builtins'
         , default = CONFIG.get(*MAP_ARG_TO_CFG['builtins'][:2])
         , nargs = '?', type = str
-        , help = "use builtin fonts"
+        , help = "register builtin fonts"
         )
 
     cmd.add_argument(
@@ -372,7 +436,7 @@ def add_fontstack_options(cmd):
         , dest = 'google'
         , default = CONFIG.get(*MAP_ARG_TO_CFG['google'][:2])
         , nargs = '?', type = str
-        , help = "use fonts from fonts.googleapis.com"
+        , help = "register fonts from fonts.googleapis.com"
         )
 
 def init_main():
@@ -406,21 +470,38 @@ def init_app(args, verbose=False):
 
     # init application's CONFIG from INI file
 
+    cfg = None
+
     if args.config != DEFAULT_WORKSPACE / CONFIG_INI:
         # assert config if --config was explicite set
         if not args.config.EXISTS:
             raise args.Error(42, 'config file does not exists: %s' % args.config)
-    if verbose and args.config.EXISTS:
-        _.echo("load additional configuration from: %s" % args.config)
-    CONFIG.read(args.config)
+        cfg = args.config
+
+    elif args.workspace:
+        # assert %(workspace)s/config.ini if --workspace was explicite set but
+        # not --config
+        if not args.workspace.EXISTS:
+            raise args.Error(42, 'workspace folder does not exists: %s' % args.workspace)
+
+        cfg = args.workspace / 'config.ini'
+        if not cfg.EXISTS:
+            log.warn("Config file %s does not exists.", str(cfg))
+
+    if verbose and cfg:
+        _.echo("load additional configuration from: %s" % cfg)
+    CONFIG.read(cfg)
     map_arg_to_cfg(args, CONFIG)
 
     # init application's WORKSPACE from (new) CONFIG settings
+
     app_ws = CONFIG.getpath('DEFAULT', 'workspace', fallback=DEFAULT_WORKSPACE)
-    log.debug("using workspace at: %s", app_ws)
-    app_ws.makedirs()
+    if not app_ws.EXISTS:
+        log.debug("initing workspace at: %s", app_ws)
+        app_ws.makedirs()
     if verbose:
         _.echo("using workspace: %s\n" % app_ws)
+    log.debug("using workspace at: %s", app_ws)
 
     # init app logging with (new) CONFIG settings
 
@@ -457,7 +538,6 @@ def init_app(args, verbose=False):
 
     # init database
     db.fontlib_init(CONFIG)
-
 
 # ==============================================================================
 # call main ...
