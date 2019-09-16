@@ -43,7 +43,7 @@ fontlib_active_session = None
 """active session of DB ``fontlib``
 
 The surrounding process (or thread) sets the active session, for details see
-:py:func:`fontlib_scope.` and :py:func:`fontlib_session.`
+:py:func:`fontlib_scope` and :py:func:`fontlib_session`
 
 """
 
