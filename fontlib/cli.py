@@ -278,10 +278,12 @@ def cli_parse_css(args):
 
 def cli_download_family(args):
     """Download font-family <family> into folder <dest>."""
-    init_app(args)
 
+    init_app(args)
     cli = args.CLI
-    stack = get_stack(CONFIG)
+    _ = cli.UI
+
+    stack = FontStack.get_fontstack(CONFIG)
 
     if args.dest.EXISTS:
         log.info("use existing folder %s", args.dest)
@@ -290,26 +292,28 @@ def cli_download_family(args):
         args.dest.makedirs()
 
     count = 0
-    for font_family in args.family:
-        c = 0
 
-        for font in stack.list_fonts(font_family):
-            url = urlparse(font.origin)
-            dest_file = args.dest / FSPath(url.path).BASENAME
-            if url.query:
-                # the resource is not a typical file URL with a file name, lets use
-                # the fonts resource ID as a file name
-                dest_file = args.dest / str(font.id) + '.' + font.format
+    with db.fontlib_scope():
 
-            cli.UI.echo("[%s]: download %s from %s" % (
-                font.name, dest_file, font.origin))
-            stack.save_font(font, dest_file)
-            c += 1
-        if c == 0:
-            cli.UI.echo("ERROR: unknow font-family: %s" % font_family)
-        count += c
+        for font_family in args.family:
+            c = 0
 
-    cli.UI.echo("download %s files into %s" % (count, args.dest))
+            for font in stack.list_fonts(font_family):
+                url = urlparse(font.origin)
+                dest_file = args.dest / FSPath(url.path).BASENAME
+                if url.query:
+                    # the resource is not a typical file URL with a file name, lets use
+                    # the fonts resource ID as a file name
+                    dest_file = args.dest / str(font.id) + '.' + font.format
+
+                _.echo("[%s]: download %s from %s" % (font.name, dest_file, font.origin))
+                stack.save_font(font, dest_file)
+                c += 1
+            if c == 0:
+                _.echo("ERROR: unknow font-family: %s" % font_family)
+            count += c
+
+    _.echo("download %s files into %s" % (count, args.dest))
 
 def cli_config(args):
     """Inspect configuration (working with INI files).
