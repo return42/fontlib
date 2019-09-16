@@ -3,6 +3,7 @@
 
 """Command line tools from the fontlib library."""
 
+import re
 import sys
 import configparser
 import logging.config
@@ -137,10 +138,19 @@ def main():
     cli()
 
 def cli_README(args):
-    """prints README to stdout"""
+    """prints README to stdout
+
+    Use ``--verbose`` to print URL auf http links.
+
+    """
     init_app(args)
     cli = args.CLI
-    cli.UI.echo(__pkginfo__.docstring)
+    readme = __pkginfo__.docstring
+    if not args.verbose:
+        # strip hyperrefs
+        readme = re.sub(r'\s\<http.*?\>', '', readme, flags=re.S)
+    cli.UI.echo(readme)
+
 
 def cli_version(args):
     """prints version infos to stdout"""
