@@ -1,19 +1,71 @@
 # -*- coding: utf-8; mode: python; mode: flycheck -*-
 """Implementation of application's configuration class :py:class:`Config`."""
 
-__all__ = ['Config']
+__all__ = ['Config', 'init_cfg', 'get_cfg', 'DEFAULT_INI']
 
 import configparser
 from fspath import FSPath
 
+DEFAULT_INI = FSPath(__file__).DIRNAME / "config.ini"
+"""Default ``config.ini``"""
+
+GLOBAL_CONFIG = None
+"""Active :py:class:`Config` object of the application
+
+The surrounding process (or thread) sets the *active* ``GLOBAL_CONFIG``, for
+details see :py:func:`init_cfg` and :py:func:`get_cfg`.
+
+.. note::
+
+   The GLOBAL_CONFIG has no special treatment for threading, its just a simple
+   name auf a python modul.  Never import ``GLOBAL_CONFIG`` in your module,
+   always use :py:func:`get_cfg` to get active ``GLOBAL_CONFIG``!
+
+"""
+
+def init_cfg(filenames=None, encoding=None):
+    """Init :py:obj:`GLOBAL_CONFIG`.
+
+    Read and parse a filename or an iterable of filenames.  Files that cannot be
+    opened are silently ignored `[ref]
+    <https://docs.python.org/library/configparser.html#configparser.ConfigParser.read>`__.
+
+    Return list of successfully read files.
+
+    :param filenames: Filename or an iterable of filenames (default: :py:obj:`DEFAULT_INI`).
+    :param encoding: The encoding parameter(default: ``None``).
+
+    .. note::
+
+       Re-initing means; replace the old value of GLOBAL_CONFIG with a new
+       instance of class :py:class:`Config`.
+
+       To *extend* the :py:obj:`GLOBAL_CONFIG` use :py:method:`Config.read`::
+
+           get_cfg().read(filenames)
+    """
+    global GLOBAL_CONFIG # pylint: disable=global-statement
+    ret_val = []
+    cfg = Config()
+    if filenames:
+        ret_val = cfg.read(filenames, encoding)
+    GLOBAL_CONFIG = cfg
+    return ret_val
+
+def get_cfg():
+    """Returns *active* :py:obj:`GLOBAL_CONFIG`
+
+    """
+    global GLOBAL_CONFIG # pylint: disable=global-statement
+    return GLOBAL_CONFIG
+
+
 class Config(configparser.ConfigParser): # pylint: disable=too-many-ancestors
     """Configuration object of :py:obj:`fontlib`"""
 
-    DEFAULT_INI = FSPath(__file__).DIRNAME / "config.ini"
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.read(Config.DEFAULT_INI)
+        self.read(DEFAULT_INI)
 
     def getfqnobj(self, section, option, *, raw=False, _vars=None,
                   fallback=configparser._UNSET, **kwargs): # pylint: disable=protected-access

@@ -19,12 +19,23 @@ from .fontstack import FontStack
 from .log import DEFAULT_LOG_INI
 from .log import FONTLIB_LOGGER
 from .log import init_log
-from .config import Config
+from .config import init_cfg
+from .config import get_cfg
+from .config import DEFAULT_INI
 
 UNKNOWN = object()
 CONFIG = None
+"""Global configuration of the command line (application).  Managed in the *main
+loop* by :py:func:`init_main` and :py:func:`init_app`.
+
+"""
 
 DEFAULT_WORKSPACE = FSPath('~/.fontlib').EXPANDUSER
+"""Fallback workspace of the command line (application).  Managed in the *main
+loop* by :py:func:`init_app`.
+
+"""
+
 CONFIG_INI = 'config.ini'
 LOG_INI = 'log.ini'
 
@@ -264,6 +275,7 @@ def cli_config(args):
       install:    install default configuration (optional ARG1: <dest-folder>)
 
     """
+    global CONFIG
     cli = args.CLI
     init_app(args, verbose=True)
 
@@ -278,7 +290,7 @@ def cli_config(args):
         cli.UI.echo("install:  %s" % dest)
         if dest.EXISTS and not args.force:
             raise args.Error(42, "file %s already exists (use --force to overwrite)" % dest)
-        CONFIG.DEFAULT_INI.copyfile(dest)
+        DEFAULT_INI.copyfile(dest)
 
         dest = folder / 'log.ini'
         cli.UI.echo("install:  %s" % dest)
@@ -359,7 +371,8 @@ def init_main():
 
     # init main's CONFIG from INI file
 
-    CONFIG = Config()
+    init_cfg()
+    CONFIG = get_cfg()
     app_ws = CONFIG.getpath('DEFAULT', 'workspace', fallback=DEFAULT_WORKSPACE)
     app_ws.makedirs()
     log.debug("using workspace at: %s", app_ws)
@@ -388,15 +401,16 @@ def init_app(args, verbose=False):
         if not args.config.EXISTS:
             raise args.Error(42, 'config file does not exists: %s' % args.config)
     if verbose and args.config.EXISTS:
-        _.echo("load configuration from: %s" % args.config)
+        _.echo("load additional configuration from: %s" % args.config)
     CONFIG.read(args.config)
     map_arg_to_cfg(args, CONFIG)
 
+    # init application's WORKSPACE from (new) CONFIG settings
     app_ws = CONFIG.getpath('DEFAULT', 'workspace', fallback=DEFAULT_WORKSPACE)
+    log.debug("using workspace at: %s", app_ws)
     app_ws.makedirs()
     if verbose:
-        args.ERR.write("using workspace: %s\n" % app_ws)
-    app_ws.makedirs()
+        _.echo("using workspace: %s\n" % app_ws)
 
     # init app logging with (new) CONFIG settings
 
