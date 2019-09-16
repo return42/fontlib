@@ -69,7 +69,6 @@ class URLCache:
         :param origin: the URL of the origin
 
         """
-        self.init()
         blob = self.add_url(origin)
         cache_file = self.fname_by_blob(blob)
 
@@ -118,10 +117,9 @@ class URLCache:
             ret_val = self.fname_by_blob(blob)
         return ret_val
 
-    def init(self):
-        """Init cache"""
+    def init(self, config):
+        """Init cache from :py:class:`fontlib.config.Config` object"""
         raise NotImplementedError
-
 
     def add_url(self, origin):
         """Add URL <origin> to cache's database.
@@ -143,7 +141,7 @@ class URLCache:
 class NoCache(URLCache):
     """A dummy cache which never caches"""
 
-    def init(self):
+    def init(self, config):
         pass
 
     def add_url(self, origin):
@@ -186,13 +184,16 @@ class SimpleURLCache(URLCache):
 
     def __init__(self):
         super().__init__()
-        self.root = fspath.FSPath("~").EXPANDUSER / '.fontlib' / 'urlcache'
+        self.root = None
 
-    def init(self):
+    def init(self, config):
         if self.init_ok:
             return
         # init ...
+        self.root = config.getpath('DEFAULT', 'workspace') / 'urlcache'
+        log.info("init SimpleURLCache at: %s", self.root)
         self.root.makedirs()
+
         self.init_ok = True
 
     def fname_by_blob(self, blob):
@@ -201,6 +202,7 @@ class SimpleURLCache(URLCache):
     def add_url(self, origin):
         blob = self.get_blob_obj(origin)
         if blob is None:
+            log.debug("add new url: %s", origin)
             state = URLBlob.STATE_REMOTE
             url = urlparse(origin)
             if url.scheme == 'file':

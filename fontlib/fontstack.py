@@ -99,6 +99,7 @@ class FontStack:
         stack = cls()
         cache_cls = config.getfqnobj('fontstack', 'cache', fallback=NoCache)
         cache_obj = cache_cls()
+        cache_obj.init(config)
         stack.set_cache(cache_obj)
         return stack
 
