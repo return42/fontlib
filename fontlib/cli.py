@@ -191,7 +191,7 @@ def cli_version(args):
     ))
 
 def cli_list_fonts(args):
-    """list fonts.
+    """list fonts
 
     """
     init_app(args)

@@ -135,7 +135,7 @@ class FontStack:
 
         """
 
-        stack = cls.get_fontstack(cls, config)
+        stack = cls.get_fontstack(config)
 
         # register font files from entry points
         for ep_name in config.getlist('fontstack', 'entry points'):

@@ -119,7 +119,7 @@ class Font(FontLibSchema, TableUtilsMixIn):
         super(Font, self).__init__(**kwargs)
 
     def __repr__(self):
-        return "<Font %(name)s id='%(id)s', origin='%(id)s'>" % self.__dict__
+        return "<Font (%(name)s) id='%(id)s', origin='%(origin)s'>" % self.__dict__
 
     def match_name(self, name):
         """Returns ``True`` if ``name`` match one of the names"""
