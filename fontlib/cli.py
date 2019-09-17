@@ -322,7 +322,14 @@ def cli_download_family(args):
                 _.echo("ERROR: unknow font-family: %s" % font_family)
             count += c
 
-    _.echo("download %s files into %s" % (count, args.dest))
+    msg = "non of selected fonts is registered in the FontStack"
+    if count == 0:
+        log.warning(msg)
+    else:
+        msg = "downloaded %s files into %s" % (count, args.dest)
+
+    _.echo(msg)
+    return not count
 
 def cli_config(args):
     """Inspect configuration (working with INI files).
