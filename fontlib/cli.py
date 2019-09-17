@@ -52,7 +52,7 @@ loop* by :py:func:`init_app`.
 CONFIG_INI = 'config.ini'
 LOG_INI = 'log.ini'
 
-log = logging.getLogger(__name__)
+log = logging.getLogger('fontlib.cli')
 
 def main():
     """main loop of the command line interface"""
