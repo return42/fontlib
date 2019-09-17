@@ -36,30 +36,45 @@ from .config import get_cfg
 from .config import DEFAULT_INI
 from .urlcache import URLBlob
 
+log = logging.getLogger('fontlib.cli')
+
 UNKNOWN = object()
-CONFIG = None
-"""Global configuration of the command line (application).  Managed in the *main
-loop* by :py:func:`init_main` and :py:func:`init_app`.
-
-"""
-
-DEFAULT_WORKSPACE = FSPath('~/.fontlib').EXPANDUSER
-"""Fallback workspace of the command line (application).  Managed in the *main
-loop* by :py:func:`init_app`.
-
-"""
-
 CONFIG_INI = 'config.ini'
 LOG_INI = 'log.ini'
+CTX = None
 
-log = logging.getLogger('fontlib.cli')
+class Context:
+    """Application's context"""
+
+    def __init__(self):
+        init_cfg()
+
+    @property
+    def CONFIG(self):
+        """Global configuration of the command line application.
+
+        Managed in the *main loop* by :py:func:`init_main` and
+        :py:func:`init_app`.
+
+        """
+        return get_cfg()
+
+    @property
+    def WORKSPACE(self):
+        """Wrkspace of the command line application.
+
+        Managed in the *main loop* by :py:func:`init_app`.
+
+        """
+        return self.CONFIG.getpath(
+            'DEFAULT', 'workspace'
+            , fallback = FSPath('~/.fontlib').EXPANDUSER )
 
 def main():
     """main loop of the command line interface"""
-    global CONFIG
-    init_main()
-    app_ws = CONFIG.getpath('DEFAULT', 'workspace', fallback=DEFAULT_WORKSPACE)
+    global CTX
 
+    init_main()
     cli = CLI(description=__doc__)
     cli.UI = SimpleUserInterface(cli=cli)
 
@@ -70,17 +85,22 @@ def main():
         , help = 'specify config file'
         , dest = 'config'
         , type = FSPath
-        , default = app_ws / CONFIG_INI
+        , default = CTX.WORKSPACE / CONFIG_INI
         , nargs = '?'
         , metavar = 'INI-FILE' )
 
     cli.add_argument(
         "--workspace"
         , dest = 'workspace'
-        , default = CONFIG.get(*MAP_ARG_TO_CFG['workspace'][:2])
+        , default = CTX.CONFIG.get(*MAP_ARG_TO_CFG['workspace'][:2])
         , type = FSPath
         , help = "workspace"
         )
+
+    cli.add_argument(
+        '--debug-sql'
+        , action  = 'store_true'
+        , help    = 'debug sql engine' )
 
     # cmd: README ...
 
@@ -173,23 +193,27 @@ def cli_README(args):
     """
     init_app(args)
     cli = args.CLI
+    _ = cli.UI
+
     readme = __pkginfo__.docstring
     if not args.verbose:
         # strip hyperrefs
         readme = re.sub(r'\s\<http.*?\>', '', readme, flags=re.S)
-    cli.UI.echo(readme)
+    _.echo(readme)
 
 
 def cli_version(args):
     """prints version infos to stdout"""
     init_app(args)
     cli = args.CLI
-    cli.UI.echo(" | ".join(
-        [ __pkginfo__.version
-          , platform.python_version()
-          , platform.node()
-          , platform.platform()]
-    ))
+    _ = cli.UI
+
+    _.echo(" | ".join([
+        __pkginfo__.version
+        , platform.python_version()
+        , platform.node()
+        , platform.platform()
+        ]))
 
 def cli_list_fonts(args):
     """list fonts
@@ -199,7 +223,7 @@ def cli_list_fonts(args):
     cli = args.CLI
     _ = cli.UI
 
-    stack = FontStack.get_fontstack(CONFIG)
+    stack = FontStack.get_fontstack(CTX.CONFIG)
 
     def table_rows():
 
@@ -257,7 +281,7 @@ def cli_parse_css(args):
     _ = cli.UI
 
     # init application with an empty fontstack database
-    CONFIG.set('DEFAULT', 'fontlib_db', value='sqlite:///:memory:')
+    CTX.CONFIG.set('DEFAULT', 'fontlib_db', value='sqlite:///:memory:')
     init_app(args)
 
     def table_rows():
@@ -272,7 +296,7 @@ def cli_parse_css(args):
 
     with db.fontlib_scope():
 
-        stack = FontStack.get_fontstack(CONFIG)
+        stack = FontStack.get_fontstack(CTX.CONFIG)
         _.echo("load css from url: %s" % args.url)
         stack.load_css(args.url)
 
@@ -292,7 +316,7 @@ def cli_download_family(args):
     cli = args.CLI
     _ = cli.UI
 
-    stack = FontStack.get_fontstack(CONFIG)
+    stack = FontStack.get_fontstack(CTX.CONFIG)
 
     if args.dest.EXISTS:
         log.info("use existing folder %s", args.dest)
@@ -319,12 +343,12 @@ def cli_download_family(args):
                 stack.save_font(font, dest_file)
                 c += 1
             if c == 0:
-                _.echo("ERROR: unknow font-family: %s" % font_family)
+                _.echo("unknow font-family: %s" % font_family)
             count += c
 
     msg = "non of selected fonts is registered in the FontStack"
     if count == 0:
-        log.warning(msg)
+        log.error(msg)
     else:
         msg = "downloaded %s files into %s" % (count, args.dest)
 
@@ -343,25 +367,26 @@ def cli_config(args):
          install default configuration (optional ARG1: <dest-folder>)
 
     """
-    global CONFIG
-    cli = args.CLI
+
     init_app(args, verbose=True)
+    cli = args.CLI
+    _ = cli.UI
 
     if args.subcommand == 'install':
 
-        folder = CONFIG.getpath('DEFAULT', 'workspace', fallback=DEFAULT_WORKSPACE)
+        folder = CTX.WORKSPACE
         if args.argument_list:
             folder = FSPath(args.argument_list[0])
         folder.makedirs()
 
         dest = folder / 'config.ini'
-        cli.UI.echo("install:  %s" % dest)
+        _.echo("install:  %s" % dest)
         if dest.EXISTS and not args.force:
             raise args.Error(42, "file %s already exists (use --force to overwrite)" % dest)
         DEFAULT_INI.copyfile(dest)
 
         dest = folder / 'log.ini'
-        cli.UI.echo("install:  %s" % dest)
+        _.echo("install:  %s" % dest)
         if dest.EXISTS and not args.force:
             raise args.Error(42, "file %s already exists (use --force to overwrite)" % dest)
         DEFAULT_LOG_INI.copyfile(dest)
@@ -370,12 +395,12 @@ def cli_config(args):
 
     if args.subcommand == 'show':
 
-        cli.UI.rst_title("config.ini")
-        CONFIG.write(cli.OUT)
+        _.rst_title("config.ini")
+        CTX.CONFIG.write(cli.OUT)
 
-        cli.UI.rst_title("log.ini")
+        _.rst_title("log.ini")
         log_cfg = configparser.ConfigParser()
-        log_cfg.read(CONFIG.get("logging", "config", fallback=DEFAULT_LOG_INI))
+        log_cfg.read(CTX.CONFIG.get("logging", "config", fallback=DEFAULT_LOG_INI))
         log_cfg.write(cli.OUT)
 
         return
@@ -403,13 +428,12 @@ def cli_workspace(args):
               font-source-sans-pro font-source-serif-pro
 
     """
-    global CONFIG
-    init_app(args)
 
+    init_app(args)
     cli = args.CLI
     _ = cli.UI
 
-    workspace = CONFIG.getpath('DEFAULT', 'workspace')
+    workspace = CTX.WORKSPACE
 
     if args.subcommand == 'init':
 
@@ -420,7 +444,7 @@ def cli_workspace(args):
         workspace.makedirs()
 
         with db.fontlib_scope():
-            FontStack.init_fontstack(CONFIG)
+            FontStack.init_fontstack(CTX.CONFIG)
 
         return
 
@@ -460,7 +484,7 @@ def add_fontstack_options(cmd):
     cmd.add_argument(
         "--builtins"
         , dest = 'builtins'
-        , default = CONFIG.get(*MAP_ARG_TO_CFG['builtins'][:2])
+        , default = CTX.CONFIG.get(*MAP_ARG_TO_CFG['builtins'][:2])
         , nargs = '?', type = str
         , help = "register builtin fonts"
         )
@@ -468,7 +492,7 @@ def add_fontstack_options(cmd):
     cmd.add_argument(
         "--ep-fonts"
         , dest = 'epfonts'
-        , default = CONFIG.get(*MAP_ARG_TO_CFG['epfonts'][:2])
+        , default = CTX.CONFIG.get(*MAP_ARG_TO_CFG['epfonts'][:2])
         , nargs = '?', type = str
         , help = "use fonts from entry points"
         )
@@ -476,52 +500,47 @@ def add_fontstack_options(cmd):
     cmd.add_argument(
         "--google"
         , dest = 'google'
-        , default = CONFIG.get(*MAP_ARG_TO_CFG['google'][:2])
+        , default = CTX.CONFIG.get(*MAP_ARG_TO_CFG['google'][:2])
         , nargs = '?', type = str
         , help = "register fonts from fonts.googleapis.com"
         )
 
 def init_main():
     """Init routine for the very first the main function."""
-    global CONFIG
+
+    global CTX
 
     cli_parse_css.__doc__ =  cli_parse_css.__doc__ % globals()
 
-    # init main's CONFIG from INI file
-
-    init_cfg()
-    CONFIG = get_cfg()
-    app_ws = CONFIG.getpath('DEFAULT', 'workspace', fallback=DEFAULT_WORKSPACE)
-    app_ws.makedirs()
-    log.debug("using workspace at: %s", app_ws)
+    # init main's context
+    CTX = Context()
+    log.debug("initial using workspace at: %s", CTX.WORKSPACE)
+    CTX.WORKSPACE.makedirs()
 
     # init main logging with (new) CONFIG settings
 
-    log_cfg = CONFIG.get("logging", "config", fallback=DEFAULT_LOG_INI)
-    env = CONFIG.config_env(
-        app = 'cli'
-        , workspace = DEFAULT_WORKSPACE
-    )
-    init_log(log_cfg, defaults=env)
-
+    log_cfg = CTX.CONFIG.get("logging", "config", fallback=DEFAULT_LOG_INI)
+    env = CTX.CONFIG.config_env(app='cli', workspace=CTX.WORKSPACE)
+    init_log(log_cfg, defaults = env)
 
 def init_app(args, verbose=False):
     """Init the :py:obj:`CONFIG` object and LOG settings from command line arguments"""
     # pylint: disable=too-many-branches
-    global CONFIG
+
+    global CTX
 
     verbose = verbose or args.verbose
     _ = args.CLI.UI
 
     # init application's CONFIG from INI file
 
-    cfg = None
+    cfg = []
 
-    if args.config != DEFAULT_WORKSPACE / CONFIG_INI:
+    if args.config != CTX.WORKSPACE / CONFIG_INI:
         # assert config if --config was explicite set
         if not args.config.EXISTS:
             raise args.Error(42, 'config file does not exists: %s' % args.config)
-        cfg = args.config
+        cfg.append(args.config)
 
     elif args.workspace:
         # assert %(workspace)s/config.ini if --workspace was explicite set but
@@ -529,40 +548,48 @@ def init_app(args, verbose=False):
         if not args.workspace.EXISTS:
             raise args.Error(42, 'workspace folder does not exists: %s' % args.workspace)
 
-        cfg = args.workspace / 'config.ini'
-        if not cfg.EXISTS:
-            log.warning("Config file %s does not exists.", str(cfg))
+        ini_file = args.workspace / 'config.ini'
+        if ini_file.EXISTS:
+            cfg.append(ini_file)
+        else:
+            log.info("Config file %s does not exists.", ini_file)
 
-    if verbose and cfg:
-        _.echo("load additional configuration from: %s" % cfg)
-    CONFIG.read(cfg)
-    map_arg_to_cfg(args, CONFIG)
+    if cfg:
+        msg = "load additional configuration from: %s" % cfg
+        log.info(msg)
+        if verbose:
+            _.echo(msg)
+
+    CTX.CONFIG.read(cfg)
+    map_arg_to_cfg(args, CTX.CONFIG)
 
     # init application's WORKSPACE from (new) CONFIG settings
 
-    app_ws = CONFIG.getpath('DEFAULT', 'workspace', fallback=DEFAULT_WORKSPACE)
-    if not app_ws.EXISTS:
-        log.debug("initing workspace at: %s", app_ws)
-        app_ws.makedirs()
+    if not CTX.WORKSPACE.EXISTS:
+        log.debug("initing workspace at: %s", CTX.WORKSPACE)
+        CTX.WORKSPACE.makedirs()
+
+    msg = "using workspace: %s\n" % CTX.WORKSPACE
+    log.debug(msg)
     if verbose:
-        _.echo("using workspace: %s\n" % app_ws)
-    log.debug("using workspace at: %s", app_ws)
+        _.echo(msg)
 
     # init app logging with (new) CONFIG settings
 
     logger = logging.getLogger(FONTLIB_LOGGER)
 
     if args.debug:
-        CONFIG.set("logging", "level", 'debug')
+        CTX.CONFIG.set("logging", "level", 'debug')
+    if args.debug_sql:
         logging.getLogger('sqlalchemy.engine').setLevel('INFO')
 
-    level = CONFIG.get("logging", "level").upper()
+    level = CTX.CONFIG.get("logging", "level").upper()
     if verbose:
         args.ERR.write("set log level of logger: %s (%s)\n" % (logger.name, level))
 
     logger.setLevel(level)
 
-    log_cfg = CONFIG.getpath("logging", "config", fallback=None)
+    log_cfg = CTX.CONFIG.getpath("logging", "config", fallback=None)
 
     if log_cfg is not None:
         if not log_cfg.EXISTS:
@@ -572,7 +599,7 @@ def init_app(args, verbose=False):
             ) % (log_cfg, args.config))
         if verbose:
             args.ERR.write("load logging configuration from: %s\n" % log_cfg)
-        env = CONFIG.config_env(app='cli', workspace=app_ws)
+        env = CTX.CONFIG.config_env(app='cli', workspace=CTX.WORKSPACE)
         init_log(log_cfg, defaults = env)
 
     if verbose:
@@ -582,7 +609,7 @@ def init_app(args, verbose=False):
             + "\n")
 
     # init database
-    db.fontlib_init(CONFIG)
+    db.fontlib_init(CTX.CONFIG)
 
 # ==============================================================================
 # call main ...

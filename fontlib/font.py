@@ -74,7 +74,7 @@ class Font(FontLibSchema, TableUtilsMixIn):
 
     """A font resource identified by URL (ID).
 
-    Object of table 'font'
+    ORM of SQL table 'font'.
 
     """
 
