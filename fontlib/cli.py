@@ -34,6 +34,7 @@ from .log import init_log
 from .config import init_cfg
 from .config import get_cfg
 from .config import DEFAULT_INI
+from .urlcache import URLBlob
 
 UNKNOWN = object()
 CONFIG = None
@@ -204,17 +205,25 @@ def cli_list_fonts(args):
 
         for font in stack.list_fonts():
 
-            closest = font.origin
-            blob_state = stack.cache.url_state(font.origin)
-            if blob_state == 'cached':
-                closest = stack.cache.fname_by_url(font.origin)
+            blob = stack.cache.get_blob_obj(font.origin)
+
+            if blob is None:
+                state = URLBlob.STATE_REMOTE
+                url = urlparse(blob.origin)
+                if url.scheme == 'file':
+                    state = URLBlob.STATE_LOCAL
+                blob = URLBlob(font.origin, state=state)
+
+            closest = blob.origin
+            if blob.state == blob.STATE_CACHED:
+                closest = stack.cache.fname_by_blob(blob)
 
             yield dict(
                 id = font.id
                 , origin = font.origin
                 , name = font.name
                 , format = font.format
-                , blob_state = blob_state
+                , blob_state = blob.state
                 , closest = closest
                 )
 
