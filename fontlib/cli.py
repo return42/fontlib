@@ -198,7 +198,7 @@ def cli_README(args):
     readme = __pkginfo__.docstring
     if not args.verbose:
         # strip hyperrefs
-        readme = re.sub(r'\s\<http.*?\>', '', readme, flags=re.S)
+        readme = re.sub(r'`(.*?)\s\<http.*?\>`_+', r"'\1'", readme, flags=re.S)
     _.echo(readme)
 
 
