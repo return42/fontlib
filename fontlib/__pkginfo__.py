@@ -44,6 +44,7 @@ install_requires = [
     , 'requests'
     , 'sqlalchemy'
     , 'sqlalchemy_schemadisplay'
+    , 'psycopg2-binary'
 ]
 
 # https://python-packaging.readthedocs.io/en/latest/dependencies.html
