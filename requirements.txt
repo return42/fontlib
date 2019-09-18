@@ -7,6 +7,7 @@ fspath
 tinycss2
 requests
 sqlalchemy
+sqlalchemy_schemadisplay
 
 # -------------
 # test requires

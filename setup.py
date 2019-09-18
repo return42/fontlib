@@ -39,6 +39,7 @@ setup(
     , keywords         = PKG.keywords
 
     , packages         = find_packages(exclude=['docs', 'tests'])
+    , dependency_links = PKG.dependency_links
     , install_requires = PKG.install_requires
     , extras_require   = {
         'dev' : PKG.develop_requires

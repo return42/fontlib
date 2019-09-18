@@ -43,7 +43,14 @@ install_requires = [
     , 'tinycss2'
     , 'requests'
     , 'sqlalchemy'
+    , 'sqlalchemy_schemadisplay'
 ]
+
+# https://python-packaging.readthedocs.io/en/latest/dependencies.html
+dependency_links = [
+    'https://github.com/fschulze/sqlalchemy_schemadisplay/tarball/master#egg=sqlalchemy_schemadisplay'
+]
+
 install_requires_txt = "\n".join(install_requires)
 
 test_requires = [
