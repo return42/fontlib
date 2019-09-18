@@ -38,18 +38,30 @@ package_data = {'fontlib' : ['cantarell','dejavu']}
 
 python_requires  ='>=3.5'
 
+# Since pip v18.1 [PEP508-URL] is supported!
+#
+# Don't use depricated [dependency_links] any more.  See [git+] for using repos
+# as packages.  E.g. 'fontlib's master from github with *all extras* is added to
+# the requirements by::
+#
+#        fontlib @ git+https://github.com/return42/fontlib[devel,test]
+#
+#  The setup.py 'extra_requires' addressed with [PEP-508 extras], here in the
+#  example 'devel' and 'test' requirements also installed.
+#
+# [PEP-508 URL]      https://www.python.org/dev/peps/pep-0508/
+# [PEP-508 extras]   https://www.python.org/dev/peps/pep-0508/#extras
+# [git+] https://pip.pypa.io/en/stable/reference/pip_install/#vcs-support
+# [requirements.txt] https://pip.pypa.io/en/stable/user_guide/#requirements-files
+# [dependency_links] https://python-packaging.readthedocs.io/en/latest/dependencies.html
+
 install_requires = [
     'fspath'
     , 'tinycss2'
     , 'requests'
     , 'sqlalchemy'
-    , 'sqlalchemy_schemadisplay'
+    , 'sqlalchemy_schemadisplay @ git+https://github.com/fschulze/sqlalchemy_schemadisplay'
     , 'psycopg2-binary'
-]
-
-# https://python-packaging.readthedocs.io/en/latest/dependencies.html
-dependency_links = [
-    'https://github.com/fschulze/sqlalchemy_schemadisplay/tarball/master#egg=sqlalchemy_schemadisplay'
 ]
 
 install_requires_txt = "\n".join(install_requires)

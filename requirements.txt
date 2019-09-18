@@ -7,7 +7,8 @@ fspath
 tinycss2
 requests
 sqlalchemy
-sqlalchemy_schemadisplay
+sqlalchemy_schemadisplay @ git+https://github.com/fschulze/sqlalchemy_schemadisplay
+psycopg2-binary
 
 # -------------
 # test requires

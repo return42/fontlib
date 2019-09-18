@@ -12,6 +12,11 @@ PY       ?=3
 PYTHON   ?= python$(PY)
 PIP      ?= pip$(PY)
 PIP_INST ?= --user
+
+# https://www.python.org/dev/peps/pep-0508/#extras
+#PY_SETUP_EXTRAS ?= \[develop,test\]
+PY_SETUP_EXTRAS ?=
+
 PYDEBUG  ?= --pdb
 PYLINT_RC ?= utils/pylintrc
 
@@ -61,6 +66,7 @@ python-help::
 	@echo  '  make PIP_INST=       => to set/unset pip install options ($(PIP_INST))'
 	@echo  '  make TEST=.          => choose test from $(TEST_FOLDER) (default "." runs all)'
 	@echo  '  make DEBUG=          => target "debug": do not invoke PDB on errors'
+	@echo  '  make PY_SETUP_EXTRAS => also install extras_require from setup.py \[develop,test\]'
 	@echo  'when using target "pydebug", set breakpoints within py-source by adding::'
 	@echo  '    ...'
 	@echo  '    DEBUG()'
@@ -125,11 +131,11 @@ endif
 
 # $2 path to folder with setup.py, this uses pip from the OS
 quiet_cmd_pyinstall = INSTALL   $2
-      cmd_pyinstall = $(PIP) $(PIP_VERBOSE) install $(PIP_INST) -e $2
+      cmd_pyinstall = $(PIP) $(PIP_VERBOSE) install $(PIP_INST) -e $2$(PY_SETUP_EXTRAS)
 
 # $2 path to folder with setup.py, this uses pip from pyenv (not OS!)
 quiet_cmd_pyenvinstall = PYENV     install $2
-      cmd_pyenvinstall = $(PY_ENV_BIN)/pip $(PIP_VERBOSE) install -e $2
+      cmd_pyenvinstall = $(PY_ENV_BIN)/pip $(PIP_VERBOSE) install -e $2$(PY_SETUP_EXTRAS)
 
 # Uninstall the package. Since pip does not uninstall the no longer needed
 # depencies (something like autoremove) the depencies remain.

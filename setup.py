@@ -39,11 +39,12 @@ setup(
     , keywords         = PKG.keywords
 
     , packages         = find_packages(exclude=['docs', 'tests'])
-    , dependency_links = PKG.dependency_links
     , install_requires = PKG.install_requires
     , extras_require   = {
-        'dev' : PKG.develop_requires
-        , 'test' : PKG.test_requires
+        # usage: pip install .\[develop,test\]
+        # see: https://pip.pypa.io/en/stable/reference/pip_install/#examples
+        'develop' : PKG.develop_requires
+        , 'test'  : PKG.test_requires
     }
     , entry_points     = PKG.get_entry_points()
     , classifiers      = PKG.classifiers

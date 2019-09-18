@@ -11,6 +11,7 @@ DOC       = docs
 SLIDES    = $(DOC)/slides
 API_DOC   = $(DOC)/fontlib-api
 PYLINT_RC = .pylintrc
+PY_SETUP_EXTRAS ?= \[develop,test\]
 
 all: clean pylint pytest build docs
 
