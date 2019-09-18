@@ -45,13 +45,17 @@ endif
 
 python-help::
 	@echo  'makefile.python:'
-	@echo  '  pylint        - run pylint *linting*'
-	@echo  '  pytest	- run *tox* test on python objects'
-	@echo  '  pydebug       - run tests within a PDB debug session'
-	@echo  '  pybuild       - build python packages'
-	@echo  '  pyclean       - clean intermediate python objects'
-	@echo  '  py[un]install - [un]install python objects in editable mode'
-	@echo  '  upload-pypi   - upload $(PYDIST)/* files to PyPi'
+	@echo  '  pyenv | pyenv[un]install'
+	@echo  '     build $(PY_ENV) & [un]install python objects'
+	@echo  '  targts using pyenv $(PY_ENV):'
+	@echo  '    pylint    - run pylint *linting*'
+	@echo  '    pytest    - run *tox* test on python objects'
+	@echo  '    pydebug   - run tests within a PDB debug session'
+	@echo  '    pybuild   - build python packages'
+	@echo  '    pyclean   - clean intermediate python objects'
+	@echo  '  targets using system users environment:'
+	@echo  '    py[un]install - [un]install python objects in editable mode'
+	@echo  '    upload-pypi   - upload $(PYDIST)/* files to PyPi'
 	@echo  'options:'
 	@echo  '  make PY=2  [targets] => to eval targets with python 2 ($(PY))'
 	@echo  '  make PIP_INST=       => to set/unset pip install options ($(PIP_INST))'
@@ -199,6 +203,7 @@ pyclean:
 	$(call cmd,pyclean)
 
 # to build *local* environment, python and virtualenv from the OS is needed!
+pyenv: $(PY_ENV)
 $(PY_ENV): virtualenv-exe python-exe
 	$(call cmd,virtualenv,$(PY_ENV))
 	@$(PY_ENV_BIN)/pip install $(PIP_VERBOSE) -r requirements.txt
