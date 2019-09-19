@@ -24,6 +24,9 @@ from fspath import CLI
 from fspath import FSPath
 from fspath.sui import SimpleUserInterface
 
+from sqlalchemy import MetaData
+from sqlalchemy_schemadisplay import create_schema_graph
+
 from . import __pkginfo__
 from . import db
 from .fontstack import FontStack
@@ -105,6 +108,22 @@ def main():
     # cmd: README ...
 
     _ = cli.addCMDParser(cli_README, cmdName='README')
+
+    # cmd: SCHEMA ...
+
+    schema = cli.addCMDParser(cli_SCHEMA, cmdName='SCHEMA')
+    schema.add_argument(
+        '--force'
+        , action  = 'store_true'
+        , help = 'force command'
+    )
+    schema.add_argument(
+        "out"
+        , type = FSPath
+        , nargs = '?'
+        , default = FSPath('./schema_diagram.svg')
+        , help = "output file name of the generated diagram"
+    )
 
     # cmd: version ...
 
@@ -201,6 +220,46 @@ def cli_README(args):
         readme = re.sub(r'`(.*?)\s\<http.*?\>`_+', r"'\1'", readme, flags=re.S)
     _.echo(readme)
 
+def cli_SCHEMA(args):
+    """Turn SQLAlchemy DB Model into a graph.
+
+    .. hint::
+
+       EXPERIMENTAL !!!
+
+    You will need atleast SQLAlchemy and pydot along with graphviz for
+    this. Graphviz-cairo is higly recommended to get tolerable image quality.
+    Further reading:
+
+    - `sqlalchemy_schemadisplay <https://github.com/fschulze/sqlalchemy_schemadisplay>`__
+
+    """
+    init_app(args)
+    cli = args.CLI
+    _ = cli.UI
+
+    fontlib_connector = CTX.CONFIG.get('DEFAULT', 'fontlib_db', fallback='sqlite:///:memory:')
+
+    if args.out.EXISTS and not args.force:
+        raise args.Error(42, "file %s already exists (use --force to overwrite)" % args.out)
+
+    fmt = 'svg'
+    if args.out.SUFFIX:
+        fmt = args.out.SUFFIX[1:]
+
+    # create the pydot graph object by autoloading all tables via a bound metadata object
+    graph = create_schema_graph(
+        metadata = MetaData(fontlib_connector)
+        , show_datatypes = True  # The image would get big if we'd show the datatypes
+        , show_indexes = True  # ditto for indexes
+        , rankdir = 'LR'  # From left to right (instead of top to bottom)
+        , concentrate = False  # Don't try to join the relation lines together
+    )
+    if fmt in graph.formats:
+        _.echo("write format %s to file: %s" % (fmt, args.out))
+        graph.write(args.out, format=fmt, encoding='utf-8') # write out the file
+    else:
+        raise args.Error(42, "unknown output format: %s" % fmt)
 
 def cli_version(args):
     """prints version infos to stdout"""
