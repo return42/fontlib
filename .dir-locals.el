@@ -60,18 +60,22 @@
      (eval . (setq-local
 	      jedi:environment-root  (expand-file-name "./local/py3" prj-root)))
 
+     ;; https://tkf.github.io/emacs-jedi/latest/#jedi:server-command
      (eval .(setq-local
 	     jedi:server-command
 	     (list prj-py-exe
 		   jedi:server-script)
 	     ))
-
-     (eval . (setq-local
-	      jedi:environment-virtualenv
-	      (list (expand-file-name "bin/virtualenv" prj-env)
-		    ;;"--python"
-		    ;;"/usr/bin/python3.4"
-		    )))
+     ;; https://tkf.github.io/emacs-jedi/latest/#jedi:environment-virtualenv --
+     ;; virtualenv command to use.  A list of string.  If it is nil,
+     ;; python-environment-virtualenv is used instead.  You must set non-nil
+     ;; value to jedi:environment-root in order to make this setting work.
+     ;; (eval . (setq-local
+     ;; 	      jedi:environment-virtualenv
+     ;; 	      (list (expand-file-name "bin/virtualenv" prj-env)
+     ;; 		    ;;"--python"
+     ;; 		    ;;"/usr/bin/python3.4"
+     ;; 		    )))
 
      ;; jedi:server-args
      ;; (eval . (setq-local
