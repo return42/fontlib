@@ -126,8 +126,6 @@ install_requires = [
     , 'tinycss2'
     , 'requests'
     , 'sqlalchemy'
-    , 'sqlalchemy_schemadisplay @ git+https://github.com/fschulze/sqlalchemy_schemadisplay'
-    , 'psycopg2-binary'
 ]
 
 install_requires_txt = "\n".join(install_requires)
@@ -145,6 +143,8 @@ develop_requires = [
     , 'sphinx-autobuild'
     , 'sphinxcontrib-programoutput'
     , 'pip'
+    , 'sqlalchemy_schemadisplay @ git+https://github.com/fschulze/sqlalchemy_schemadisplay'
+    , 'psycopg2-binary'
     , 'twine'
 ]
 

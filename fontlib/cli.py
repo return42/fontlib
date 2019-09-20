@@ -24,9 +24,6 @@ from fspath import CLI
 from fspath import FSPath
 from fspath.sui import SimpleUserInterface
 
-from sqlalchemy import MetaData
-from sqlalchemy_schemadisplay import create_schema_graph
-
 from . import __pkginfo__
 from . import db
 from .fontstack import FontStack
@@ -38,6 +35,15 @@ from .config import init_cfg
 from .config import get_cfg
 from .config import DEFAULT_INI
 from .urlcache import URLBlob
+
+_development = True
+
+try:
+    from sqlalchemy import MetaData
+    from sqlalchemy_schemadisplay import create_schema_graph
+except Exception as exc:
+    _development = False
+
 
 log = logging.getLogger('fontlib.cli')
 
@@ -111,19 +117,20 @@ def main():
 
     # cmd: SCHEMA ...
 
-    schema = cli.addCMDParser(cli_SCHEMA, cmdName='SCHEMA')
-    schema.add_argument(
-        '--force'
-        , action  = 'store_true'
-        , help = 'force command'
-    )
-    schema.add_argument(
-        "out"
-        , type = FSPath
-        , nargs = '?'
-        , default = FSPath('./schema_diagram.svg')
-        , help = "output file name of the generated diagram"
-    )
+    if _development:
+        schema = cli.addCMDParser(cli_SCHEMA, cmdName='SCHEMA')
+        schema.add_argument(
+            '--force'
+            , action  = 'store_true'
+            , help = 'force command'
+        )
+        schema.add_argument(
+            "out"
+            , type = FSPath
+            , nargs = '?'
+            , default = FSPath('./schema_diagram.svg')
+            , help = "output file name of the generated diagram"
+        )
 
     # cmd: version ...
 
@@ -223,12 +230,21 @@ def cli_README(args):
 def cli_SCHEMA(args):
     """Turn SQLAlchemy DB Model into a graph.
 
+    !!! EXPERIMENTAL !!!
+
     .. hint::
 
-       EXPERIMENTAL !!!
+         This feature is available in the *develop* environment.  To install
+         requirements of the *develop* environment use::
+
+            pip install .\\[develop,test\\]
+
+    - `Declaring Extras <https://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies>`_
+    - `Install a package with setuptools extras. <https://pip.pypa.io/en/stable/reference/pip_install/#examples>`_
+
 
     You will need atleast SQLAlchemy and pydot along with graphviz for
-    this. Graphviz-cairo is higly recommended to get tolerable image quality.
+    this.  Graphviz-cairo is higly recommended to get tolerable image quality.
     Further reading:
 
     - `sqlalchemy_schemadisplay <https://github.com/fschulze/sqlalchemy_schemadisplay>`__

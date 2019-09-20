@@ -45,7 +45,8 @@ setup(
 
     , extras_require   = {
         # usage: pip install .\[develop,test\]
-        # see: https://pip.pypa.io/en/stable/reference/pip_install/#examples
+        # - https://pip.pypa.io/en/stable/reference/pip_install/#examples
+        # - https://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies
         'develop' : PKG.develop_requires
         , 'test'  : PKG.test_requires
     }
