@@ -40,7 +40,7 @@ def init_cfg(filenames=None, encoding=None):
        Re-initing means; replace the old value of GLOBAL_CONFIG with a new
        instance of class :py:class:`Config`.
 
-       To *extend* the :py:obj:`GLOBAL_CONFIG` use :py:method:`Config.read`::
+       To *extend* the :py:obj:`GLOBAL_CONFIG` use :py:meth:`Config.read`::
 
            get_cfg().read(filenames)
     """

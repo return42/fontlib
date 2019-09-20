@@ -41,7 +41,7 @@ _development = True
 try:
     from sqlalchemy import MetaData
     from sqlalchemy_schemadisplay import create_schema_graph
-except Exception as exc:
+except ImportError as exc:
     _development = False
 
 
@@ -228,6 +228,7 @@ def cli_README(args):
     _.echo(readme)
 
 def cli_SCHEMA(args):
+    # pylint: disable=line-too-long
     """Turn SQLAlchemy DB Model into a graph.
 
     !!! EXPERIMENTAL !!!
@@ -598,7 +599,7 @@ def init_main():
     env = CTX.CONFIG.config_env(app='cli', workspace=CTX.WORKSPACE)
     init_log(log_cfg, defaults = env)
 
-def init_app(args, verbose=False):
+def init_app(args, verbose=False): # pylint: disable=too-many-statements
     """Init the :py:obj:`CONFIG` object and LOG settings from command line arguments"""
     # pylint: disable=too-many-branches
 
