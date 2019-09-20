@@ -11,12 +11,13 @@ DOC       = docs
 SLIDES    = $(DOC)/slides
 API_DOC   = $(DOC)/fontlib-api
 PYLINT_RC = .pylintrc
-PY_SETUP_EXTRAS ?= \[develop,test\]
+PY_SETUP_EXTRAS = \[develop,test\]
 
 all: clean pylint pytest build docs
 
 PHONY += help
 help:
+	@echo  '  build     - build distribution packages ($(PYDIST))'
 	@echo  '  docs      - build documentation'
 	@echo  '  docs-live - autobuild HTML documentation while editing'
 	@echo  '  slides    - build reveal.js slide presentation'
@@ -34,11 +35,16 @@ help:
 	@echo  ''
 	@$(MAKE) -s -f utils/makefile.sphinx docs-help
 
+PHONY += build
+build: $(PY_ENV) project pybuild
+
 PHONY += project
-project: $(PY_ENV)
-	- rm -f README.rst requirements.txt
-	$(PY_ENV_BIN)/python -c "from fontlib.__pkginfo__ import *; print(docstring)" > README.rst
-	$(PY_ENV_BIN)/python -c "from fontlib.__pkginfo__ import *; print(requirements_txt)" > requirements.txt
+project: $(PY_ENV) pyenvinstall
+	@echo '  PROJECT   README.rst requirements.txt'
+	$(Q)- rm -f README.rst requirements.txt
+	$(Q)$(PY_ENV_BIN)/python -c "from fontlib.__pkginfo__ import *; print(README)" > ./README.rst
+	$(Q)$(PY_ENV_BIN)/python -c "from fontlib.__pkginfo__ import *; print(requirements_txt)" > ./requirements.txt
+
 
 PHONY += install
 install: pyinstall pyenvinstall

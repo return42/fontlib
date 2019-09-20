@@ -1,3 +1,7 @@
+==============================================================================
+fontlib
+==============================================================================
+
 
 The python `fontlib <http://return42.github.io/fontlib>`__ package helps to manage fonts from different
 resources.  It comes with an API and the fontlib command line (see `use
@@ -30,10 +34,11 @@ Links
 - Issue tracker:   https://github.com/return42/fontlib/issues
 
 ============ ===============================================
-package:     fontlib (20190831.1.post)
+package:     fontlib (20190831.1.post0)
 copyright:   2019 Markus Heiser
 e-mail:      markus.heiser@darmarIT.de
-license:     GPLv2
+license:     GPLv3
 ============ ===============================================
+
 
 

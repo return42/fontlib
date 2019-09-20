@@ -1,18 +1,46 @@
 # -*- coding: utf-8; mode: python; mode: flycheck -*-
 # pylint: disable=invalid-name,redefined-builtin
-"""
-python package meta informations used by setup.py
+"""Python package meta informations used by setup.py and other project files.
 
-- https://packaging.python.org/guides/distributing-packages-using-setuptools/
+Single point of source for all fontlib package metadata.  After modifying this
+file it is needed to recreate some projet files::
+
+  ./local/py3/bin/python -c "from fontlib.__pkginfo__ import *; print(README)" > README.rst
+  ./local/py3/bin/python -c "from fontlib.__pkginfo__ import *; print(requirements_txt)" > requirements.txt
+
+About python packaging see `Python Packaging Authority`_.  Most of the names
+here are mapped to ``setup(<name1>=..., <name2>=...)`` arguments in
+``setup.py``.  See `Packaging and distributing projects`_ about ``setup(...)``
+arguments. If this is all new for you, start with `PyPI Quick and Dirty`_.
+
+Further read:
+
+- pythonwheels_
+- setuptools_
+- packaging_
+- sdist_
+- installing_
+
+.. _`Python Packaging Authority`: https://www.pypa.io
+.. _`Packaging and distributing projects`: https://packaging.python.org/guides/distributing-packages-using-setuptools/
+.. _`PyPI Quick and Dirty`: https://hynek.me/articles/sharing-your-labor-of-love-pypi-quick-and-dirty/
+.. _pythonwheels: https://pythonwheels.com/
+.. _setuptools: https://setuptools.readthedocs.io/en/latest/setuptools.html
+.. _packaging: https://packaging.python.org/guides/distributing-packages-using-setuptools/#packaging-and-distributing-projects
+.. _sdist: https://packaging.python.org/guides/distributing-packages-using-setuptools/#source-distributions
+.. _bdist_wheel: https://packaging.python.org/guides/distributing-packages-using-setuptools/#pure-python-wheels
+.. _installing: https://packaging.python.org/tutorials/installing-packages/
 
 """
+
+from setuptools import find_packages
 
 package = 'fontlib'
-version = '20190831.1.post'
+version = '20190831.1.post0'
 
 copyright = '2019 Markus Heiser'
 description = 'Pluginable font library'
-license = 'GPLv2'
+license = 'GPLv3'
 keywords = 'fonts TTF OTF WOFF WOFF2'
 
 author = 'Markus Heiser'
@@ -34,9 +62,47 @@ project_urls = {
     , 'Issue tracker'    : issues
 }
 
-package_data = {'fontlib' : ['cantarell','dejavu']}
+packages = find_packages(exclude=['docs', 'tests'])
 
+# https://setuptools.readthedocs.io/en/latest/setuptools.html#including-data-files
+package_data = {
+    'fontlib' : [
+        'config.ini'
+        , 'log.ini'
+        , 'mime.types'
+
+        , 'files/cantarell/COPYING'
+        , 'files/cantarell/cantarell.css'
+        , 'files/cantarell/*.woff2'
+
+        , 'files/dejavu/LICENSE.html'
+        , 'files/dejavu/dejavu.css'
+        , 'files/dejavu/DejaVu*.woff2'
+    ]
+}
+
+# https://docs.python.org/distutils/setupscript.html#installing-additional-files
+# https://setuptools.readthedocs.io/en/latest/setuptools.html?highlight=options.data_files#configuring-setup-using-setup-cfg-files
+# https://www.scivision.dev/newer-setuptools-needed/
+# https://setuptools.readthedocs.io/en/latest/history.html#v40-5-0
+data_files = [
+    ('/etc/fontlib', [
+        'fontlib/config.ini'
+        ,  'fontlib/log.ini'
+    ])
+    , ('/usr/share/doc/fontlib', [
+        'README.rst'
+        , 'LICENSE.txt'
+        , 'fontlib/files/cantarell/COPYING'
+        , 'fontlib/files/dejavu/LICENSE.html'
+    ])
+    , ]
+
+# https://packaging.python.org/guides/distributing-packages-using-setuptools/#python-requires
 python_requires  ='>=3.5'
+
+# https://packaging.python.org/guides/distributing-packages-using-setuptools/#py-modules
+py_modules = []
 
 # Since pip v18.1 [PEP508-URL] is supported!
 #
@@ -121,7 +187,7 @@ requirements_txt = """# -*- coding: utf-8; mode: conf -*-
 # Packages with font entry points
 # -------------------------------
 #
-# font-amatic-sc
+font-amatic-sc
 # font-caladea
 # font-font-awesome
 # font-fredoka-one
@@ -142,7 +208,7 @@ def get_entry_points():
 classifiers = [
     "Development Status :: 5 - Production/Stable"
     , "Intended Audience :: Developers"
-    , "License :: OSI Approved :: GNU General Public License v2 (GPLv2)"
+    , "License :: OSI Approved :: GNU General Public License v3 (GPLv3)"
     , "Operating System :: OS Independent"
     , "Programming Language :: Python"
     , "Programming Language :: Python :: 3"
@@ -190,4 +256,12 @@ e-mail:      %(maintainer_email)s
 license:     %(license)s
 ============ ===============================================
 
+""" % globals()
+
+README = """\
+==============================================================================
+fontlib
+==============================================================================
+
+%(docstring)s
 """ % globals()

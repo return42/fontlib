@@ -46,7 +46,7 @@ twine
 # Packages with font entry points
 # -------------------------------
 #
-# font-amatic-sc
+font-amatic-sc
 # font-caladea
 # font-font-awesome
 # font-fredoka-one
