@@ -149,7 +149,7 @@ quiet_cmd_pyenvuninstall = PYENV     uninstall   $2
       cmd_pyenvuninstall = $(PY_ENV_BIN)/pip $(PIP_VERBOSE) uninstall --yes $2
 
 # $2 path to folder where virtualenv take place
-quiet_cmd_virtualenv  = PYENV     $@
+quiet_cmd_virtualenv  = PYENV     usage: $ source ./$@/bin/activate
       cmd_virtualenv  = \
 	if [ ! -d "./$(PY_ENV)" ];then                                  \
 		$(VIRTUALENV) $(VIRTUALENV_VERBOSE) $(VTENV_OPTS) $2;   \

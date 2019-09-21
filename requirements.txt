@@ -31,6 +31,7 @@ pip
 sqlalchemy_schemadisplay @ git+https://github.com/fschulze/sqlalchemy_schemadisplay
 psycopg2-binary
 twine
+epc @ git+https://github.com/tkf/python-epc
 
 #wheel
 #mock

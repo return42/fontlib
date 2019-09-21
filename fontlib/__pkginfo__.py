@@ -139,7 +139,8 @@ test_requires = [
 test_requires_txt = "\n".join(test_requires)
 
 develop_requires = [
-    'jedi'
+    'jedi' # https://jedi.readthedocs.io/
+    , 'epc @ git+https://github.com/tkf/python-epc' # required by emacs: https://tkf.github.io/emacs-jedi
     , 'Sphinx'
     , 'sphinx_rtd_theme'
     , 'sphinx-autobuild'
