@@ -18,11 +18,12 @@ To name just a few fontlib features:
 Install
 =======
 
-Install and update using `pip <https://pip.pypa.io/en/stable/quickstart/>`__:
+Install and update using `pip <https://pip.pypa.io/en/stable/quickstart/>`__
+(see `Install <http://return42.github.io/fontlib/install.html>`__):
 
 .. code-block:: text
 
-   pip install -U fontlib
+   pip install --user -U fontlib
 
 
 Links

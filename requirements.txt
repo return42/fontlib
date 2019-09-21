@@ -4,9 +4,9 @@
 # ----------------
 
 fspath
-tinycss2
 requests
 sqlalchemy
+tinycss2
 
 # -------------
 # test requires
@@ -22,16 +22,16 @@ pylint
 # develop requires
 # ----------------
 
-jedi
 Sphinx
-sphinx_rtd_theme
-sphinx-autobuild
-sphinxcontrib-programoutput
-pip
-sqlalchemy_schemadisplay @ git+https://github.com/fschulze/sqlalchemy_schemadisplay
-psycopg2-binary
-twine
 epc @ git+https://github.com/tkf/python-epc
+jedi
+pip
+psycopg2-binary
+sphinx-autobuild
+sphinx_rtd_theme
+sphinxcontrib-programoutput
+sqlalchemy_schemadisplay @ git+https://github.com/fschulze/sqlalchemy_schemadisplay
+twine
 
 #wheel
 #mock

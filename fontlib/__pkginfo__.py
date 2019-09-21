@@ -129,13 +129,13 @@ install_requires = [
     , 'requests'
     , 'sqlalchemy'
 ]
-
+install_requires.sort()
 install_requires_txt = "\n".join(install_requires)
 
 test_requires = [
     'pylint'
     ]
-
+test_requires.sort()
 test_requires_txt = "\n".join(test_requires)
 
 develop_requires = [
@@ -150,7 +150,7 @@ develop_requires = [
     , 'psycopg2-binary'
     , 'twine'
 ]
-
+develop_requires.sort()
 develop_requires_txt = "\n".join(develop_requires)
 
 requirements_txt = """# -*- coding: utf-8; mode: conf -*-
@@ -237,11 +237,12 @@ To name just a few fontlib features:
 Install
 =======
 
-Install and update using `pip <https://pip.pypa.io/en/stable/quickstart/>`__:
+Install and update using `pip <https://pip.pypa.io/en/stable/quickstart/>`__
+(see `Install <%(docs)s/install.html>`__):
 
 .. code-block:: text
 
-   pip install -U fontlib
+   pip install --user -U fontlib
 
 
 Links
