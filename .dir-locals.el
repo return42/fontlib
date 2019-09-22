@@ -1,10 +1,12 @@
 ;;; .dir-locals.el
 ;;
-;; The python environment is next to the <repo>/.dir-locals.el in::
+;; If you get ``*** EPC Error ***`` with this setup in your emacs session,
+;; mostly you have jedi-mode enabled but the python enviroment is missed.  The
+;; python environment has to be next to the ``<repo>/.dir-locals.el`` in::
 ;;
 ;;    ./local/py3
 ;;
-;; Buffer locals in emacs:
+;; In Emacs, some buffer locals are referencing the project environment:
 ;;
 ;; - prj-root                                --> <repo>/
 ;; - python-environment-directory            --> <repo>/local
