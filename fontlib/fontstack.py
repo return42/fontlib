@@ -8,6 +8,7 @@ __all__ = ['FontStack', ]
 import logging
 import fspath
 
+from . import event
 from .db import fontlib_session
 from .font import Font
 from .font import FontAlias
@@ -29,8 +30,15 @@ class FontStack:
         log.debug('set cache: %s', str(cache))
         self.cache = cache
 
+    @event.on_call_release('FontStack.add_font')
     def add_font(self, font):
-        """Add :py:class:`.api.Font` object to *this* stack."""
+        """Add :py:class:`.api.Font` object to *this* stack.
+
+        :param font:  :py:class:`font.Font` instance.
+
+        :event: ``FontStack.add_font`` (:py:obj:`event.on_call_release`)
+
+        """
 
         session = fontlib_session()
         p_obj = font.get_persistent_object(session)
@@ -59,16 +67,21 @@ class FontStack:
         """
         self.cache.save_url(font.origin, dest_file)
 
+    @event.on_call_release('FontStack.load_entry_point')
     def load_entry_point(self, ep_name):
         """Add :py:class:`.api.Font` objects from ``ep_name``.
 
         :param ep_name:
            String with the name of the entry point (one of: ``fonts_ttf``,
            ``fonts_otf`` ``fonts_woff``, ``fonts_woff2``)
+
+        :event: ``FontStack.load_entry_point`` (:py:obj:`event.on_call_release`)
+
         """
         for font in Font.from_entry_point(ep_name):
             self.add_font(font)
 
+    @event.on_call_release('FontStack.load_css')
     def load_css(self, css_url):
         """Add :py:class:`.api.Font` objects from `@font-face`_ rules.
 

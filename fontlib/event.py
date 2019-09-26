@@ -3,7 +3,7 @@
 
 .. hint::
 
-   Most of the code here was copied from `Marcus von Appen (events)`_
+   Most of the class EventHandler was copied from `Marcus von Appen (events)`_
    implementation.  I really appreciate his simple approach.
 
 
@@ -32,15 +32,19 @@ def get_event(event_name):
         GLOBAL_HANDLERS[event_name] = handler
     return handler
 
-def on_return(event_name):
-    """Decorator to add  a :py:class:`Event` to functions return.
+def on_return_release(event_name):
+    """Decorator to add a :py:class:`Event` to functions return.
+
+    The handler funtion will be called with arguments::
+
+        my_return_handler(event_name, ret_val, func, *args, **kwargs)
 
     By example: to trace a function of your lib, add a decorator with a
     appropriate name.  Mostly the fully qualified python name is a good choice::
 
-        from fontlib.event import on_return
+        from fontlib.event import on_return_release
 
-        @on_return('pkgname.modulename.foobar')
+        @on_return_release('pkgname.modulename.foobar')
         def foobar(a, b, *args, **kwargs):
             import time
             time.sleep(3)
@@ -83,13 +87,13 @@ class EventHandler:
      usage ::
 
        >>> my_event = EventHandler("my.event.name")
-       >>> def foo(*args, **kwargs):
-       ...     print("foo:: %s // %s" % (args, kwargs))
+       >>> def foo(event_name, *args, **kwargs):
+       ...     print("foo:: %s -->  %s // %s" % (event_name, args, kwargs))
        ...     return 42
 
        >>> my_event += foo
        >>> my_event('hello', name='world') # call the event prints & return
-       foo:: ('my.event.name', 'hello') // {'name': 'world'}
+       foo:: my.event.name -->  ('hello', ) // {'name': 'world'}
        [42]
        >>> my_event -= foo  # now unregister the foo handler
        >>> my_event('hello', name = 'world') # no more handler result in ..
