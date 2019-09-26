@@ -59,7 +59,7 @@ class URLBlob(FontLibSchema, TableUtilsMixIn):  # pylint: disable=too-few-public
             _ = base64.urlsafe_b64encode(_)[:-2]
             kwargs['id'] = _.decode('utf-8')
 
-        super(URLBlob, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def __repr__(self):
         return "<URLBlob (%(id)s), origin='%(origin)s'>" % self.__dict__

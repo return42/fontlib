@@ -116,7 +116,7 @@ class Font(FontLibSchema, TableUtilsMixIn):
             _ = hashlib.md5(_).digest()
             _ = base64.urlsafe_b64encode(_)[:-2]
             kwargs['id'] = _.decode('utf-8')
-        super(Font, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def __repr__(self):
         return "<Font (%(name)s) id='%(id)s', origin='%(origin)s'>" % self.__dict__

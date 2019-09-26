@@ -8,7 +8,7 @@ __all__ = ['FontStack', ]
 import logging
 import fspath
 
-from . import event
+from .event import get_event
 from .db import fontlib_session
 from .font import Font
 from .font import FontAlias
@@ -30,13 +30,10 @@ class FontStack:
         log.debug('set cache: %s', str(cache))
         self.cache = cache
 
-    @event.on_call_release('FontStack.add_font')
     def add_font(self, font):
         """Add :py:class:`.api.Font` object to *this* stack.
 
         :param font:  :py:class:`font.Font` instance.
-
-        :event: ``FontStack.add_font`` (:py:obj:`event.on_call_release`)
 
         """
 
@@ -51,9 +48,12 @@ class FontStack:
                     , font.name, font.origin)
             else:
                 log.debug("add alias '%s' to url %s", font.name, font.origin)
-                p_obj.aliases.append(FontAlias(alias = font.name))
+                alias = FontAlias(alias = font.name)
+                get_event('FontStack.add_alias')(alias)
+                p_obj.aliases.append(alias)
 
         else:
+            get_event('FontStack.add_font')(font)
             log.debug("add font-family: %s", font)
             session.add(font)
 
@@ -67,7 +67,6 @@ class FontStack:
         """
         self.cache.save_url(font.origin, dest_file)
 
-    @event.on_call_release('FontStack.load_entry_point')
     def load_entry_point(self, ep_name):
         """Add :py:class:`.api.Font` objects from ``ep_name``.
 
@@ -78,16 +77,17 @@ class FontStack:
         :event: ``FontStack.load_entry_point`` (:py:obj:`event.on_call_release`)
 
         """
+        get_event('FontStack.load_entry_point')(ep_name)
         for font in Font.from_entry_point(ep_name):
             self.add_font(font)
 
-    @event.on_call_release('FontStack.load_css')
     def load_css(self, css_url):
         """Add :py:class:`.api.Font` objects from `@font-face`_ rules.
 
         :param css_url:
             URL of a CSS (stylesheet) file defining ``@font-face`` rules
         """
+        get_event('FontStack.load_css')(css_url)
         for font in Font.from_css(css_url):
             self.add_font(font)
 

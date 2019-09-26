@@ -26,6 +26,7 @@ from fspath.sui import SimpleUserInterface
 
 from . import __pkginfo__
 from . import db
+from .event import get_event
 from .fontstack import FontStack
 from .fontstack import BUILTINS # pylint: disable=unused-import
 from .log import DEFAULT_LOG_INI
@@ -55,8 +56,9 @@ CTX = None
 class Context:
     """Application's context"""
 
-    def __init__(self):
+    def __init__(self, cli):
         init_cfg()
+        self.CLI = cli
 
     @property
     def CONFIG(self):
@@ -70,7 +72,7 @@ class Context:
 
     @property
     def WORKSPACE(self):
-        """Wrkspace of the command line application.
+        """Workspace of the command line application.
 
         Managed in the *main loop* by :py:func:`init_app`.
 
@@ -83,9 +85,10 @@ def main():
     """main loop of the command line interface"""
     global CTX
 
-    init_main()
     cli = CLI(description=__doc__)
     cli.UI = SimpleUserInterface(cli=cli)
+
+    init_main(cli)
 
     # config ...
 
@@ -509,6 +512,17 @@ def cli_workspace(args):
     cli = args.CLI
     _ = cli.UI
 
+    get_event('FontStack.load_entry_point').add(
+        lambda x, ep_name: _.echo('load entry point %s' % ep_name))
+    get_event('FontStack.load_css').add(
+        lambda x, css_url: _.echo('load CSS %s' % css_url))
+    get_event('FontStack.add_font').add(
+        lambda x, font:  _.echo('add %s // %s // unicode range: %s' % (
+            ','.join([y.src_format for y in font.src_formats])
+            , font.name, font.unicode_range or '--')))
+    get_event('FontStack.add_alias').add(
+        lambda x, alias: _.echo('new alias %s for font %s ' % (alias.name, alias)))
+
     workspace = CTX.WORKSPACE
 
     if args.subcommand == 'init':
@@ -581,7 +595,7 @@ def add_fontstack_options(cmd):
         , help = "register fonts from fonts.googleapis.com"
         )
 
-def init_main():
+def init_main(cli):
     """Init routine for the very first the main function."""
 
     global CTX
@@ -589,7 +603,7 @@ def init_main():
     cli_parse_css.__doc__ =  cli_parse_css.__doc__ % globals()
 
     # init main's context
-    CTX = Context()
+    CTX = Context(cli)
     log.debug("initial using workspace at: %s", CTX.WORKSPACE)
     CTX.WORKSPACE.makedirs()
 
