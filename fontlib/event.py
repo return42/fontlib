@@ -29,7 +29,7 @@ def get_event(event_name):
     """Returns a named :py:class:`Event` instance from global."""
     handler = GLOBAL_HANDLERS.get(event_name, None)
     if handler is None:
-        handler = AsyncEvent(event_name)
+        handler = Event(event_name)
         GLOBAL_HANDLERS[event_name] = handler
     return handler
 

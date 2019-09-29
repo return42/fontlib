@@ -513,15 +513,15 @@ def cli_workspace(args):
     _ = cli.UI
 
     get_event('FontStack.load_entry_point').add(
-        lambda x, ep_name: _.echo('load entry point %s' % ep_name))
+        lambda ep_name: _.echo('load entry point %s' % ep_name))
     get_event('FontStack.load_css').add(
-        lambda x, css_url: _.echo('load CSS %s' % css_url))
+        lambda css_url: _.echo('load CSS %s' % css_url))
     get_event('FontStack.add_font').add(
-        lambda x, font:  _.echo('add %s // %s // unicode range: %s' % (
+        lambda font:  _.echo('add %s // %s // unicode range: %s' % (
             ','.join([y.src_format for y in font.src_formats])
             , font.name, font.unicode_range or '--')))
     get_event('FontStack.add_alias').add(
-        lambda x, alias: _.echo('new alias %s for font %s ' % (alias.name, alias)))
+        lambda alias: _.echo('new alias %s for font %s ' % (alias.name, alias)))
 
     workspace = CTX.WORKSPACE
 
