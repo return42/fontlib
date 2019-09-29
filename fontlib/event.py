@@ -145,7 +145,7 @@ class Event:
     def add(self, callback):
         """Adds a callback to the Event."""
         if not callable(callback):
-            raise TypeError("callback mus be callable")
+            raise TypeError("callback must be callable")
         self.callbacks.append(callback)
 
     def __iadd__(self, callback):
