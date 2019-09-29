@@ -202,6 +202,18 @@ class AsyncEvent(Event):
         self.maxprocs = maxprocs or os.cpu_count() // 3
 
     def __call__(self, *args, **kwargs):
+
+        # .. hint::
+        #
+        #    to inhibit implicite call of ``pool.terminate()`` we don't use
+        #    the *context management protocol* here!!!
+        #
+        # -  https://docs.python.org/library/multiprocessing.html#module-multiprocessing.pool
+        #
+        #    Pool objects support the context management protocol – see Context
+        #    Manager Types. __enter__() returns the pool object, and __exit__()
+        #    calls terminate().
+
         pool = Pool(processes=self.maxprocs)
         for handler in self.callbacks:
             pool.apply_async(handler, args, kwargs)
