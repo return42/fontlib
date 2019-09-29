@@ -29,7 +29,7 @@ def get_event(event_name):
     """Returns a named :py:class:`Event` instance from global."""
     handler = GLOBAL_HANDLERS.get(event_name, None)
     if handler is None:
-        handler = Event(event_name)
+        handler = AsyncEvent(event_name)
         GLOBAL_HANDLERS[event_name] = handler
     return handler
 
@@ -194,6 +194,24 @@ class AsyncEvent(Event):
     synchronous state changes or anything else to the arguments being
     used. Consider it a "fire-and-forget" event handling strategy
 
+    `Picklability
+    <https://docs.python.org/3/library/multiprocessing.html#all-start-methods>`__:
+
+        Ensure that the arguments to the methods of proxies are
+        picklable. E.g. lambda is not pickable, for more informations read:
+        `What can be pickled and unpickled?
+        <https://docs.python.org/3/library/pickle.html#what-can-be-pickled-and-unpickled>`__
+
+    Lambda functions can be replaced by objects as functions::
+
+        class EventPrinter:
+            def __init__(self, s):
+                self.string = s
+            def __call__(self):
+                print(self.string)
+
+        get_event('my.event').add(
+            EventPrinter('hello: the my.event has beend released.'))
     """
     def __init__(self, event_name, maxprocs=None):
         if not _HASMP:

@@ -484,6 +484,23 @@ def cli_config(args):
 
         return
 
+class print_font:
+    """function object to print font to stdout"""
+    def __call__(self, font):
+        print(
+            'add %s // %s // unicode range: %s' %
+            (','.join([y.src_format for y in font.src_formats])
+               , font.name, font.unicode_range or '--')
+            , file = sys.stdout)
+
+class print_event:
+    """function object to print even-message to stdout"""
+    def __init__(self, msg):
+        self.msg = msg
+
+    def __call__(self, obj):
+        msg = self.msg % obj
+        print(msg, file=sys.stdout)
 
 def cli_workspace(args):
     """Inspect and init workspace.
@@ -512,16 +529,18 @@ def cli_workspace(args):
     cli = args.CLI
     _ = cli.UI
 
+
     get_event('FontStack.load_entry_point').add(
-        lambda ep_name: _.echo('load entry point %s' % ep_name))
+        print_event('load entry point %s'))
+
     get_event('FontStack.load_css').add(
-        lambda css_url: _.echo('load CSS %s' % css_url))
+        print_event('load CSS %s'))
+
     get_event('FontStack.add_font').add(
-        lambda font:  _.echo('add %s // %s // unicode range: %s' % (
-            ','.join([y.src_format for y in font.src_formats])
-            , font.name, font.unicode_range or '--')))
+        print_font())
+
     get_event('FontStack.add_alias').add(
-        lambda alias: _.echo('new alias %s for font %s ' % (alias.name, alias)))
+        print_event('new alias %s for font %s'))
 
     workspace = CTX.WORKSPACE
 
