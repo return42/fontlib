@@ -1,6 +1,24 @@
 # -*- coding: utf-8; mode: python; mode: flycheck -*-
 """Simple event & handler implementation.
 
+Events are managed by a global event dispatcher.  The global dispatcher manage
+events by their names.  Emitters and observers are always use the
+:py:func:`get_event` function to get :py:class:`AsyncEvent` instances.
+
+Emitters POV::
+
+    start = 1; end = 42
+    for i in range(start, end+1):
+        get_event('foo-ticker')(i, start, end)
+        ...
+
+Observers POV::
+
+    def my_observer(i, start, end):
+        print("foo ticker round: %%s/[%%s]%%s" % (i, start, end))
+    get_event('foo-ticker').add(my_observer)
+
+
 .. hint::
 
    Most of the class :py:class:`Event` was copied from `Marcus von Appen
@@ -11,7 +29,7 @@
 
 """
 
-__all__ = ["Event", "AsyncEvent"]
+__all__ = ["get_event"]
 
 import os
 import logging
@@ -26,86 +44,12 @@ except ImportError:
 GLOBAL_HANDLERS = dict()
 
 def get_event(event_name):
-    """Returns a named :py:class:`Event` instance from global."""
+    """Returns a named :py:class:`AsyncEvent` instance from global event dispatcher."""
     handler = GLOBAL_HANDLERS.get(event_name, None)
     if handler is None:
         handler = AsyncEvent(event_name)
         GLOBAL_HANDLERS[event_name] = handler
     return handler
-
-# def on_return_release(event_name):
-#     """Decorator to add a :py:class:`Event` to functions return.
-
-#     The handler funtion will be called with arguments::
-
-#         my_return_handler(event_name, ret_val, func, *args, **kwargs)
-
-#     By example: to trace a function of your lib, add a decorator with a
-#     appropriate name.  Mostly the fully qualified python name is a good choice::
-
-#         from fontlib.event import on_return_release
-
-#         @on_return_release('pkgname.modulename.foobar')
-#         def foobar(a, b, *args, **kwargs):
-#             import time
-#             time.sleep(3)
-#             return a + b, dict(foo=args, bar=kwargs)
-
-#     From outer scope (e.g. in the man loop) you can add a handler wich is called
-#     on 'pkgname.modulename.foobar' events.  Lets write a handler that dumps
-#     function arguemt and return value to stout::
-
-#         def dump_call(event_name, ret_val, func, *args, **kwargs):
-#             print("event : " + event_name)
-#             print("call: "+ func.__name__ + ", "  + str(args) + ", " + str(kwargs))
-#             print("returned --> " + str(ret_val))
-#             return 42
-
-#     And to register this handler on 'pkgname.modulename.foobar' events::
-
-#         event = get_event('pkgname.modulename.foobar')
-#         event += dump_call
-
-#     Now, every time we call foobar the function return is dumped::
-
-#         >>> foobar(7,12,"pos-arg1", "arg2", keyword="value")
-#         event : pkgname.modulename.foobar
-#         call: foobar, (7, 12, 'pos-arg1', 'arg2'), {'keyword': 'value'}
-#         returned --> (19, {'foo': ('pos-arg1', 'arg2'), 'bar': {'keyword': 'value'}})
-#     """
-#     _ = get_event(event_name)
-#     def decorator(origin_func):
-#         def wrapper(*args, **kwargs):
-#             ret_val = origin_func(*args,**kwargs)
-#             _(ret_val, origin_func, *args ,**kwargs)
-#             return ret_val
-#         return wrapper
-#     return decorator
-
-# def on_call_release(event_name):
-#     """Decorator to add a :py:class:`Event` to function calls.
-
-#     The handler function will be called with arguments::
-
-#         my_call_handler(event_name, func, *args, **kwargs)
-
-#     """
-#     _ = get_event(event_name)
-#     def decorator(origin_func):
-#         def wrapper(*args, **kwargs):
-#             _(origin_func, *args ,**kwargs)
-#             return origin_func(*args,**kwargs)
-#         return wrapper
-#     return decorator
-
-def add_handler(event_name):
-    """Decorator to add a function as event handler."""
-    def decorator(origin_func):
-        _ = get_event(event_name)
-        _ += origin_func
-        return origin_func
-    return decorator
-
 
 class Event:
     """A simple event handling class, which manages callbacks to be executed.
@@ -118,12 +62,11 @@ class Event:
        ...     return 42
 
        >>> my_event += foo
-       >>> my_event('hello', name='world') # call the event prints & return
+       >>> my_event('hello', name='world') # call the event and foo will print ..
        foo:: my.event.name -->  ('hello', ) // {'name': 'world'}
-       [42]
        >>> my_event -= foo  # now unregister the foo handler
-       >>> my_event('hello', name = 'world') # no more handler result in ..
-       []
+       >>> my_event('hello', name = 'world') # no more handlers / no print output
+       >>>
 
     """
     def __init__(self, event_name):
@@ -131,40 +74,40 @@ class Event:
         self.event_name = event_name
 
     def __call__(self, *args, **kwargs):
-        """Executes all callbacks synchronous.
+        """Executes all callbacks **synchronous**.
 
-        Executes all connected callbacks synchronous in the order of addition,
-        passing the :py:class:`Event` object as first argument.  Arguments
-        (``*args``) and *keyword arguments* (``**kwargs``) are also passed
-        through.
+        Executes all connected callbacks synchronous in the order of addition.
+        Positional arguments (``*args``) and *keyword arguments* (``**kwargs``)
+        are passed through.
 
         """
         for handler in self.callbacks:
             handler(*args, **kwargs)
 
     def add(self, callback):
-        """Adds a callback to the Event."""
+        """Adds a callback to the event."""
         if not callable(callback):
             raise TypeError("callback must be callable")
         self.callbacks.append(callback)
 
     def __iadd__(self, callback):
-        """Adds a callback to the Event.
+        """Adds a callback to the event.
 
-        Support ``self += callback`` operator.
+        Support of the ``self += callback`` operator.
 
         """
         self.add(callback)
         return self
 
     def remove(self, callback):
-        """Removes a callback from the Event."""
+        """Removes a callback from the event."""
         self.callbacks.remove(callback)
 
     def __isub__(self, callback):
-        """Removes a callback from the Event.
+        """Removes a callback from the event.
 
-        Support ``self -= callback`` operator.
+        Support of the ``self -= callback`` operator.
+
         """
         self.remove(callback)
         return self
@@ -183,26 +126,25 @@ class Event:
         del self.callbacks[index]
 
 class AsyncEvent(Event):
-    """Executes all callbacks asynchronous.
+    """Executes all callbacks **asynchronous**.
 
-    Executes all connected callbacks asynchronous, passing the :py:class:`Event`
-    object as first argument.  Arguments (``*args``) and *keyword arguments*
-    (``**kwargs``) are also passed through.
+    Executes all connected callbacks asynchronous.  Positional arguments
+    (``*args``) and *keyword arguments* (``**kwargs``) are passed through.
 
     It is the responsibility of the caller code to ensure that every object used
-    maintains a consistent state. The MPEvent class will not apply any locks,
-    synchronous state changes or anything else to the arguments being
-    used. Consider it a "fire-and-forget" event handling strategy
+    maintains a consistent state.  The AsyncEvent class will not apply any
+    locks, synchronous state changes or anything else to the arguments being
+    used.  Consider it a *fire-and-forget* event handling strategy.
 
     `Picklability
     <https://docs.python.org/3/library/multiprocessing.html#all-start-methods>`__:
 
-        Ensure that the arguments to the methods of proxies are
-        picklable. E.g. lambda is not pickable, for more informations read:
-        `What can be pickled and unpickled?
+        Ensure that the arguments to the methods of proxies are picklable.
+        E.g. lambda is not pickable, for more informations read: `What can be
+        pickled and unpickled?
         <https://docs.python.org/3/library/pickle.html#what-can-be-pickled-and-unpickled>`__
 
-    Lambda functions can be replaced by objects as functions::
+    Lambda functions can be replaced by *objects as functions*::
 
         class EventPrinter:
             def __init__(self, s):
@@ -212,6 +154,7 @@ class AsyncEvent(Event):
 
         get_event('my.event').add(
             EventPrinter('hello: the my.event has beend released.'))
+
     """
     def __init__(self, event_name, maxprocs=None):
         if not _HASMP:
@@ -221,16 +164,16 @@ class AsyncEvent(Event):
 
     def __call__(self, *args, **kwargs):
 
-        # .. hint::
-        #
-        #    to inhibit implicite call of ``pool.terminate()`` we don't use
-        #    the *context management protocol* here!!!
-        #
         # -  https://docs.python.org/library/multiprocessing.html#module-multiprocessing.pool
         #
-        #    Pool objects support the context management protocol – see Context
-        #    Manager Types. __enter__() returns the pool object, and __exit__()
-        #    calls terminate().
+        #    > Pool objects now support the context management protocol – see
+        #    > Context Manager Types. __enter__() returns the pool object, and
+        #    > __exit__() calls terminate().
+        #
+        # .. hint::
+        #
+        #    To inhibit implicite call of ``pool.terminate()`` we don't use the
+        #    *context management protocol* of the multiprocessing.Pool class!!!
 
         pool = Pool(processes=self.maxprocs)
         for handler in self.callbacks:
