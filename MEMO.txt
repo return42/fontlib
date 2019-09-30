@@ -15,6 +15,11 @@ bash::
   M-x shell-command ./local/py3/bin/fontlib SCHEMA schema_diagram.svg
   M-x M-f schema_diagram.svg
 
+  rm -rf ~/.fontlib/
+  ./local/py3/bin/fontlib list
+  ./local/py3/bin/fontlib workspace init
+  ./local/py3/bin/fontlib list
+
 PDB::
 
    M-x realgud:pdb ./local/py3/bin/python -m fontlib.cli list
