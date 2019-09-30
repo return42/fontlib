@@ -108,7 +108,7 @@ def fontlib_scope():
     :py:func:`fontlib_session`.
 
     By example; suppose you have a *main* script where you start the transaction
-    scope named ``session`` and a module which likes to add a new ``Font` into
+    scope named ``session`` and a module which likes to add a new ``Font`` into
     the database (into the acrive session).::
 
         # ----  file: main.py ----
@@ -194,7 +194,7 @@ class TableUtilsMixIn:
            key values, [`ref
            <https://docs.sqlalchemy.org/en/13/orm/internals.html#sqlalchemy.orm.state.InstanceState.identity>`__].
 
-           Thats why :py:method:`pkey_exists` is based on a real DB query.
+           Thats why :py:meth:`pkey_exists` is based on a real DB query.
 
         """
         return bool(self.get_persistent_object(session))

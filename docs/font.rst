@@ -11,7 +11,7 @@ Font and FontStack
 In fontlib's managment a font is identified by its origin URL.  For the
 implemtation take a look at class :py:class:`fontlib.font.Font`.  Instances of
 class Font are managed in a :py:class:`fontlib.api.FontStack`.  The factory
-:py:method:`fontlib.api.FontStack.get_fontstack` can be used to build an
+:py:meth:`fontlib.api.FontStack.get_fontstack` can be used to build an
 FontStack instance inited from a :py:class:`fontlib.config.Config` object.  See
 :ref:`config`, there is a section named ``[fontstack]``.
 

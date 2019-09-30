@@ -35,12 +35,12 @@ class FontStack:
 
         :param font:  :py:class:`font.Font` instance.
 
-        Events
-        ------
+        fontlib.event signals:
 
-        Event ``FontStack.add_font``(:py:class:`.api.Font`, ) is released when
-        the added font is new to *this* stack.  If the added font is deteted as
-        an alias, an ``FontStack.add_alias``(:py:class:`.font.FontAlias`, ).
+          Event ``FontStack.add_font`` (:py:class:`.api.Font`) is released when
+          the added font is new to *this* stack.  If the added font is detected
+          as an alias, a ``FontStack.add_alias`` (:py:class:`.font.FontAlias`) is
+          released.
 
         """
 
@@ -81,11 +81,10 @@ class FontStack:
            String with the name of the entry point (one of: ``fonts_ttf``,
            ``fonts_otf`` ``fonts_woff``, ``fonts_woff2``)
 
-        Events
-        ------
+        fontlib.event signals:
 
-        Event ``FontStack.load_entry_point``(:py:obj:`event.on_call_release`)
-        is released each time funcion is called.
+          Event ``FontStack.load_entry_point`` (:py:obj:`event.on_call_release`)
+          is released each time funcion is called.
 
         """
         get_event('FontStack.load_entry_point')(ep_name)
@@ -98,11 +97,10 @@ class FontStack:
         :param css_url:
             URL of a CSS (stylesheet) file defining ``@font-face`` rules
 
-        Events
-        ------
+        fontlib.event signals:
 
-        Event ``FontStack.load_entry_point``(css_url) is released each time
-        funcion is called.
+          Event ``FontStack.load_entry_point`` (css_url) is released each time
+          funcion is called.
 
         """
         get_event('FontStack.load_css')(css_url)

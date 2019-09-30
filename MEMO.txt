@@ -8,6 +8,9 @@ Makefile::
   $ make clean pyenvinstall
   C-c c make clean pyenvinstall
 
+  $ make project
+  $ make docs-clean docs-live
+
 bash::
 
   source ./local/py3/bin/activate

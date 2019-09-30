@@ -35,6 +35,22 @@ css
     :undoc-members:
     :show-inheritance:
 
+db
+==
+
+.. automodule:: fontlib.db
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+event
+=====
+
+.. automodule:: fontlib.event
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 font
 ====
@@ -84,6 +100,15 @@ urlcache
 ========
 
 .. automodule:: fontlib.urlcache
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+utils
+=====
+
+.. automodule:: fontlib.utils
     :members:
     :undoc-members:
     :show-inheritance:
