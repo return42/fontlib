@@ -24,6 +24,7 @@ from .db import FontLibSchema
 from .db import TableUtilsMixIn
 from .css import get_css_at_rules
 from .css import FontFaceRule
+from .utils import lazy_property
 
 log = logging.getLogger(__name__)
 
@@ -125,7 +126,7 @@ class Font(FontLibSchema, TableUtilsMixIn):
         """Returns ``True`` if ``name`` match one of the names"""
         return self.name == name or name in self.aliases
 
-    @property
+    @lazy_property
     def format(self):
         """String that represents the format"""
         fmt_list = []
