@@ -3,7 +3,7 @@
 Implementation of class :py:class:`FontStack`.
 """
 
-__all__ = ['FontStack', ]
+__all__ = ['FontStack', 'BUILTINS']
 
 import logging
 import fspath

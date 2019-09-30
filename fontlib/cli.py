@@ -18,6 +18,7 @@ import sys
 import configparser
 import logging.config
 import platform
+
 from urllib.parse import urlparse
 
 from fspath import CLI
@@ -26,16 +27,18 @@ from fspath.sui import SimpleUserInterface
 
 from . import __pkginfo__
 from . import db
-from .event import get_event
-from .fontstack import FontStack
-from .fontstack import BUILTINS # pylint: disable=unused-import
+
+from .api import get_event
+from .api import FontStack
+from .api import BUILTINS # pylint: disable=unused-import
+from .api import URLBlob
+
 from .log import DEFAULT_LOG_INI
 from .log import FONTLIB_LOGGER
 from .log import init_log
 from .config import init_cfg
 from .config import get_cfg
 from .config import DEFAULT_INI
-from .urlcache import URLBlob
 
 _development = True
 

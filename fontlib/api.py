@@ -3,8 +3,9 @@
 Font library API
 """
 
-__all__ = ['Font', 'FontStack', 'get_env']
+__all__ = ['FontStack', 'URLBlob', 'BUILTINS', 'get_event']
 
-from .font import Font
 from .fontstack import FontStack
+from .fontstack import BUILTINS
+from .urlcache import URLBlob
 from .event import get_event
