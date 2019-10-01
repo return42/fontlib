@@ -496,14 +496,12 @@ class print_font:
                , font.name, font.unicode_range or '--')
             , file = sys.stdout)
 
-class print_event:
+class print_msg(str):
     """function object to print even-message to stdout"""
-    def __init__(self, msg):
-        self.msg = msg
-
-    def __call__(self, obj):
-        msg = self.msg % obj
+    def __call__(self, *args, **kwargs):
+        msg = self % args
         print(msg, file=sys.stdout)
+
 
 def cli_workspace(args):
     """Inspect and init workspace.
@@ -532,18 +530,17 @@ def cli_workspace(args):
     cli = args.CLI
     _ = cli.UI
 
+    event.get_event('FontStack.load_entry_point').add(
+        print_msg('load entry point %s'))
 
-    get_event('FontStack.load_entry_point').add(
-        print_event('load entry point %s'))
+    event.get_event('FontStack.load_css').add(
+        print_msg('load CSS %s'))
 
-    get_event('FontStack.load_css').add(
-        print_event('load CSS %s'))
-
-    get_event('FontStack.add_font').add(
+    event.get_event('FontStack.add_font').add(
         print_font())
 
-    get_event('FontStack.add_alias').add(
-        print_event('new alias %s for font %s'))
+    event.get_event('FontStack.add_alias').add(
+        print_msg('add alias %s to font %s'))
 
     workspace = CTX.WORKSPACE
 

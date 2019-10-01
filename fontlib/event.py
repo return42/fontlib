@@ -205,19 +205,15 @@ class AsyncProcEvent(Event):
 
     Lambda functions can be replaced by *objects as functions*::
 
-        class EventPrinter:
-            def __init__(self, s):
-                self.string = s
-            def __call__(self):
-                print(self.string)
+        class EventMsg(str):
+            def __call__(self, *args, **kwargs):
+                print(self)
 
         get_event('my.event').add(
-            EventPrinter('hello: the my.event has beend released.'))
+            EventMsg('hello: the my.event has beend released.'))
 
     """
     def __init__(self, event_name, maxprocs=None):
-        if not _HASMP:
-            raise RuntimeError("MPEvent: no multiprocessing support found!")
         super().__init__(event_name)
         self.maxprocs = maxprocs or os.cpu_count() // 3
 
