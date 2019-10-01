@@ -1,9 +1,10 @@
 # -*- coding: utf-8; mode: python; mode: flycheck -*-
 """Simple event & handler implementation.
 
-Events are managed by a global event dispatcher.  The global dispatcher manage
-events by their names.  Emitters and observers are always use the
-:py:func:`get_event` function to get :py:class:`AsyncEvent` instances.
+Events are managed by a global event dispatcher.  The global dispatcher arranges
+the events according to their name.  Emitters and observers are always use the
+:py:func:`get_event` function to get :py:class:`Event` instances.  Application's
+main loop has to init the global dispatcher first (:py:func:`init_dispatcher`).
 
 Emitters POV::
 
@@ -33,23 +34,58 @@ __all__ = ["get_event"]
 
 import os
 import logging
+import threading
+from multiprocessing import Pool
+
 log = logging.getLogger(__name__)
 
-_HASMP = True
-try:
-    from multiprocessing import Pool
-except ImportError:
-    _HASMP = False
+_DISPATCHER = None
+_EVENT_CLASS = None
 
-GLOBAL_HANDLERS = dict()
+def init_dispatcher(event_cls=None):
+    """Init global dispatcher.
+
+    :param event_cls:
+
+      Event factory, a :py:class:`Event` (sub-)class.  :py:func:`get_func` will
+      return instances of this class.
+
+      - :py:class:`Event` (synchronous)
+      - :py:class:`AsyncProcEvent`
+      - :py:class:`AsyncThreadEvent`
+
+    """
+    global _DISPATCHER, _EVENT_CLASS # pylint: disable=global-statement
+    if _DISPATCHER is not None or _EVENT_CLASS is not None:
+        raise RuntimeError('re-init of global dispatcher is not supported')
+
+    if event_cls is None:
+        event_cls = AsyncThreadEvent
+    _EVENT_CLASS = event_cls
+    _DISPATCHER = dict()
 
 def get_event(event_name):
-    """Returns a named :py:class:`AsyncEvent` instance from global event dispatcher."""
-    handler = GLOBAL_HANDLERS.get(event_name, None)
+    """Returns a named :py:class:`Event` instance from global event dispatcher.
+
+    The returned object is an instance from the global dispatcher.  The event
+    type is set in :py:func:`init_dispatcher`
+
+    :return: event instance from global dispatcher
+    :rtype:
+      - :py:class:`Event` (synchronous)
+      - :py:class:`AsyncProcEvent`
+      - :py:class:`AsyncThreadEvent`
+
+    """
+    global _DISPATCHER, _EVENT_CLASS  # pylint: disable=global-statement
+    if _DISPATCHER is None:
+        raise RuntimeError('init of global dispatcher is needed first!')
+    handler = _DISPATCHER.get(event_name, None)
     if handler is None:
-        handler = AsyncEvent(event_name)
-        GLOBAL_HANDLERS[event_name] = handler
+        handler = _EVENT_CLASS(event_name)
+        _DISPATCHER[event_name] = handler
     return handler
+
 
 class Event:
     """A simple event handling class, which manages callbacks to be executed.
@@ -57,13 +93,13 @@ class Event:
      usage ::
 
        >>> my_event = Event("my.event.name")
-       >>> def foo(event_name, *args, **kwargs):
-       ...     print("foo:: %s -->  %s // %s" % (event_name, args, kwargs))
+       >>> def foo(*args, **kwargs):
+       ...     print("foo:: %s // %s" % (args, kwargs))
        ...     return 42
 
        >>> my_event += foo
        >>> my_event('hello', name='world') # call the event and foo will print ..
-       foo:: my.event.name -->  ('hello', ) // {'name': 'world'}
+       foo:: ('hello', ) // {'name': 'world'}
        >>> my_event -= foo  # now unregister the foo handler
        >>> my_event('hello', name = 'world') # no more handlers / no print output
        >>>
@@ -125,14 +161,37 @@ class Event:
     def __delitem__(self, index):
         del self.callbacks[index]
 
-class AsyncEvent(Event):
-    """Executes all callbacks **asynchronous**.
+class AsyncThreadEvent(Event):
+    """Executes all callbacks in **asynchronous** threads.
 
     Executes all connected callbacks asynchronous.  Positional arguments
     (``*args``) and *keyword arguments* (``**kwargs``) are passed through.
 
     It is the responsibility of the caller code to ensure that every object used
-    maintains a consistent state.  The AsyncEvent class will not apply any
+    maintains a consistent state.  The AsyncThreadEvent class will not apply any
+    locks, synchronous state changes or anything else to the arguments being
+    used.  Consider it a *fire-and-forget* event handling strategy.
+
+    """
+
+    def __call__(self, *args, **kwargs):
+
+        for handler in self.callbacks:
+            thread = threading.Thread(
+                name = self.event_name
+                , daemon = True
+                , target = handler, args = args, kwargs = kwargs
+            )
+            thread.start()
+
+class AsyncProcEvent(Event):
+    """Executes all callbacks in a **asynchronous** process pool.
+
+    Executes all connected callbacks asynchronous.  Positional arguments
+    (``*args``) and *keyword arguments* (``**kwargs``) are passed through.
+
+    It is the responsibility of the caller code to ensure that every object used
+    maintains a consistent state.  The AsyncProcEvent class will not apply any
     locks, synchronous state changes or anything else to the arguments being
     used.  Consider it a *fire-and-forget* event handling strategy.
 

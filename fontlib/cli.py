@@ -27,8 +27,8 @@ from fspath.sui import SimpleUserInterface
 
 from . import __pkginfo__
 from . import db
+from . import event
 
-from .api import get_event
 from .api import FontStack
 from .api import BUILTINS # pylint: disable=unused-import
 from .api import URLBlob
@@ -628,6 +628,10 @@ def init_main(cli):
     CTX = Context(cli)
     log.debug("initial using workspace at: %s", CTX.WORKSPACE)
     CTX.WORKSPACE.makedirs()
+
+    # init event system
+
+    event.init_dispatcher()
 
     # init main logging with (new) CONFIG settings
 
