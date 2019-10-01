@@ -8,7 +8,7 @@ __all__ = ['FontStack', 'BUILTINS']
 import logging
 import fspath
 
-from .event import get_event
+from . import event
 from .db import fontlib_session
 from .font import Font
 from .font import FontAlias
@@ -20,7 +20,7 @@ BUILTINS = fspath.FSPath(__file__).DIRNAME / 'files'
 """Folder where the builtin fonts are in."""
 
 class FontStack:
-    """A collection of :py:class:`.api.Font` objects"""
+    """A collection of :py:class:`.font.Font` objects"""
 
     def __init__(self):
         self.cache = NoCache()
@@ -31,15 +31,18 @@ class FontStack:
         self.cache = cache
 
     def add_font(self, font):
-        """Add :py:class:`.api.Font` object to *this* stack.
+        """Add :py:class:`.font.Font` object to *this* stack.
 
         :param font:  :py:class:`font.Font` instance.
 
-        fontlib.event signals:
-          Event ``FontStack.add_font`` (:py:class:`.font.Font`) is released when
-          the added font is new to *this* stack.  If the added font is detected
-          as an alias, a ``FontStack.add_alias`` (:py:class:`.font.FontAlias`,
-          :py:class:`.font.Font`) is released.
+        :py:func:`.event.emmit`:
+
+        - ``FontStack.add_font``, :py:class:`font <.font.Font>` is released if
+          the added font is new to *this* stack.
+
+        - ``FontStack.add_alias``, :py:class:`alias <.font.FontAlias>`,
+          :py:class:`font <.font.Font>` is released if the added font is
+          detected as an alias.
 
         """
 
@@ -55,59 +58,59 @@ class FontStack:
             else:
                 log.debug("add alias '%s' to url %s", font.name, font.origin)
                 alias = FontAlias(alias_name = font.name)
-                get_event('FontStack.add_alias')(alias, font)
+                event.emmit('FontStack.add_alias', alias, font)
                 p_obj.aliases.append(alias)
 
         else:
-            get_event('FontStack.add_font')(font)
+            event.emmit('FontStack.add_font', font)
             log.debug("add font-family: %s", font)
             session.add(font)
 
         self.cache.add_url(font.origin)
 
     def save_font(self, font, dest_file):
-        """Save BLOB of :py:class:`.api.Font` into file <dest_file>
+        """Save BLOB of :py:class:`.font.Font` into file <dest_file>
 
-        :param origin: :py:class:`.api.Font` object
+        :param origin: :py:class:`.font.Font` object
         :param dest_file: Filename of the destination
         """
         self.cache.save_url(font.origin, dest_file)
 
     def load_entry_point(self, ep_name):
-        """Add :py:class:`.api.Font` objects from ``ep_name``.
+        """Add :py:class:`.font.Font` objects from ``ep_name``.
 
         :param ep_name:
            String with the name of the entry point (one of: ``fonts_ttf``,
            ``fonts_otf`` ``fonts_woff``, ``fonts_woff2``)
 
-        fontlib.event signals:
+        :py:func:`.event.emmit`:
 
-          Event ``FontStack.load_entry_point`` (:py:obj:`event.on_call_release`)
-          is released each time funcion is called.
+        - ``FontStack.load_entry_point``, :py:obj:`ep_name
+          <event.on_call_release>` is released each time funcion is called.
 
         """
-        get_event('FontStack.load_entry_point')(ep_name)
+        event.emmit('FontStack.load_entry_point', ep_name)
         for font in Font.from_entry_point(ep_name):
             self.add_font(font)
 
     def load_css(self, css_url):
-        """Add :py:class:`.api.Font` objects from `@font-face`_ rules.
+        """Add :py:class:`.font.Font` objects from `@font-face`_ rules.
 
-        :param css_url:
+        :param str css_url:
             URL of a CSS (stylesheet) file defining ``@font-face`` rules
 
-        fontlib.event signals:
+        :py:func:`.event.emmit`:
 
-          Event ``FontStack.load_entry_point`` (css_url) is released each time
-          funcion is called.
+        - ``FontStack.load_css``, ``css_url`` is released each time function is
+          called.
 
         """
-        get_event('FontStack.load_css')(css_url)
+        event.emmit('FontStack.load_css', css_url)
         for font in Font.from_css(css_url):
             self.add_font(font)
 
     def list_fonts(self, name=None):  # pylint: disable=no-self-use
-        """Return generator of :py:class:`.api.Font` objects selected by ``name``.
+        """Return generator of :py:class:`.font.Font` objects selected by ``name``.
 
         :param name:
             Name of the font

@@ -10,14 +10,14 @@ Emitters POV::
 
     start = 1; end = 42
     for i in range(start, end+1):
-        get_event('foo-ticker')(i, start, end)
+        event.emmit('foo-ticker', i, start, end)
         ...
 
 Observers POV::
 
     def my_observer(i, start, end):
         print("foo ticker round: %%s/[%%s]%%s" % (i, start, end))
-    get_event('foo-ticker').add(my_observer)
+    event.add('foo-ticker', my_observer)
 
 
 .. hint::
@@ -30,7 +30,13 @@ Observers POV::
 
 """
 
-__all__ = ["get_event"]
+__all__ = [
+    'init_dispatcher'
+    , 'get_event'
+    , 'emmit'
+    , 'add'
+    , 'remove'
+]
 
 import os
 import logging
@@ -86,8 +92,45 @@ def get_event(event_name):
         _DISPATCHER[event_name] = handler
     return handler
 
+def emmit(name, *args, **kwargs):
+    """Emmit event and pass through arguments to the observers.
+
+    :param str name:  name of the event
+
+    The event is taken from the global dispatcher (see :py:func:`get_event`)
+
+    """
+    event = get_event(name)
+    event(*args, **kwargs)
+
+
+def add(name, callback):
+    """Add observer (<callback>) to event.
+
+    :param str name:  name of the event
+    :param callable func:  callback function
+
+    The event is taken from the global dispatcher (see :py:func:`get_event`)
+
+    """
+    event = get_event(name)
+    event += callback
+
+def remove(name, callback):
+    """Remove observer (<callback>) from event.
+
+    :param str name:  name of the event
+    :param callable func:  callback function to remove
+
+    The event is taken from the global dispatcher (see :py:func:`get_event`)
+
+    """
+    event = get_event(name)
+    event -= callback
+
 
 class Event:
+
     """A simple event handling class, which manages callbacks to be executed.
 
      usage ::
