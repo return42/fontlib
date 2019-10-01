@@ -36,11 +36,10 @@ class FontStack:
         :param font:  :py:class:`font.Font` instance.
 
         fontlib.event signals:
-
-          Event ``FontStack.add_font`` (:py:class:`.api.Font`) is released when
+          Event ``FontStack.add_font`` (:py:class:`.font.Font`) is released when
           the added font is new to *this* stack.  If the added font is detected
-          as an alias, a ``FontStack.add_alias`` (:py:class:`.font.FontAlias`) is
-          released.
+          as an alias, a ``FontStack.add_alias`` (:py:class:`.font.FontAlias`,
+          :py:class:`.font.Font`) is released.
 
         """
 
@@ -55,8 +54,8 @@ class FontStack:
                     , font.name, font.origin)
             else:
                 log.debug("add alias '%s' to url %s", font.name, font.origin)
-                alias = FontAlias(alias = font.name)
-                get_event('FontStack.add_alias')(alias)
+                alias = FontAlias(alias_name = font.name)
+                get_event('FontStack.add_alias')(alias, font)
                 p_obj.aliases.append(alias)
 
         else:

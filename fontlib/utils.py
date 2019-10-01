@@ -8,7 +8,7 @@ __all__ = [
     'lazy_property'
     , ]
 
-class lazy_property:
+class lazy_property:  # pylint: disable=invalid-name
     """A @property that is only evaluated once."""
 
     def __init__(self, deferred):

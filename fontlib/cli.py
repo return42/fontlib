@@ -1,5 +1,5 @@
 # -*- coding: utf-8; mode: python; mode: flycheck -*-
-# pylint: disable=global-statement
+# pylint: disable=global-statement, too-few-public-methods
 
 """Command line tools from the fontlib library.
 
@@ -487,16 +487,16 @@ def cli_config(args):
 
         return
 
-class print_font:
+class print_font:  # pylint: disable=invalid-name
     """function object to print font to stdout"""
     def __call__(self, font):
         print(
             'add %s // %s // unicode range: %s' %
             (','.join([y.src_format for y in font.src_formats])
-               , font.name, font.unicode_range or '--')
+             , font.name, font.unicode_range or '--')
             , file = sys.stdout)
 
-class print_msg(str):
+class print_msg(str):  # pylint: disable=invalid-name
     """function object to print even-message to stdout"""
     def __call__(self, *args, **kwargs):
         msg = self % args

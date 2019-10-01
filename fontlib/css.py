@@ -89,7 +89,7 @@ def split_tokens(rule_tokens, t_type='literal', t_value=';'):
         if token.type in ['whitespace',]:
             # strip whitespaces
             continue
-        elif token.type == t_type and token.value == t_value:
+        if token.type == t_type and token.value == t_value:
             decl_tokens.append(current)
             current = []
         else:

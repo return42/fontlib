@@ -99,7 +99,7 @@ class URLCache:
         :param str origin: the URL of the origin
 
         :returns:  BLOB object
-        :rtype:    URLBlob
+        :rtype:    fontlib.urlcache.URLBlob
         """
 
         blob = self.get_blob_obj(origin)
@@ -114,7 +114,7 @@ class URLCache:
     def update_db(self, blob):
         """Update status of :py:class:`URLBlob` in the database.
 
-        :param blob: instance of class :py:class:`URLBlob`
+        :param blob: instance of class :py:class:`fontlib.urlcache.URLBlob`
         """
 
         cache_file = self.fname_by_blob(blob)
@@ -136,7 +136,7 @@ class URLCache:
         :param str origin: the URL of the origin
 
         :returns:  BLOB object from persistent
-        :rtype:    URLBlob
+        :rtype:    fontlib.urlcache.URLBlob
         """
         blob = self.get_blob_obj(origin)
         if blob is None:
@@ -194,7 +194,7 @@ class URLCache:
     def fname_by_blob(self, blob):
         """Return file name of cached BLOB data or ``None`` if blob not already cached.
 
-        :param URLBlob blob: instance of class :py:class:`URLBlob`
+        :param fontlib.urlcache.URLBlob blob: BLOB instance
 
         :returns: absolute filename of the cached BLOB
 

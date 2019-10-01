@@ -3,7 +3,7 @@
 Font library API
 """
 
-__all__ = ['FontStack', 'URLBlob', 'BUILTINS']
+__all__ = ['FontStack', 'BUILTINS', 'URLBlob']
 
 from .fontstack import FontStack
 from .fontstack import BUILTINS

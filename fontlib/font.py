@@ -142,7 +142,7 @@ class Font(FontLibSchema, TableUtilsMixIn):
         :param ep_name:
             Name of the python entry point (e.g. ``fonts_ttf`` or ``fonts_woff2``)
 
-        :rtype: [api.Font]
+        :rtype: [fontlib.font.Font]
         :return:
             A generator of :py:class:`Font` instances.
         """
