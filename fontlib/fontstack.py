@@ -33,15 +33,15 @@ class FontStack:
     def add_font(self, font):
         """Add :py:class:`.font.Font` object to *this* stack.
 
-        :param font:  :py:class:`font.Font` instance.
+        :param .font.Font font:  font instance.
 
         :py:func:`.event.emit`:
 
-        - ``FontStack.add_font``, :py:class:`font <.font.Font>` is released if
+        - ``FontStack.add_font`` (:py:class:`font <.font.Font>`) is released if
           the added font is new to *this* stack.
 
-        - ``FontStack.add_alias``, :py:class:`alias <.font.FontAlias>`,
-          :py:class:`font <.font.Font>` is released if the added font is
+        - ``FontStack.add_alias`` (:py:class:`alias <.font.FontAlias>`,
+          :py:class:`font <.font.Font>`) is released if the added font is
           detected as an alias.
 
         """
@@ -71,8 +71,8 @@ class FontStack:
     def save_font(self, font, dest_file):
         """Save BLOB of :py:class:`.font.Font` into file <dest_file>
 
-        :param origin: :py:class:`.font.Font` object
-        :param dest_file: Filename of the destination
+        :param font.Font font: font instance
+        :param fspath.fspath.FSPath dest_file: Filename of the destination
         """
         self.cache.save_url(font.origin, dest_file)
 
@@ -85,8 +85,8 @@ class FontStack:
 
         :py:func:`.event.emit`:
 
-        - ``FontStack.load_entry_point``, :py:obj:`ep_name
-          <event.on_call_release>` is released each time funcion is called.
+        - ``FontStack.load_entry_point`` (:py:obj:`ep_name <str>`) is released
+          each time funcion is called.
 
         """
         event.emit('FontStack.load_entry_point', ep_name)
@@ -101,8 +101,8 @@ class FontStack:
 
         :py:func:`.event.emit`:
 
-        - ``FontStack.load_css``, ``css_url`` is released each time function is
-          called.
+        - ``FontStack.load_css`` (:py:obj:`css_url <str>`) is released each time
+          function is called.
 
         """
         event.emit('FontStack.load_css', css_url)

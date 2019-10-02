@@ -198,7 +198,7 @@ class URLCache:
 
         :returns: absolute filename of the cached BLOB
 
-        :rtype: fspath.FSPath
+        :rtype: fspath.fspath.FSPath
 
         """
         raise NotImplementedError
@@ -229,7 +229,7 @@ class NoCache(URLCache):
         """Download (un-cached) BLOB from <origin> into file <dest_file>
 
         :param str origin: URL of the origin
-        :param fspath.FSPath dest_file: Filename of the destination
+        :param fspath.fspath.FSPath dest_file: Filename of the destination
         """
 
         state = URLBlob.STATE_REMOTE

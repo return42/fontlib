@@ -64,7 +64,7 @@ def read_google_font_css(url, format_list=None):
     :param format_list:
         A list with the formats to fetch (default: ``['woff2', 'ttf', 'svg']``)
 
-    :rtype: byte
+    :rtype: bytes
     :return: CSS loaded from URL (request.content)
 
     :raises ConnectionError:

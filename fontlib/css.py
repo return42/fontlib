@@ -20,8 +20,10 @@ log = logging.getLogger(__name__)
 def get_css_at_rules(css_url, at_class):
     """Get at-rules of type ``at_class`` from CSS ``css_url``.
 
-    The CSS file is read by :py:func:`urlopen`.  If the URL points to the google
-    fonts api, the CSS is read by :py:func:`.googlefont.read_google_font_css`.
+    The CSS file is read by :py:func:`urllib.request.urlopen`.  If the URL
+    points to the google fonts api, the CSS is read by
+    :py:func:`.googlefont.read_google_font_css`.
+
     Both funtions return the byte stream from the URL, which is parsed by
     :py:func:`tinycss2.parse_stylesheet_bytes`.  The resulting CSS rules are
     filtered by ``at_class``.
@@ -34,6 +36,7 @@ def get_css_at_rules(css_url, at_class):
 
     :rtype: [css.AtRule]
     :return: list of ``at_class`` objects
+
     """
     if is_google_font_url(css_url):
         css_bytes = read_google_font_css(css_url)

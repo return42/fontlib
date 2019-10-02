@@ -178,7 +178,7 @@ class Font(FontLibSchema, TableUtilsMixIn):
         :type css_url:   str
         :param css_url:  URL of the CSS (stylesheet) file
 
-        :rtype: [api.Font]
+        :rtype: [Font]
         :return:
             A generator of :py:class:`Font` instances.
         """
@@ -198,7 +198,7 @@ class Font(FontLibSchema, TableUtilsMixIn):
             base URL to calculate relative path names for the ``src``
             declarations.
 
-        :rtype: [api.Font]
+        :rtype: [Font]
         :return:
             A generator of :py:class:`Font` instances.
         """

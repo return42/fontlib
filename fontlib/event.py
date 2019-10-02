@@ -1,22 +1,22 @@
 # -*- coding: utf-8; mode: python; mode: flycheck -*-
-"""Simple event & handler implementation.
+"""Simple *observer pattern* implementation, where subjects are named events.
 
 Events are managed by a global event dispatcher.  The global dispatcher arranges
 the events according to their name.  Emitters and observers are always use the
 :py:func:`get_event` function to get :py:class:`Event` instances.  Application's
 main loop has to init the global dispatcher first (:py:func:`init_dispatcher`).
 
-Emitters POV::
+Emitter's POV::
 
     start = 1; end = 42
     for i in range(start, end+1):
         event.emit('foo-ticker', i, start, end)
         ...
 
-Observers POV::
+Observer's POV::
 
     def my_observer(i, start, end):
-        print("foo ticker round: %%s/[%%s]%%s" % (i, start, end))
+        print("foo ticker round: %s/[%s]%s" % (i, start, end))
     event.add('foo-ticker', my_observer)
 
 
@@ -36,6 +36,9 @@ __all__ = [
     , 'emit'
     , 'add'
     , 'remove'
+    , 'Event'
+    , 'AsyncThreadEvent'
+    , 'AsyncProcEvent'
 ]
 
 import os
@@ -51,10 +54,8 @@ _EVENT_CLASS = None
 def init_dispatcher(event_cls=None):
     """Init global dispatcher.
 
-    :param event_cls:
-
-      Event factory, a :py:class:`Event` (sub-)class.  :py:func:`get_func` will
-      return instances of this class.
+    :param event_cls: Event factory, a :py:class:`Event` (sub-)class. Function
+      :py:func:`get_event` will return instances of this class.
 
       - :py:class:`Event` (synchronous)
       - :py:class:`AsyncProcEvent`
@@ -108,7 +109,7 @@ def add(name, callback):
     """Add observer (<callback>) to event.
 
     :param str name:  name of the event
-    :param callable func:  callback function
+    :param func:  callback function
 
     The event is taken from the global dispatcher (see :py:func:`get_event`)
 
@@ -120,7 +121,7 @@ def remove(name, callback):
     """Remove observer (<callback>) from event.
 
     :param str name:  name of the event
-    :param callable func:  callback function to remove
+    :param callback:  callback function to remove
 
     The event is taken from the global dispatcher (see :py:func:`get_event`)
 

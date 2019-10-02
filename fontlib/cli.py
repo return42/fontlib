@@ -637,7 +637,14 @@ def init_main(cli):
     init_log(log_cfg, defaults = env)
 
 def init_app(args, verbose=False): # pylint: disable=too-many-statements
-    """Init the :py:obj:`CONFIG` object and LOG settings from command line arguments"""
+    """Init the application.
+
+    - init :py:obj:`Context.CONFIG` from arguments & INI file
+    - init :py:obj:`Context.WORKSPACE`
+    - init :py:obj:`.log.FONTLIB_LOGGER`
+    - init DB engine configured in INI ``[DEFAULT]:fontlib_db``
+
+    """
     # pylint: disable=too-many-branches
 
     global CTX

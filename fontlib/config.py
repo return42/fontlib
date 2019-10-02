@@ -1,7 +1,7 @@
 # -*- coding: utf-8; mode: python; mode: flycheck -*-
 """Implementation of application's configuration class :py:class:`Config`."""
 
-__all__ = ['Config', 'init_cfg', 'get_cfg', 'DEFAULT_INI']
+__all__ = ['Config', 'init_cfg', 'get_cfg', 'DEFAULT_INI', 'GLOBAL_CONFIG']
 
 import configparser
 from fspath import FSPath
@@ -27,12 +27,13 @@ def init_cfg(filenames=None, encoding=None):
     """Init :py:obj:`GLOBAL_CONFIG`.
 
     Read and parse a filename or an iterable of filenames.  Files that cannot be
-    opened are silently ignored `[ref]
-    <https://docs.python.org/library/configparser.html#configparser.ConfigParser.read>`__.
+    opened are silently ignored `[ref] <configparser.ConfigParser.read>`__.
 
     Return list of successfully read files.
 
-    :param filenames: Filename or an iterable of filenames (default: :py:obj:`DEFAULT_INI`).
+    :param filenames: Filename or an iterable of filenames (default:
+        :py:obj:`DEFAULT_INI`).
+
     :param encoding: The encoding parameter(default: ``None``).
 
     .. note::
@@ -40,9 +41,11 @@ def init_cfg(filenames=None, encoding=None):
        Re-initing means; replace the old value of GLOBAL_CONFIG with a new
        instance of class :py:class:`Config`.
 
-       To *extend* the :py:obj:`GLOBAL_CONFIG` use :py:meth:`Config.read`::
+       To *extend* the :py:data:`GLOBAL_CONFIG` use
+       :py:meth:`configparser.ConfigParser.read`::
 
            get_cfg().read(filenames)
+
     """
     global GLOBAL_CONFIG # pylint: disable=global-statement
     ret_val = []
@@ -94,7 +97,7 @@ class Config(configparser.ConfigParser): # pylint: disable=too-many-ancestors
 
     def getpath(self, section, option, *, raw=False, _vars=None,
                 fallback=configparser._UNSET, **kwargs): # pylint: disable=protected-access
-        """Get a :py:class:`fspath.FSPath` object from a config string."""
+        """Get a :py:class:`fspath.fspath.FSPath` object from a config string."""
         return self._get_conv(
             section, option, self._convert_to_fspath,
             raw=raw, vars=_vars, fallback=fallback, **kwargs)
