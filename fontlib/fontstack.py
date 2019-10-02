@@ -35,7 +35,7 @@ class FontStack:
 
         :param font:  :py:class:`font.Font` instance.
 
-        :py:func:`.event.emmit`:
+        :py:func:`.event.emit`:
 
         - ``FontStack.add_font``, :py:class:`font <.font.Font>` is released if
           the added font is new to *this* stack.
@@ -58,11 +58,11 @@ class FontStack:
             else:
                 log.debug("add alias '%s' to url %s", font.name, font.origin)
                 alias = FontAlias(alias_name = font.name)
-                event.emmit('FontStack.add_alias', alias, font)
+                event.emit('FontStack.add_alias', alias, font)
                 p_obj.aliases.append(alias)
 
         else:
-            event.emmit('FontStack.add_font', font)
+            event.emit('FontStack.add_font', font)
             log.debug("add font-family: %s", font)
             session.add(font)
 
@@ -83,13 +83,13 @@ class FontStack:
            String with the name of the entry point (one of: ``fonts_ttf``,
            ``fonts_otf`` ``fonts_woff``, ``fonts_woff2``)
 
-        :py:func:`.event.emmit`:
+        :py:func:`.event.emit`:
 
         - ``FontStack.load_entry_point``, :py:obj:`ep_name
           <event.on_call_release>` is released each time funcion is called.
 
         """
-        event.emmit('FontStack.load_entry_point', ep_name)
+        event.emit('FontStack.load_entry_point', ep_name)
         for font in Font.from_entry_point(ep_name):
             self.add_font(font)
 
@@ -99,13 +99,13 @@ class FontStack:
         :param str css_url:
             URL of a CSS (stylesheet) file defining ``@font-face`` rules
 
-        :py:func:`.event.emmit`:
+        :py:func:`.event.emit`:
 
         - ``FontStack.load_css``, ``css_url`` is released each time function is
           called.
 
         """
-        event.emmit('FontStack.load_css', css_url)
+        event.emit('FontStack.load_css', css_url)
         for font in Font.from_css(css_url):
             self.add_font(font)
 

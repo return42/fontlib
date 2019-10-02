@@ -10,7 +10,7 @@ Emitters POV::
 
     start = 1; end = 42
     for i in range(start, end+1):
-        event.emmit('foo-ticker', i, start, end)
+        event.emit('foo-ticker', i, start, end)
         ...
 
 Observers POV::
@@ -33,7 +33,7 @@ Observers POV::
 __all__ = [
     'init_dispatcher'
     , 'get_event'
-    , 'emmit'
+    , 'emit'
     , 'add'
     , 'remove'
 ]
@@ -92,8 +92,8 @@ def get_event(event_name):
         _DISPATCHER[event_name] = handler
     return handler
 
-def emmit(name, *args, **kwargs):
-    """Emmit event and pass through arguments to the observers.
+def emit(name, *args, **kwargs):
+    """Emit event and pass through arguments to the observers.
 
     :param str name:  name of the event
 
