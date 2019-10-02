@@ -152,7 +152,7 @@ class Event:
         self.callbacks = []
         self.event_name = event_name
 
-    def __call__(self, *args, **kwargs):
+    def emit_sync(self, *args, **kwargs):
         """Executes all callbacks **synchronous**.
 
         Executes all connected callbacks synchronous in the order of addition.
@@ -160,8 +160,11 @@ class Event:
         are passed through.
 
         """
+        log.debug('emit synchronous: %s', self.event_name)
         for handler in self.callbacks:
             handler(*args, **kwargs)
+
+    __call__ = emit_sync
 
     def add(self, callback):
         """Adds a callback to the event."""
@@ -217,7 +220,8 @@ class AsyncThreadEvent(Event):
 
     """
 
-    def __call__(self, *args, **kwargs):
+    def emit_async(self, *args, **kwargs):
+        """Executes all callbacks in a **asynchronous** threads."""
 
         for handler in self.callbacks:
             thread = threading.Thread(
@@ -226,6 +230,8 @@ class AsyncThreadEvent(Event):
                 , target = handler, args = args, kwargs = kwargs
             )
             thread.start()
+
+    __call__ = emit_async
 
 class AsyncProcEvent(Event):
     """Executes all callbacks in a **asynchronous** process pool.
@@ -260,7 +266,8 @@ class AsyncProcEvent(Event):
         super().__init__(event_name)
         self.maxprocs = maxprocs or os.cpu_count() // 3
 
-    def __call__(self, *args, **kwargs):
+    def emit_async(self, *args, **kwargs):
+        """Executes all callbacks in a **asynchronous** process pool."""
 
         # -  https://docs.python.org/library/multiprocessing.html#module-multiprocessing.pool
         #
@@ -277,3 +284,5 @@ class AsyncProcEvent(Event):
         for handler in self.callbacks:
             pool.apply_async(handler, args, kwargs)
         pool.close()
+
+    __call__ = emit_async
