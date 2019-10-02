@@ -24,6 +24,8 @@ from urllib.parse import urlparse
 from fspath import CLI
 from fspath import FSPath
 from fspath.sui import SimpleUserInterface
+from fspath.progressbar import humanizeBytes
+from fspath.progressbar import progressbar
 
 from . import __pkginfo__
 from . import db
@@ -391,6 +393,27 @@ def cli_parse_css(args):
             , ("URL",           "%-90s",        "origin") )
 
 
+def download_progress(blob, fname, down_bytes, max_bytes):
+
+    progress_max = max_bytes
+
+    if max_bytes == 0:
+        # max_bytes can be zero if content-lenght is not set in the header
+        progress_max = down_bytes * 2
+
+    if max_bytes == -1:
+        progress_max = down_bytes
+
+    progressbar(
+        down_bytes, progress_max
+        , prompt = "%s %s [%s]" % (fname.BASENAME, blob.id, humanizeBytes(progress_max, 1))
+        , pipe = CTX.CLI.OUT
+    )
+
+    if max_bytes == -1:
+        CTX.CLI.OUT.write('\n')
+
+
 def cli_download_family(args):
     """Download font-family <family> into folder <dest>."""
 
@@ -399,6 +422,8 @@ def cli_download_family(args):
     _ = cli.UI
 
     stack = FontStack.get_fontstack(CTX.CONFIG)
+
+    event.add('urlcache.download.tick', download_progress)
 
     if args.dest.EXISTS:
         log.info("use existing folder %s", args.dest)
@@ -420,8 +445,7 @@ def cli_download_family(args):
                     # the resource is not a typical file URL with a file name, lets use
                     # the fonts resource ID as a file name
                     dest_file = args.dest / str(font.id) + '.' + font.format
-
-                _.echo("[%s]: download %s from %s" % (font.name, dest_file, font.origin))
+                _.echo("[%s]: download from %s" % (font.name, font.origin))
                 stack.save_font(font, dest_file)
                 c += 1
             if c == 0:

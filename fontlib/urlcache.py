@@ -86,7 +86,8 @@ def download_blob(blob, cache_file, chunksize=1048576):
     - ``urlcache.download.tick`` (:py:obj:`blob <URLBlob>`, :py:obj:`local file
       name <fspath.fspath.FSPath>`, :py:obj:`down_bytes <int>`,
       :py:obj:`max_bytes from 'headers:Content-Length' or 0 <int>`) is released,
-      each time a chunk has been downloaded.
+      each time a chunk has been downloaded.  If no more to download, max_bytes
+      is set to -1.
 
     """
     with urlopen(blob.origin) as d:
@@ -100,7 +101,7 @@ def download_blob(blob, cache_file, chunksize=1048576):
                 if not bool(len(x)):
                     event.emit(
                         'urlcache.download.tick'
-                        , blob, cache_file, down_bytes, down_bytes)
+                        , blob, cache_file, down_bytes, -1)
                     break
                 f.write(x)
                 down_bytes += len(x)
