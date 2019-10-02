@@ -3,15 +3,24 @@
 Font library
 """
 
-__all__ = ['URLBlob', 'URLCache', 'NoCache', 'SimpleURLCache']
+__all__ = [
+    'URLBlob'
+    , 'download_blob'
+    , 'URLCache'
+    , 'NoCache'
+    , 'SimpleURLCache'
+]
 
 import logging
 import base64
 import hashlib
 from urllib.parse import urlparse
+from urllib.request import urlopen
 from sqlalchemy import Column, String
 
 import fspath
+
+from . import event
 
 from .db import FontLibSchema
 from .db import TableUtilsMixIn
@@ -65,6 +74,41 @@ class URLBlob(FontLibSchema, TableUtilsMixIn):  # pylint: disable=too-few-public
         return "<URLBlob (%(id)s), origin='%(origin)s'>" % self.__dict__
 
 
+def download_blob(blob, cache_file, chunksize=1048576):
+    """Download blob.origin into cache_file.
+
+    :param fspath.fspath.FSPath cache_file: local filename
+    :param .urlcache.URLBlob blob: URL from blob.origin
+    :param int chunkize: The default chunksize is 1048576 bytes.
+
+    :py:func:`.event.emit`:
+
+    - ``urlcache.download.tick`` (:py:obj:`blob <URLBlob>`, :py:obj:`local file
+      name <fspath.fspath.FSPath>`, :py:obj:`down_bytes <int>`,
+      :py:obj:`max_bytes from 'headers:Content-Length' or 0 <int>`) is released,
+      each time a chunk has been downloaded.
+
+    """
+    with urlopen(blob.origin) as d:
+        with open(cache_file, "wb") as f:
+            max_bytes  = int(d.headers.get("Content-Length", 0))
+            down_bytes = 0
+            if chunksize is None:
+                chunksize = max_bytes // 100
+            while 1:
+                x = d.read(chunksize)
+                if not bool(len(x)):
+                    event.emit(
+                        'urlcache.download.tick'
+                        , blob, cache_file, down_bytes, down_bytes)
+                    break
+                f.write(x)
+                down_bytes += len(x)
+                event.emit(
+                    'urlcache.download.tick'
+                    , blob, cache_file, down_bytes, max_bytes)
+
+
 class URLCache:
     """Abstract key/value hash for cached BLOBs (response) from origin.
 
@@ -72,6 +116,8 @@ class URLCache:
     URL.
 
     """
+
+    CHUNKSIZE = 1048576
 
     def __init__(self):
         self.init_ok = False
@@ -137,6 +183,9 @@ class URLCache:
 
         :returns:  BLOB object from persistent
         :rtype:    .urlcache.URLBlob
+
+        :py:func:`.event.emit`: see :py:func:`download_blob`
+
         """
         blob = self.get_blob_obj(origin)
         if blob is None:
@@ -167,7 +216,7 @@ class URLCache:
         elif blob.state == URLBlob.STATE_REMOTE:
             log.debug(
                 "BLOB [%s] caching from remote: %s", blob.id, blob.origin)
-            cache_file.download(blob.origin)
+            download_blob(blob, cache_file, chunksize=self.CHUNKSIZE)
             self.update_db(blob)
 
         return blob
@@ -243,7 +292,8 @@ class NoCache(URLCache):
 
         elif state == URLBlob.STATE_REMOTE:
             log.debug("BLOB copied from remote: %s", origin)
-            dest_file.download(origin)
+            blob = self.get_blob_obj(origin)
+            download_blob(blob, dest_file, chunksize=self.CHUNKSIZE)
 
 
 class SimpleURLCache(URLCache):
