@@ -17,6 +17,8 @@ import hashlib
 from urllib.parse import urlparse
 from urllib.request import urlopen
 from sqlalchemy import Column, String
+from sqlalchemy.schema import ForeignKey
+from sqlalchemy.orm import relationship
 
 import fspath
 
@@ -41,7 +43,7 @@ class URLBlob(FontLibSchema, TableUtilsMixIn):  # pylint: disable=too-few-public
     origin = Column(String(1024), primary_key=True)
     """The origin URL"""
 
-    id = Column(String(22), nullable=False, unique=True)
+    id = Column(String(22), ForeignKey('font.id'), nullable=False, unique=True)
     """A url-safe hash of :py:class:`URLBlob` resource, used as unique resource ID"""
 
     state = Column(String(80))
@@ -52,6 +54,8 @@ class URLBlob(FontLibSchema, TableUtilsMixIn):  # pylint: disable=too-few-public
     - ``cached`` : a copy of the BLOB is localy available
 
     """
+
+    font = relationship("Font", back_populates="blob", uselist=False)
 
     def __init__(self, origin, **kwargs):
 

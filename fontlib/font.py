@@ -110,6 +110,13 @@ class Font(FontLibSchema, TableUtilsMixIn):
         , cascade = 'all, delete-orphan'   # 1:N aggregation
         , doc = "A list of format strings (`CSS @font-face:src`_)")
 
+    blob = relationship(
+        'URLBlob'
+        , back_populates = 'font'
+        , uselist = False
+        , cascade = ''  # 1:1 association
+        , doc = """:py:class:`urlcache.URLBlob` object from urlcache""")
+
     def __init__(self, origin, **kwargs):
         kwargs['origin'] = origin
         if 'id' not in kwargs:
