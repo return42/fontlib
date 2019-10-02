@@ -5,7 +5,14 @@
 
 """
 
-__all__ = ['GOOGLE_FONTS_HOST', 'GOOGLE_FONT_FORMATS', 'is_google_font_url', 'read_google_font_css' ]
+__all__ = [
+    'GOOGLE_FONTS_HOST'
+    , 'GOOGLE_FONTS_NETWORK'
+    , 'GOOGLE_FONT_FORMATS'
+    , 'is_google_font_url'
+    , 'resolve_google_ip'
+    , 'read_google_font_css'
+]
 
 import logging
 import socket
@@ -18,7 +25,11 @@ log = logging.getLogger(__name__)
 GOOGLE_FONTS_HOST = 'fonts.googleapis.com'
 """Hostname of the google fonts api (url)"""
 
+GOOGLE_FONTS_GSTATIC = 'fonts.gstatic.com'
+"""Hostname of the google fonts resource (url)"""
+
 GOOGLE_FONTS_NETWORK = ipaddress.ip_network('172.217.0.0/16')
+"""Google font network '172.217.0.0/16'"""
 
 # user agent concept was stolen from https://github.com/glasslion/fontdump.git
 GOOGLE_USER_AGENTS = {
@@ -47,10 +58,34 @@ def is_google_font_url(url):
     url = urlparse(url)
     hostname = url.netloc.split(':')[0]
 
-    if ( hostname == GOOGLE_FONTS_HOST
+    if ( hostname in (GOOGLE_FONTS_HOST, GOOGLE_FONTS_GSTATIC)
          and  url.scheme in ('http', 'https')):
         return True
     return False
+
+def resolve_google_ip(url):
+    """Resolve domain from google URL into IP.
+
+    :type url: str
+    :param url: URL of the google service
+
+    :raises ConnectionError: Raised when the URL is not a google font URL (see
+         :py:func:`is_google_font_url`) or the IP is not in the
+         :py:obj:`GOOGLE_FONTS_NETWORK`
+
+    """
+
+    log.debug("try to solve %s", url)
+    _url = urlparse(url)
+    hostname = _url.netloc.split(':')[0]
+    gf_ip = socket.gethostbyname(hostname)
+    if ipaddress.ip_address(gf_ip) not in ipaddress.ip_network(GOOGLE_FONTS_NETWORK):
+        log.error("got IP: %s for %s", gf_ip, url)
+        raise ConnectionError(
+            'got wrong IP %s [%s] not matching %s (may a local DNS blocks CDN?)' % (
+                gf_ip, hostname, GOOGLE_FONTS_NETWORK))
+    log.debug("got IP: %s for %s", gf_ip, url)
+    return gf_ip
 
 def read_google_font_css(url, format_list=None):
     """Read stylesheet's (CSS) content from ``url``
@@ -69,21 +104,14 @@ def read_google_font_css(url, format_list=None):
 
     :raises ConnectionError:
          Raised when the URL is not a google font URL (see
-         :py:func:`is_google_font_url`)
+         :py:func:`resolve_google_ip`)
     """
 
     if not is_google_font_url(url):
         raise ConnectionError('%s is not a google font url matching %s' % (
             url, GOOGLE_FONTS_HOST))
 
-    log.debug("try to solve %s", GOOGLE_FONTS_HOST)
-    gf_ip = socket.gethostbyname(GOOGLE_FONTS_HOST)
-    if ipaddress.ip_address(gf_ip) in ipaddress.ip_network('127.0.0.0/8'):
-        log.error("got IP: %s for %s", gf_ip, GOOGLE_FONTS_HOST)
-        raise ConnectionError(
-            'got wrong IP (%s) for %s, not matching %s (blocked CDNs by DNS?)' % (
-                gf_ip, GOOGLE_FONTS_HOST, GOOGLE_FONTS_NETWORK))
-    log.debug("got IP: %s for %s", gf_ip, GOOGLE_FONTS_HOST)
+    resolve_google_ip(url)
     if format_list is None:
         format_list = GOOGLE_FONT_FORMATS
 
@@ -96,3 +124,4 @@ def read_google_font_css(url, format_list=None):
         resp = requests.get(url, headers=headers)
         content += resp.content
     return content
+
