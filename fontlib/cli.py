@@ -35,12 +35,13 @@ from .api import FontStack
 from .api import BUILTINS # pylint: disable=unused-import
 from .api import URLBlob
 
-from .log import DEFAULT_LOG_INI
-from .log import FONTLIB_LOGGER
-from .log import init_log
+from .db import fontlib_session
 from .config import init_cfg
 from .config import get_cfg
 from .config import DEFAULT_INI
+from .log import DEFAULT_LOG_INI
+from .log import FONTLIB_LOGGER
+from .log import init_log
 
 _development = True
 
@@ -393,7 +394,7 @@ def cli_parse_css(args):
             , ("URL",           "%-90s",        "origin") )
 
 
-def download_progress(blob, fname, down_bytes, max_bytes):
+def download_progress(url, font_name, font_format, cache_file, down_bytes, max_bytes):
 
     progress_max = max_bytes
 
@@ -406,7 +407,7 @@ def download_progress(blob, fname, down_bytes, max_bytes):
 
     progressbar(
         down_bytes, progress_max
-        , prompt = "%s %s [%s]" % (fname.BASENAME, blob.id, humanizeBytes(progress_max, 1))
+        , prompt = "%s (%s) [%s]" % (font_name, font_format, humanizeBytes(progress_max, 1))
         , pipe = CTX.CLI.OUT
     )
 

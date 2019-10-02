@@ -87,11 +87,11 @@ def download_blob(blob, cache_file, chunksize=1048576):
 
     :py:func:`.event.emit`:
 
-    - ``urlcache.download.tick`` (:py:obj:`blob <URLBlob>`, :py:obj:`local file
-      name <fspath.fspath.FSPath>`, :py:obj:`down_bytes <int>`,
-      :py:obj:`max_bytes from 'headers:Content-Length' or 0 <int>`) is released,
-      each time a chunk has been downloaded.  If no more to download, max_bytes
-      is set to -1.
+    - ``urlcache.download.tick`` (:py:obj:`url <str>`, :py:obj:`font name
+      <str>`, :py:obj:`font format <str>`, :py:obj:`local file name
+      <fspath.fspath.FSPath>`, :py:obj:`down_bytes <int>`, :py:obj:`max_bytes
+      from 'headers:Content-Length' or 0 <int>`) is released, each time a chunk
+      has been downloaded.  If no more to download, max_bytes is set to -1.
 
     """
     with urlopen(blob.origin) as d:
@@ -105,13 +105,15 @@ def download_blob(blob, cache_file, chunksize=1048576):
                 if not bool(len(x)):
                     event.emit(
                         'urlcache.download.tick'
-                        , blob, cache_file, down_bytes, -1)
+                        , blob.origin, blob.font.name, blob.font.format
+                        , cache_file, down_bytes, -1)
                     break
                 f.write(x)
                 down_bytes += len(x)
                 event.emit(
                     'urlcache.download.tick'
-                    , blob, cache_file, down_bytes, max_bytes)
+                    , blob.origin, blob.font.name, blob.font.format
+                    , cache_file, down_bytes, max_bytes)
 
 
 class URLCache:
