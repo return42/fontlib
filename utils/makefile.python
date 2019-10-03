@@ -237,7 +237,7 @@ $(PY_ENV): virtualenv-exe python-exe
 
 PHONY += pylint-exe
 pylint-exe: $(PY_ENV)
-	$(PY_ENV_BIN)/pip $(PIP_VERBOSE) install pylint
+	@$(PY_ENV_BIN)/pip $(PIP_VERBOSE) install pylint
 
 PHONY += pylint
 pylint: pylint-exe
