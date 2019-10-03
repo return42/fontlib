@@ -115,7 +115,7 @@ class Font(FontLibSchema, TableUtilsMixIn):
         , back_populates = 'font'
         , uselist = False
         , cascade = ''  # 1:1 association
-        , doc = """:py:class:`urlcache.URLBlob` object from urlcache""")
+        , doc = """:py:class:`.urlcache.URLBlob` object from urlcache""")
 
     def __init__(self, origin, **kwargs):
         kwargs['origin'] = origin

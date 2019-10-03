@@ -124,4 +124,3 @@ def read_google_font_css(url, format_list=None):
         resp = requests.get(url, headers=headers)
         content += resp.content
     return content
-

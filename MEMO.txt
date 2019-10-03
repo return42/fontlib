@@ -23,6 +23,11 @@ bash::
   ./local/py3/bin/fontlib workspace init
   ./local/py3/bin/fontlib list
 
+(Inter-) Sphinx::
+
+  ./local/py3/bin/python -msphinx.ext.intersphinx https://docs.sqlalchemy.org/objects.inv \
+      | grep sqlalchemy.ext.declarative.api.Base
+
 PDB::
 
    M-x realgud:pdb ./local/py3/bin/python -m fontlib.cli list

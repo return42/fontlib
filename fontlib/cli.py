@@ -35,7 +35,6 @@ from .api import FontStack
 from .api import BUILTINS # pylint: disable=unused-import
 from .api import URLBlob
 
-from .db import fontlib_session
 from .config import init_cfg
 from .config import get_cfg
 from .config import DEFAULT_INI
@@ -394,14 +393,14 @@ def cli_parse_css(args):
             , ("URL",           "%-90s",        "origin") )
 
 
-def download_progress(url, font_name, font_format, cache_file, down_bytes, max_bytes):
+def download_progress(_url, font_name, font_format, _cache_file, down_bytes, max_bytes):
+    """Callback that prints download progress bar.
 
+    """
     progress_max = max_bytes
-
     if max_bytes == 0:
         # max_bytes can be zero if content-lenght is not set in the header
         progress_max = down_bytes * 2
-
     if max_bytes == -1:
         progress_max = down_bytes
 
