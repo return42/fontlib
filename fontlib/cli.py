@@ -187,7 +187,7 @@ def main():
     cfg.add_argument(
         "subcommand"
         , type = str
-        , choices=['show', 'install']
+        , choices = ['show', 'install']
         , help = "available subcommands: %(choices)s"
     )
     cfg.add_argument(
@@ -205,7 +205,7 @@ def main():
     workspace.add_argument(
         "subcommand"
         , type = str
-        , choices=['show', 'init']
+        , choices = ['show', 'init']
         , help = "available subcommands: %(choices)s"
     )
     workspace.add_argument(
