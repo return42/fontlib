@@ -44,7 +44,7 @@ project: $(PY_ENV) pyenvinstall
 	$(Q)- rm -f README.rst requirements.txt
 	$(Q)$(PY_ENV_BIN)/python -c "from fontlib.__pkginfo__ import *; print(README)" > ./README.rst
 	$(Q)$(PY_ENV_BIN)/python -c "from fontlib.__pkginfo__ import *; print(requirements_txt)" > ./requirements.txt
-
+	$(Q)$(PY_ENV_BIN)/fontlib google --format=rst list > ./docs/googlefont-list.txt
 
 PHONY += install
 install: pyinstall pyenvinstall

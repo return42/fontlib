@@ -9,3 +9,6 @@ Fonts from google
 
 .. automodule:: fontlib.googlefont
    :noindex:
+
+.. include:: googlefont-list.txt
+

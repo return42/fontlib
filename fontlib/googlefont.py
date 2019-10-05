@@ -9,6 +9,7 @@ __all__ = [
     'GOOGLE_FONTS_HOST'
     , 'GOOGLE_FONTS_NETWORK'
     , 'GOOGLE_FONT_FORMATS'
+    , 'GOOGLE_FONT_METADATA_CSV'
     , 'is_google_font_url'
     , 'resolve_google_ip'
     , 'read_google_font_css'
@@ -18,7 +19,10 @@ import logging
 import socket
 import ipaddress
 from urllib.parse import urlparse
+from urllib.request import urlopen
 import requests
+
+import fspath
 
 log = logging.getLogger(__name__)
 
@@ -46,6 +50,7 @@ GOOGLE_USER_AGENTS = {
 GOOGLE_FONT_FORMATS = list(GOOGLE_USER_AGENTS)
 """list of font formats used from google's font api"""
 
+GOOGLE_FONT_METADATA_CSV = "https://raw.githubusercontent.com/googlefonts/FontClassificationTool/master/font-metadata.csv"
 
 def is_google_font_url(url):
     """Test if ``url`` is from google font host ``fonts.googleapis.com``
@@ -124,3 +129,50 @@ def read_google_font_css(url, format_list=None):
         resp = requests.get(url, headers=headers)
         content += resp.content
     return content
+
+
+def list_fontnames():
+    """Yield a list of *known* foontnames from ``fonts.googleapis.com``.
+
+    .. hint::
+
+      This funtion needs some more elaboration, the generated list is faulty in
+      a very different way ...
+
+      ATM I do not know a *singel point of definition* with a complete list of
+      font names hosted on ``fonts.googleapis.com``.
+
+    ATM ``fonts.googleapis.com`` lists 959 fonts.  When I grep the HTML from
+    https://fonts.google.com/ I found 950 font names (see
+    ``google-font-names.txt``).  The only list I have found is the list of font
+    names from :data:`GOOGLE_FONT_METADATA_CSV`.  In this list there are only
+    873 unique font names.
+
+      The interim solution is to mix font names from ``google-font-names.txt``
+      and :data:`GOOGLE_FONT_METADATA_CSV` into one list (containing 954 font
+      names).
+
+    """
+    names = set()
+
+    gfn_txt_file = fspath.FSPath(__file__).DIRNAME / 'google-font-names.txt'
+    with gfn_txt_file.openTextFile() as gfn_txt:
+        for line in gfn_txt:
+            name = line.strip()
+            if name and name[0] != '#':
+                if name in names:
+                    log.error("%s: duplicate %s", GOOGLE_FONT_METADATA_CSV, name)
+                else:
+                    names.add(name)
+
+    with urlopen(GOOGLE_FONT_METADATA_CSV) as csv:
+        _max_bytes  = int(csv.headers.get("Content-Length", 0))
+        _csv_header = csv.readline()
+        for line in csv:
+            name, _ = line.decode('utf-8').split(':', 1)
+            if name not in names:
+                log.debug("adding %s from CSV table", name)
+                names.add(name)
+
+    for name in sorted(names):
+        yield name

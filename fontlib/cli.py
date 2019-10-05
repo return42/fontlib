@@ -18,8 +18,7 @@ import sys
 import configparser
 import logging.config
 import platform
-
-from urllib.parse import urlparse
+import urllib.parse
 
 from fspath import CLI
 from fspath import FSPath
@@ -30,6 +29,7 @@ from fspath.progressbar import progressbar
 from . import __pkginfo__
 from . import db
 from . import event
+from . import googlefont
 
 from .api import FontStack
 from .api import BUILTINS # pylint: disable=unused-import
@@ -216,6 +216,33 @@ def main():
         , metavar = 'ARG'
     )
 
+    # cmd: google
+
+    google = cli.addCMDParser(cli_google, cmdName='google')
+    google.add_argument(
+        "--format"
+        , dest = 'out_format'
+        , default = 'raw'
+        , choices = ['rst', 'raw']
+        , type = str
+        , help = ("output format:"
+                  " rst: reStructuredText,"
+                  " raw: unformated" )
+        )
+    google.add_argument(
+        "subcommand"
+        , type = str
+        , choices = ['list', ]
+        , help = "available subcommands: %(choices)s"
+    )
+    google.add_argument(
+        "argument_list"
+        , type = str
+        , nargs = '*'
+        , help = "arguments of the subcommand"
+        , metavar = 'ARG'
+    )
+
     # run ...
     cli()
 
@@ -317,7 +344,7 @@ def cli_list_fonts(args):
 
             if blob is None:
                 state = URLBlob.STATE_REMOTE
-                url = urlparse(blob.origin)
+                url = urllib.parse.urlparse(blob.origin)
                 if url.scheme == 'file':
                     state = URLBlob.STATE_LOCAL
                 blob = URLBlob(font.origin, state=state)
@@ -439,7 +466,7 @@ def cli_download_family(args):
             c = 0
 
             for font in stack.list_fonts(font_family):
-                url = urlparse(font.origin)
+                url = urllib.parse.urlparse(font.origin)
                 dest_file = args.dest / FSPath(url.path).BASENAME
                 if url.query:
                     # the resource is not a typical file URL with a file name, lets use
@@ -584,6 +611,58 @@ def cli_workspace(args):
     if args.subcommand == 'show':
         _.echo("%s" % workspace)
         return
+
+def cli_google(args):
+    """tools for Google fonts
+
+    commands:
+
+    - list: print out list of known font names from fonts.googleapis.com::
+
+        google --format=rst list 'Libre.*39'
+
+      The second argument is a optional regular expression to filter font names
+      by matching this expression (default: *None*).
+
+    """
+    init_app(args)
+    _ = args.CLI.UI
+
+    if args.subcommand == 'list':
+
+        base_url = CTX.CONFIG.get('google fonts', 'family base url')
+
+        # get match condition ...
+
+        condition = None
+        if args.argument_list:
+            condition = args.argument_list.pop(0)
+        if condition:
+            condition = re.compile(condition)
+
+        # finally check command line
+
+        if args.argument_list:
+            _.echo(u"WARNING: ignoring arguments: %s" % (','.join(args.argument_list)))
+
+        # output list ..
+
+        if args.out_format == 'rst':
+            _.rst_title("google font names")
+
+        c = 0
+        for name in googlefont.list_fontnames():
+            if condition is not None:
+                if not condition.search(name):
+                    continue
+            c += 1
+            msg = name
+            if args.out_format == 'rst':
+                msg = '%d. %s --> %s' % (c, name, base_url + urllib.parse.quote(name))
+            _.echo(msg)
+
+        if args.out_format == 'rst':
+            _.echo('')
 
 # ==============================================================================
 # helper ...
