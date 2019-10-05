@@ -558,17 +558,20 @@ def cli_workspace(args):
     """Inspect and init workspace.
 
     commands:
-        :show:
-           show current workspace location
-        :init:
-           init workspace (optional ARG1: <dest-folder>) from init-options:
-           "--builtins", "--google", ""--ep-fonts"
 
-    To register fonts from google fonts infrastructure.  Select font families
-    from: https://fonts.google.com
+    - show: show current workspace location
 
-    To install fonts (*entry points*) from the *python fonts project*
-    (https://pypi.org/project/fonts) you can use e.g.::
+    - init: init workspace from init-options: --builtins, --google, --ep-fonts::
+
+          workspace init ~/.fontlib
+
+      Second argument is thedestination of the workspace (default: ~/.fontlib).
+
+      To register fonts from google fonts infrastructure.  Select font families
+      from: https://fonts.google.com
+
+      To install fonts (*entry points*) from the *python fonts project*
+      (https://pypi.org/project/fonts) you can use e.g.::
 
         $ pip install --user \\
               font-amatic-sc font-caladea font-font-awesome \\
@@ -597,8 +600,17 @@ def cli_workspace(args):
 
     if args.subcommand == 'init':
 
+        # get worsspace's path
+
         if args.argument_list:
-            workspace = FSPath(args.argument_list[0])
+            workspace = FSPath(args.argument_list.pop(0))
+
+        # finally check command line
+
+        if args.argument_list:
+            _.echo(u"WARNING: ignoring arguments: %s" % (','.join(args.argument_list)))
+
+        # init workspace
 
         _.echo("initing workspace at: %s" % workspace)
         workspace.makedirs()
@@ -609,6 +621,12 @@ def cli_workspace(args):
         return
 
     if args.subcommand == 'show':
+
+        # finally check command line
+
+        if args.argument_list:
+            _.echo(u"WARNING: ignoring arguments: %s" % (','.join(args.argument_list)))
+
         _.echo("%s" % workspace)
         return
 
@@ -676,7 +694,7 @@ MAP_ARG_TO_CFG = {
     , 'google'        : ('google fonts', 'fonts')
     , 'workspace'     : ('DEFAULT', 'workspace')
 }
-"""Maps comand line arguments to config section & option"""
+"""Maps command line arguments to config section & option"""
 # pylint: enable=bad-continuation
 
 def map_arg_to_cfg(args, cfg):
@@ -691,7 +709,7 @@ def map_arg_to_cfg(args, cfg):
         cfg.set(cfg_sect, cfg_opt, str(value))
 
 def add_fontstack_options(cmd):
-    """Adds common fontstack options to comand"""
+    """Adds common fontstack options to command"""
 
     cmd.add_argument(
         "--builtins"
