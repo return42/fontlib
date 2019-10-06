@@ -232,7 +232,7 @@ def main():
     google.add_argument(
         "subcommand"
         , type = str
-        , choices = ['list', ]
+        , choices = ['list', 'add']
         , help = "available subcommands: %(choices)s"
     )
     google.add_argument(
@@ -635,18 +635,20 @@ def cli_google(args):
 
     commands:
 
-    - list: print out list of known font names from fonts.googleapis.com::
+    - list: print out list of known font names from fonts.googleapis.com
+
+    - add: font to FontStack::
 
         google --format=rst list 'Libre.*39'
+        google --format=rst add 'Libre.*39'
 
       The second argument is a optional regular expression to filter font names
       by matching this expression (default: *None*).
-
     """
     init_app(args)
     _ = args.CLI.UI
 
-    if args.subcommand == 'list':
+    if args.subcommand in ('list', 'add'):
 
         base_url = CTX.CONFIG.get('google fonts', 'family base url')
 
@@ -662,6 +664,8 @@ def cli_google(args):
 
         if args.argument_list:
             _.echo(u"WARNING: ignoring arguments: %s" % (','.join(args.argument_list)))
+
+    if args.subcommand == 'list':
 
         # output list ..
 
@@ -681,6 +685,26 @@ def cli_google(args):
 
         if args.out_format == 'rst':
             _.echo('')
+
+    if args.subcommand == 'add':
+
+        event.add('FontStack.add_font', print_font())
+        event.add('FontStack.add_alias', print_msg('add alias %s to font %s'))
+        c = 0
+
+        with db.fontlib_scope():
+
+            stack = FontStack.get_fontstack(CTX.CONFIG)
+
+            for name in googlefont.list_fontnames():
+                if condition is not None:
+                    if not condition.search(name):
+                        continue
+                c += 1
+
+                css_url = base_url + urllib.parse.quote(name)
+                _.echo('%d. read font-family "%s" from CSS: %s' % (c, name, css_url))
+                stack.load_css(css_url)
 
 # ==============================================================================
 # helper ...
