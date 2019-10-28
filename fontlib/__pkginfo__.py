@@ -149,6 +149,7 @@ develop_requires = [
     , 'sqlalchemy_schemadisplay @ git+https://github.com/fschulze/sqlalchemy_schemadisplay'
     , 'psycopg2-binary'
     , 'twine'
+    , 'argcomplete'
 ]
 develop_requires.sort()
 develop_requires_txt = "\n".join(develop_requires)

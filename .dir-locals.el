@@ -68,6 +68,11 @@
 		    ;;"--system-site-packages"
 		    "--quiet")))
 
+     (eval . (setq-local
+	      pylint-command
+	      (expand-file-name "bin/pylint" python-shell-virtualenv-root)))
+
+     
      ;; pylint will find the '.pylintrc' file next to the CWD
      ;;   https://pylint.readthedocs.io/en/latest/user_guide/run.html#command-line-options
      (eval . (setq-local

@@ -76,4 +76,7 @@ clean: pyclean docs-clean
 PHONY += rqmts
 rqmts: msg-python-exe msg-pip-exe msg-virtualenv-exe
 
+PHONY += deploy
+deploy: docs-clean docs gh-pages
+
 .PHONY: $(PHONY)

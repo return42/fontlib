@@ -11,6 +11,8 @@ copyright = fontlib.__copyright__
 version   = fontlib.__version__
 release   = fontlib.__version__
 
+#highlight_language = 'guess'
+
 intersphinx_mapping = {}
 # usage:    :ref:`comparison manual <python:comparisons>`
 intersphinx_mapping['python']  = ('https://docs.python.org/', None)

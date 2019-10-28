@@ -23,6 +23,7 @@ pylint
 # ----------------
 
 Sphinx
+argcomplete
 epc @ git+https://github.com/tkf/python-epc
 jedi
 pip
