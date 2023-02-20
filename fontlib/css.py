@@ -254,7 +254,12 @@ class FontFaceRule(AtRule):
                     ret_val['url'] = token.value
 
                 elif token.type == 'function':
-                    if token.name == 'format':
+                    if token.name == 'url':
+                        if not token.arguments:
+                            log.error("invalid @font-face rule, declartion src: url(...) token missing argument")
+                        else:
+                            ret_val['url'] = token.arguments[0].value
+                    elif token.name == 'format':
                         if not token.arguments:
                             log.error("invalid @font-face rule, declartion src: format(...) token missing argument")
                         else:
