@@ -28,9 +28,6 @@ from .db import FontLibSchema
 from .db import TableUtilsMixIn
 from .db import fontlib_session
 
-from .googlefont import is_google_font_url
-from .googlefont import resolve_google_ip
-
 log = logging.getLogger(__name__)
 
 class URLBlob(FontLibSchema, TableUtilsMixIn):  # pylint: disable=too-few-public-methods
@@ -97,10 +94,6 @@ def download_blob(blob, cache_file, chunksize=1048576):
       has been downloaded.  If no more to download, max_bytes is set to -1.
 
     """
-
-    if is_google_font_url(blob.origin):
-        # if this is a URL of the GOOGLE_FONTS_NETWORK, check it
-        resolve_google_ip(blob.origin)
 
     with urlopen(blob.origin) as d:
         with open(cache_file, "wb") as f:

@@ -7,11 +7,9 @@
 
 __all__ = [
     'GOOGLE_FONTS_HOST'
-    , 'GOOGLE_FONTS_NETWORK'
     , 'GOOGLE_FONT_FORMATS'
     , 'GOOGLE_FONT_METADATA_CSV'
     , 'is_google_font_url'
-    , 'resolve_google_ip'
     , 'read_google_font_css'
 ]
 
@@ -31,9 +29,6 @@ GOOGLE_FONTS_HOST = 'fonts.googleapis.com'
 
 GOOGLE_FONTS_GSTATIC = 'fonts.gstatic.com'
 """Hostname of the google fonts resource (url)"""
-
-GOOGLE_FONTS_NETWORK = ipaddress.ip_network('172.217.0.0/16')
-"""Google font network '172.217.0.0/16'"""
 
 # user agent concept was stolen from https://github.com/glasslion/fontdump.git
 GOOGLE_USER_AGENTS = {
@@ -68,30 +63,6 @@ def is_google_font_url(url):
         return True
     return False
 
-def resolve_google_ip(url):
-    """Resolve domain from google URL into IP.
-
-    :type url: str
-    :param url: URL of the google service
-
-    :raises ConnectionError: Raised when the URL is not a google font URL (see
-         :py:func:`is_google_font_url`) or the IP is not in the
-         :py:obj:`GOOGLE_FONTS_NETWORK`
-
-    """
-
-    log.debug("try to solve %s", url)
-    _url = urlparse(url)
-    hostname = _url.netloc.split(':')[0]
-    gf_ip = socket.gethostbyname(hostname)
-    if ipaddress.ip_address(gf_ip) not in ipaddress.ip_network(GOOGLE_FONTS_NETWORK):
-        log.error("got IP: %s for %s", gf_ip, url)
-        raise ConnectionError(
-            'got wrong IP %s [%s] not matching %s (may a local DNS blocks CDN?)' % (
-                gf_ip, hostname, GOOGLE_FONTS_NETWORK))
-    log.debug("got IP: %s for %s", gf_ip, url)
-    return gf_ip
-
 def read_google_font_css(url, format_list=None):
     """Read stylesheet's (CSS) content from ``url``
 
@@ -106,17 +77,12 @@ def read_google_font_css(url, format_list=None):
 
     :rtype: bytes
     :return: CSS loaded from URL (request.content)
-
-    :raises ConnectionError:
-         Raised when the URL is not a google font URL (see
-         :py:func:`resolve_google_ip`)
     """
 
     if not is_google_font_url(url):
         raise ConnectionError('%s is not a google font url matching %s' % (
             url, GOOGLE_FONTS_HOST))
 
-    resolve_google_ip(url)
     if format_list is None:
         format_list = GOOGLE_FONT_FORMATS
 
