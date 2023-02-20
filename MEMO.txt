@@ -3,10 +3,15 @@
 MEMO
 ====
 
+ToDo:
+
+- update fontlib/google-font-names.txt / see 884371370c
+
+
 Makefile::
 
-  $ make clean pyenvinstall
-  C-c c make clean pyenvinstall
+  $ make clean install
+  C-c c make clean install
 
   $ make project
   $ make docs-clean docs-live
@@ -15,18 +20,17 @@ bash::
 
   source ./local/py3/bin/activate
 
-  M-x shell-command ./local/py3/bin/fontlib SCHEMA schema_diagram.svg
-  M-x M-f schema_diagram.svg
+  ./local/py3/bin/fontlib SCHEMA --help
+  ./local/py3/bin/fontlib SCHEMA schema_diagram.svg
 
   rm -rf ~/.fontlib/
   ./local/py3/bin/fontlib list
-  ./local/py3/bin/fontlib workspace init
+  ./local/py3/bin/fontlib --debug --debug-sql workspace init
   ./local/py3/bin/fontlib list
 
 (Inter-) Sphinx::
 
-  ./local/py3/bin/python -msphinx.ext.intersphinx https://docs.sqlalchemy.org/objects.inv \
-      | grep sqlalchemy.ext.declarative.api.Base
+  ./local/py3/bin/python -m sphinx.ext.intersphinx https://docs.sqlalchemy.org/objects.inv
 
 PDB::
 

@@ -3,15 +3,19 @@
 
 """Sphinx documentation build configuration file"""
 
-import sphinx_rtd_theme
-import fontlib
+import os, sys
+import fontlib.__pkginfo__ as PKG
 
-project   = 'fontlib'
-copyright = fontlib.__copyright__
-version   = fontlib.__version__
-release   = fontlib.__version__
+from pallets_sphinx_themes import ProjectLink
 
-#highlight_language = 'guess'
+project    = 'fontlib'
+copyright  = PKG.copyright
+version    = PKG.version
+release    = PKG.version
+
+DOC_URL    = PKG.docs
+GIT_URL    = PKG.url
+GIT_BRANCH = 'master'
 
 intersphinx_mapping = {}
 # usage:    :ref:`comparison manual <python:comparisons>`
@@ -23,8 +27,11 @@ intersphinx_mapping['sqlalchemy']  = ('https://docs.sqlalchemy.org/', None)
 # tls_verify = False
 
 extlinks = {}
-extlinks['origin']    = ('https://github.com/return42/fontlib/blob/master/%s', 'git')
-extlinks['commit']    = ('https://github.com/return42/fontlib/commit/%s', '#')
+extlinks['origin'] = (GIT_URL + '/blob/' + GIT_BRANCH + '/%s', 'git://%s')
+extlinks['commit'] = (GIT_URL + '/commit/%s', '#%s')
+extlinks['docs'] = (DOC_URL + '/%s', 'docs: %s')
+extlinks['pypi'] = ('https://pypi.org/project/%s', 'PyPi: %s')
+extlinks['man'] = ('https://manpages.debian.org/jump?q=%s', '%s')
 
 show_authors = True
 master_doc = 'index'
@@ -43,17 +50,14 @@ extensions = [
     , 'sphinx.ext.viewcode'
     , 'sphinx.ext.intersphinx'
     , 'sphinxcontrib.programoutput'
+    , 'pallets_sphinx_themes'
 ]
 
-html_theme = "sphinx_rtd_theme"
-html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
-html_static_path = ["../utils/sphinx-static"]
-html_context = {
-    'css_files': [
-        '_static/theme_overrides.css',
-    ],
-}
-html_logo = 'darmarIT_logo_128.png'
+
+sys.path.append(os.path.abspath('_themes'))
+html_theme           = "custom"
+html_logo            = 'darmarIT_logo_128.png'
+html_theme_path      = ['_themes']
 
 # http://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html
 autoclass_content = 'both'

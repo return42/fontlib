@@ -565,7 +565,7 @@ def cli_workspace(args):
 
           workspace init ~/.fontlib
 
-      Second argument is thedestination of the workspace (default: ~/.fontlib).
+      Second argument is the destination of the workspace (default: ~/.fontlib).
 
       To register fonts from google fonts infrastructure.  Select font families
       from: https://fonts.google.com

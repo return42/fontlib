@@ -1,4 +1,3 @@
-# -*- coding: utf-8; mode: conf -*-
 # ----------------
 # install requires
 # ----------------
@@ -14,35 +13,20 @@ tinycss2
 
 pylint
 
-#tox
-#pytest
-#pytest-cov
-
 # ----------------
 # develop requires
 # ----------------
 
 Sphinx
 argcomplete
-epc @ git+https://github.com/tkf/python-epc
 jedi
+pallets-sphinx-themes
 pip
 psycopg2-binary
 sphinx-autobuild
-sphinx_rtd_theme
 sphinxcontrib-programoutput
 sqlalchemy_schemadisplay @ git+https://github.com/fschulze/sqlalchemy_schemadisplay
 twine
-
-#wheel
-#mock
-
-# sphinxjp.themes.revealjs: slide-shows with revaljs
-#
-#   comment out next lines, if you don't build slide-shows
-#
-#git+https://github.com/return42/sphinxjp.themes.revealjs
-# -e file:../sphinxjp.themes.revealjs#egg=sphinxjp.themes.revealjs
 
 # -------------------------------
 # Packages with font entry points

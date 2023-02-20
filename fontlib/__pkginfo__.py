@@ -38,9 +38,9 @@ Further read:
 from setuptools import find_packages
 
 package = 'fontlib'
-version = '20190831.1.post0'
+version = '20230220'
 
-copyright = '2019 Markus Heiser'
+copyright = '2023 Markus Heiser'
 description = 'Pluginable font library'
 license = 'GPLv3'
 keywords = 'fonts TTF OTF WOFF WOFF2'
@@ -140,9 +140,8 @@ test_requires_txt = "\n".join(test_requires)
 
 develop_requires = [
     'jedi' # https://jedi.readthedocs.io/
-    , 'epc @ git+https://github.com/tkf/python-epc' # required by emacs: https://tkf.github.io/emacs-jedi
     , 'Sphinx'
-    , 'sphinx_rtd_theme'
+    , 'pallets-sphinx-themes'
     , 'sphinx-autobuild'
     , 'sphinxcontrib-programoutput'
     , 'pip'
@@ -154,7 +153,7 @@ develop_requires = [
 develop_requires.sort()
 develop_requires_txt = "\n".join(develop_requires)
 
-requirements_txt = """# -*- coding: utf-8; mode: conf -*-
+requirements_txt = """\
 # ----------------
 # install requires
 # ----------------
@@ -167,25 +166,11 @@ requirements_txt = """# -*- coding: utf-8; mode: conf -*-
 
 %(test_requires_txt)s
 
-#tox
-#pytest
-#pytest-cov
-
 # ----------------
 # develop requires
 # ----------------
 
 %(develop_requires_txt)s
-
-#wheel
-#mock
-
-# sphinxjp.themes.revealjs: slide-shows with revaljs
-#
-#   comment out next lines, if you don't build slide-shows
-#
-#git+https://github.com/return42/sphinxjp.themes.revealjs
-# -e file:../sphinxjp.themes.revealjs#egg=sphinxjp.themes.revealjs
 
 # -------------------------------
 # Packages with font entry points
@@ -223,15 +208,15 @@ classifiers = [
 ]
 
 docstring = """
-The python `fontlib <%(docs)s>`__ package helps to manage fonts from different
-resources.  It comes with an API and the fontlib command line (see `use
-<%(docs)s/use.html>`__).
+
+The `python fontlib` package helps to manage fonts from different resources.  It
+comes with an API and the fontlib command line (see :ref:`use`).
 
 To name just a few fontlib features:
 
-- fontlib ships some `builtin fonts <%(docs)s/builtin.html>`__
-- fontlib make use of fonts from `google fonts <%(docs)s/googlefont.html>`__
-- fontlib use fonts from `entry points <%(docs)s/ep_points.html>`__
+- fontlib ships some :ref:`builtin fonts <builtin_fonts>`
+- fontlib make use of fonts from :ref:`google fonts <googlefont>`
+- fontlib use fonts from :ref:`entry points <ep_points>`
 - Python `mimetypes <https://docs.python.org/3/library/mimetypes.html>`__ for font types
 
 
@@ -239,7 +224,7 @@ Install
 =======
 
 Install and update using `pip <https://pip.pypa.io/en/stable/quickstart/>`__
-(see `Install <%(docs)s/install.html>`__):
+(see :ref:`install`):
 
 .. code-block:: text
 

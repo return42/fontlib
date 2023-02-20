@@ -43,7 +43,7 @@ _['woff2-variations']  = ('.woff2', )
 _['woff2']  = ('.woff2', )           # WOFF 2.0 https://www.w3.org/TR/WOFF2/
 _['woff'] = ('.woff', )              # WOFF 1.0 https://www.w3.org/TR/WOFF/
 _['truetype'] = ('.ttf')             # TrueType --> https://docs.microsoft.com/en-us/typography/opentype/spec/
-_['opentype'] = ('.otf', 'ttf' )    # OpenType --> https://docs.microsoft.com/en-us/typography/opentype/spec/
+_['opentype'] = ('.otf', 'ttf' )     # OpenType --> https://docs.microsoft.com/en-us/typography/opentype/spec/
 _['embedded-opentype'] = ('.eot', )  # Embedded OpenType --> https://www.w3.org/Submission/2008/SUBM-EOT-20080305/
 _['svg'] = ('.svg', '.svgz')         # SVG Font --> https://www.w3.org/TR/SVG11/fonts.html
 
@@ -191,7 +191,7 @@ class Font(FontLibSchema, TableUtilsMixIn):
         """
         at_rules = get_css_at_rules(css_url, FontFaceRule)
         for rule in at_rules:
-            yield  cls.from_at_rule(rule, css_url)
+            yield cls.from_at_rule(rule, css_url)
 
     @classmethod
     def from_at_rule(cls, at_rule, css_url):
