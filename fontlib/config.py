@@ -3,8 +3,11 @@
 
 __all__ = ['Config', 'init_cfg', 'get_cfg', 'DEFAULT_INI', 'GLOBAL_CONFIG']
 
+import logging
 import configparser
 from fspath import FSPath
+
+log = logging.getLogger(__name__)
 
 DEFAULT_INI = FSPath(__file__).DIRNAME / "config.ini"
 """Default ``config.ini``"""
@@ -23,7 +26,7 @@ details see :py:func:`init_cfg` and :py:func:`get_cfg`.
 
 """
 
-def init_cfg(filenames=None, encoding=None):
+def init_cfg(filenames=None, encoding='utf-8'):
     """Init :py:obj:`GLOBAL_CONFIG`.
 
     Read and parse a filename or an iterable of filenames.  Files that cannot be
@@ -34,7 +37,7 @@ def init_cfg(filenames=None, encoding=None):
     :param filenames: Filename or an iterable of filenames (default:
         :py:obj:`DEFAULT_INI`).
 
-    :param encoding: The encoding parameter(default: ``None``).
+    :param encoding: The encoding parameter(default: ``utf-8``).
 
     .. note::
 
@@ -48,11 +51,12 @@ def init_cfg(filenames=None, encoding=None):
 
     """
     global GLOBAL_CONFIG # pylint: disable=global-statement
-    ret_val = []
-    cfg = Config()
+    GLOBAL_CONFIG = Config()
+    log.debug('init_cfg: defaults from %s', DEFAULT_INI)
+    ret_val = GLOBAL_CONFIG.read(DEFAULT_INI, encoding='utf-8')
     if filenames:
-        ret_val = cfg.read(filenames, encoding)
-    GLOBAL_CONFIG = cfg
+        log.debug('init_cfg: read from %s', filenames)
+        ret_val = GLOBAL_CONFIG.read(filenames, encoding)
     return ret_val
 
 def get_cfg():
@@ -68,7 +72,6 @@ class Config(configparser.ConfigParser): # pylint: disable=too-many-ancestors
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.read(DEFAULT_INI)
 
     def getfqnobj(self, section, option, *, raw=False, _vars=None,
                   fallback=configparser._UNSET, **kwargs): # pylint: disable=protected-access

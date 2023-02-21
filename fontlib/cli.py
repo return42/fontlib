@@ -608,7 +608,7 @@ def cli_workspace(args):
         # finally check command line
 
         if args.argument_list:
-            _.echo(u"WARNING: ignoring arguments: %s" % (','.join(args.argument_list)))
+            _.echo("WARNING: ignoring arguments: %s" % (','.join(args.argument_list)))
 
         # init workspace
 
@@ -625,9 +625,11 @@ def cli_workspace(args):
         # finally check command line
 
         if args.argument_list:
-            _.echo(u"WARNING: ignoring arguments: %s" % (','.join(args.argument_list)))
+            _.echo("WARNING: ignoring arguments: %s" % (','.join(args.argument_list)))
 
-        _.echo("%s" % workspace)
+        cfg_file = args.config if args.config.EXISTS else DEFAULT_INI
+        _.echo("WORKSPACE: %s" % workspace)
+        _.echo("CONFIG:    %s" % cfg_file)
         return
 
 def cli_google(args):
@@ -663,7 +665,7 @@ def cli_google(args):
         # finally check command line
 
         if args.argument_list:
-            _.echo(u"WARNING: ignoring arguments: %s" % (','.join(args.argument_list)))
+            _.echo("WARNING: ignoring arguments: %s" % (','.join(args.argument_list)))
 
     if args.subcommand == 'list':
 
@@ -724,11 +726,9 @@ MAP_ARG_TO_CFG = {
 def map_arg_to_cfg(args, cfg):
     """update application's CONFIG from command line arguments.."""
     for arg_name, (cfg_sect, cfg_opt) in MAP_ARG_TO_CFG.items():
-        value = args.__dict__.get(arg_name, UNKNOWN)
-        if value is UNKNOWN:
-            continue
+        value = args.__dict__.get(arg_name)
         if value is None:
-            value = ''
+            continue
         log.debug("set %s/%s = %s", cfg_sect, cfg_opt, value)
         cfg.set(cfg_sect, cfg_opt, str(value))
 
@@ -738,25 +738,22 @@ def add_fontstack_options(cmd):
     cmd.add_argument(
         "--builtins"
         , dest = 'builtins'
-        , default = CTX.CONFIG.get(*MAP_ARG_TO_CFG['builtins'][:2])
         , nargs = '?', type = str
-        , help = "register builtin fonts"
+        , help = "register builtin fonts / e.g. '%s'" % CTX.CONFIG.get(*MAP_ARG_TO_CFG['builtins'][:2])
         )
 
     cmd.add_argument(
         "--ep-fonts"
         , dest = 'epfonts'
-        , default = CTX.CONFIG.get(*MAP_ARG_TO_CFG['epfonts'][:2])
         , nargs = '?', type = str
-        , help = "use fonts from entry points"
+        , help = "use fonts from entry points / e.g. '%s'" % CTX.CONFIG.get(*MAP_ARG_TO_CFG['epfonts'][:2])
         )
 
     cmd.add_argument(
         "--google"
         , dest = 'google'
-        , default = CTX.CONFIG.get(*MAP_ARG_TO_CFG['google'][:2])
         , nargs = '?', type = str
-        , help = "register fonts from fonts.googleapis.com"
+        , help = "register fonts from fonts.googleapis.com / e.g. '%s'" % CTX.CONFIG.get(*MAP_ARG_TO_CFG['google'][:2])
         )
 
 def init_main(cli):
@@ -767,6 +764,7 @@ def init_main(cli):
     cli_parse_css.__doc__ =  cli_parse_css.__doc__ % globals()
 
     # init main's context
+
     CTX = Context(cli)
     log.debug("initial using workspace at: %s", CTX.WORKSPACE)
     CTX.WORKSPACE.makedirs()
@@ -797,41 +795,43 @@ def init_app(args, verbose=False): # pylint: disable=too-many-statements
     verbose = verbose or args.verbose
     _ = args.CLI.UI
 
+    # set some base logging while app's runtime is build up
+    logger = logging.getLogger(FONTLIB_LOGGER)
+    if args.debug:
+        args.ERR.write("set log level of logger: %s (%s)\n" % (logger.name, 'DEBUG'))
+        logging.getLogger('sqlalchemy.engine').setLevel('INFO')
+        logger.setLevel('DEBUG')
+
     # init application's CONFIG from INI file
 
-    cfg = []
+    cfg = None
 
-    if args.config != CTX.WORKSPACE / CONFIG_INI:
-        # assert config if --config was explicite set
-        if not args.config.EXISTS:
-            raise args.Error(42, 'config file does not exists: %s' % args.config)
-        cfg.append(args.config)
-
-    elif args.workspace:
-        # assert %(workspace)s/config.ini if --workspace was explicite set but
-        # not --config
+    if args.workspace:
+        # assert %(workspace)s/config.ini if --workspace was explicite set
         if not args.workspace.EXISTS:
             raise args.Error(42, 'workspace folder does not exists: %s' % args.workspace)
 
         ini_file = args.workspace / 'config.ini'
         if ini_file.EXISTS:
-            cfg.append(ini_file)
+            cfg = ini_file
         else:
             log.info("Config file %s does not exists.", ini_file)
 
-    if cfg:
-        msg = "load additional configuration from: %s" % cfg
-        log.info(msg)
-        if verbose:
-            _.echo(msg)
+    elif args.config.EXIST:
+        cfg = args.config
+    else:
+        raise args.Error(42, 'config file does not exists: %s' % args.config)
 
-    CTX.CONFIG.read(cfg)
+    if cfg:
+        _.echo("init configuration from: %s" % cfg)
+        init_cfg(cfg)
+
     map_arg_to_cfg(args, CTX.CONFIG)
 
     # init application's WORKSPACE from (new) CONFIG settings
 
     if not CTX.WORKSPACE.EXISTS:
-        log.debug("initing workspace at: %s", CTX.WORKSPACE)
+        _.echo("initing workspace at: %s", CTX.WORKSPACE)
         CTX.WORKSPACE.makedirs()
 
     msg = "using workspace: %s\n" % CTX.WORKSPACE
@@ -841,17 +841,12 @@ def init_app(args, verbose=False): # pylint: disable=too-many-statements
 
     # init app logging with (new) CONFIG settings
 
-    logger = logging.getLogger(FONTLIB_LOGGER)
-
     if args.debug:
         CTX.CONFIG.set("logging", "level", 'debug')
     if args.debug_sql:
         logging.getLogger('sqlalchemy.engine').setLevel('INFO')
 
     level = CTX.CONFIG.get("logging", "level").upper()
-    if verbose:
-        args.ERR.write("set log level of logger: %s (%s)\n" % (logger.name, level))
-
     logger.setLevel(level)
 
     log_cfg = CTX.CONFIG.getpath("logging", "config", fallback=None)
