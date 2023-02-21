@@ -8,9 +8,9 @@ Config
 ======
 
 Fontlib can be configured with a configuration file (see `basic config and
-logging setup`_) and/or with command line arguments (see
-:ref:`fontlib_cli_options`).  If nothing is given, the `application defaults`_
-and `logging defaults`_ come to the effect.
+logging setup`_) and/or with command line arguments (see :ref:`fontlib options
+<fontlib_cli_options>`).  If nothing is given, the `application defaults`_ and
+`logging defaults`_ come to the effect.
 
 basic config and logging setup
 ==============================

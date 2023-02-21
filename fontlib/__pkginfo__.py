@@ -144,6 +144,7 @@ develop_requires = [
     , 'pallets-sphinx-themes'
     , 'sphinx-autobuild'
     , 'sphinxcontrib-programoutput'
+    , 'sphinx-notfound-page'
     , 'pip'
     , 'sqlalchemy_schemadisplay @ git+https://github.com/fschulze/sqlalchemy_schemadisplay'
     , 'psycopg2-binary'

@@ -7,70 +7,57 @@
 The ``fontlib`` command
 =======================
 
+.. contents:: Contents
+   :depth: 2
+   :local:
+   :backlinks: entry
+
 .. automodule:: fontlib.cli
    :noindex:
-
-The fontlib_ library comes with a command line.  Use ``fontlib --help`` for a
-basic help.
 
 .. admonition:: fontlib --help
    :class: rst-example
 
    .. program-output:: ../local/py3/bin/fontlib --help
 
-For a more detailed help to one of the sub commands type::
+.. _fontlib list:
 
-  $ fontlib <command> --help
-
-.. _fontlib_cli_options:
-
-Fontlib Options
----------------
-
-- ``--verbose``: more verbose output
-
-- ``-c / --config``: :origin:`fontlib/config.ini` (see :ref:`config`)
-
-- ``--workspace``: place where application persists its data
-
-Fontstack options
------------------
-
-- ``--builtins``: select :ref:`builtin_fonts`
-
-- ``--ep-fonts``: :ref:`ep_points`
-
-- ``--google``: :ref:`googlefont`
-
-fontlib list
-============
+``fontlib list``
+================
 
 .. admonition:: fontlib list --help
    :class: rst-example
 
    .. program-output:: ../local/py3/bin/fontlib list --help
 
+.. _fontlib css-parse:
 
-fontlib css-parse
-=================
+``fontlib css-parse``
+=====================
+
+With this command fonts can be parsed from `@font-face`_ rules in a CSS file.
+With the option ``--register`` the parsed fonts will be registered in the
+workspace.
 
 .. admonition:: fontlib css-parse --help
    :class: rst-example
 
    .. program-output:: ../local/py3/bin/fontlib css-parse --help
 
+.. _fontlib download:
 
-fontlib download
-================
+``fontlib download``
+====================
 
 .. admonition:: fontlib download --help
    :class: rst-example
 
    .. program-output:: ../local/py3/bin/fontlib download --help
 
+.. _fontlib config:
 
-fontlib config
-==============
+``fontlib config``
+==================
 
 For more details see :ref:`Config`.
 

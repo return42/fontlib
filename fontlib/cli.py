@@ -1,15 +1,30 @@
 # -*- coding: utf-8; mode: python; mode: flycheck -*-
 # pylint: disable=global-statement, too-few-public-methods
 
-"""Command line tools from the fontlib library.
+"""The fontlib_ library comes with a command line.  Use ``fontlib --help`` for a
+basic help.  Most commands do work with a workspace.  If you haven't used
+fontlib before it might be good to create one first::
 
-Most commands do work with a workspace.  If you haven't used fontlib before it
-might be good to create one first::
+  fontlib workspace init
 
-  fontlib workspace init <dest-folder> [-h]
+Which creates a workspace and init this workspace with some defaults registered.
 
-Which creates a workspace at <dest-folder> and init this workspace with some
-defaults registered.  Use the help option for more details.
+.. _fontlib_cli_options:
+
+common options:
+
+- ``-c / --config``: :origin:`fontlib/config.ini` (see :ref:`config`)
+- ``-w / --workspace``: place where application persists its data
+
+fontstack options:
+
+- ``--builtins``: select :ref:`builtin_fonts`
+- ``--ep-fonts``: :ref:`ep_points`
+- ``--google``: :ref:`googlefont`
+
+For a more detailed help to one of the sub commands type::
+
+  $ fontlib <command> --help
 
 """
 
@@ -86,6 +101,7 @@ class Context:
             'DEFAULT', 'workspace'
             , fallback = FSPath('~/.fontlib').EXPANDUSER )
 
+
 def main():
     """main loop of the command line interface"""
     global CTX
@@ -94,8 +110,6 @@ def main():
     cli.UI = SimpleUserInterface(cli=cli)
 
     init_main(cli)
-
-    # config ...
 
     cli.add_argument(
         '-c', '--config'
@@ -332,7 +346,7 @@ def cli_version(args):
         ]))
 
 def cli_list_fonts(args):
-    """list fonts
+    """list fonts registered in the workspace
 
     """
     init_app(args)

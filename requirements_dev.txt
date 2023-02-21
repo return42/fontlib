@@ -6,6 +6,7 @@ pallets-sphinx-themes
 pip
 psycopg2-binary
 sphinx-autobuild
+sphinx-notfound-page
 sphinxcontrib-programoutput
 sqlalchemy_schemadisplay @ git+https://github.com/fschulze/sqlalchemy_schemadisplay
 twine
