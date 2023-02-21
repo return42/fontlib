@@ -70,6 +70,7 @@ switch ``--verbose`` you will get some more information.::
   keys = root, fontlib
   ...
 
+.. _application defaults:
 
 application defaults
 ====================
