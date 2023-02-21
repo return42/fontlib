@@ -8,12 +8,15 @@ Metadata see ``fontlib/__pkginfo__.py``
 
 import os
 from os.path import join as ospj
-import imp
+import importlib.util
 from setuptools import setup
 
 ROOT = os.path.abspath(os.path.dirname(__file__))
 SRC = ospj(ROOT, 'fontlib')
-PKG = imp.load_source('__pkginfo__', ospj(SRC, '__pkginfo__.py'))
+
+_spec = importlib.util.spec_from_file_location('__pkginfo__', ospj(SRC, '__pkginfo__.py'))
+PKG = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(PKG)
 
 # https://packaging.python.org/guides/distributing-packages-using-setuptools/#configuring-your-project
 setup(
