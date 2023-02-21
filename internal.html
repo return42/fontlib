@@ -1109,8 +1109,8 @@ detected as an alias.</p></li>
 be registered.  Select font families from <a class="reference external" href="https://fonts.google.com/">https://fonts.google.com/</a></p>
 <p>available builtin fonts:</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="builtin.html#builtin-cantarell"><span class="std std-ref">Cantarell</span></a></p></li>
-<li><p><a class="reference internal" href="builtin.html#builtiin-dejavu"><span class="std std-ref">DejaVu</span></a></p></li>
+<li><p><a class="reference internal" href="resources/builtin.html#builtin-cantarell"><span class="std std-ref">Cantarell</span></a></p></li>
+<li><p><a class="reference internal" href="resources/builtin.html#builtiin-dejavu"><span class="std std-ref">DejaVu</span></a></p></li>
 </ul>
 <p>available entry points:</p>
 <ul class="simple">
@@ -1686,229 +1686,39 @@ has been downloaded.  If no more to download, max_bytes is set to -1.</p></li>
             </a></p>
   
 
-  <h3>Contents</h3>
+<h3><a href="index.html">Table of Contents</a></h3>
+<p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage/index.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="resources/index.html">font resources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Internal</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-fontlib.cli">cli</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-fontlib.config">config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-fontlib.css">css</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-fontlib.db">db</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-fontlib.event">event</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-fontlib.font">font</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-fontlib.fontstack">fontstack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-fontlib.googlefont">googlefont</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-fontlib.log">log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-fontlib.mime">mime</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-fontlib.urlcache">urlcache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-fontlib.utils">utils</a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>Project Links</h3>
   <ul>
-<li><a class="reference internal" href="#">Internal</a><ul>
-<li><a class="reference internal" href="#module-fontlib.cli">cli</a><ul>
-<li><a class="reference internal" href="#fontlib.cli.Context"><code class="docutils literal notranslate"><span class="pre">Context</span></code></a><ul>
-<li><a class="reference internal" href="#fontlib.cli.Context.CONFIG"><code class="docutils literal notranslate"><span class="pre">Context.CONFIG</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.cli.Context.WORKSPACE"><code class="docutils literal notranslate"><span class="pre">Context.WORKSPACE</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#fontlib.cli.print_font"><code class="docutils literal notranslate"><span class="pre">print_font</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.cli.print_msg"><code class="docutils literal notranslate"><span class="pre">print_msg</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.cli.add_fontstack_options"><code class="docutils literal notranslate"><span class="pre">add_fontstack_options()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.cli.cli_README"><code class="docutils literal notranslate"><span class="pre">cli_README()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.cli.cli_SCHEMA"><code class="docutils literal notranslate"><span class="pre">cli_SCHEMA()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.cli.cli_config"><code class="docutils literal notranslate"><span class="pre">cli_config()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.cli.cli_download_family"><code class="docutils literal notranslate"><span class="pre">cli_download_family()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.cli.cli_google"><code class="docutils literal notranslate"><span class="pre">cli_google()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.cli.cli_list_fonts"><code class="docutils literal notranslate"><span class="pre">cli_list_fonts()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.cli.cli_parse_css"><code class="docutils literal notranslate"><span class="pre">cli_parse_css()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.cli.cli_version"><code class="docutils literal notranslate"><span class="pre">cli_version()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.cli.cli_workspace"><code class="docutils literal notranslate"><span class="pre">cli_workspace()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.cli.download_progress"><code class="docutils literal notranslate"><span class="pre">download_progress()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.cli.init_app"><code class="docutils literal notranslate"><span class="pre">init_app()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.cli.init_main"><code class="docutils literal notranslate"><span class="pre">init_main()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.cli.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.cli.map_arg_to_cfg"><code class="docutils literal notranslate"><span class="pre">map_arg_to_cfg()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.cli.MAP_ARG_TO_CFG"><code class="docutils literal notranslate"><span class="pre">MAP_ARG_TO_CFG</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-fontlib.config">config</a><ul>
-<li><a class="reference internal" href="#fontlib.config.Config"><code class="docutils literal notranslate"><span class="pre">Config</span></code></a><ul>
-<li><a class="reference internal" href="#fontlib.config.Config.config_env"><code class="docutils literal notranslate"><span class="pre">Config.config_env()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.config.Config.getfqnobj"><code class="docutils literal notranslate"><span class="pre">Config.getfqnobj()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.config.Config.getlist"><code class="docutils literal notranslate"><span class="pre">Config.getlist()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.config.Config.getpath"><code class="docutils literal notranslate"><span class="pre">Config.getpath()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.config.Config.FONTSTACK"><code class="docutils literal notranslate"><span class="pre">Config.FONTSTACK</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.config.Config.GOOGLE_FONTS"><code class="docutils literal notranslate"><span class="pre">Config.GOOGLE_FONTS</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.config.Config.LOGGING"><code class="docutils literal notranslate"><span class="pre">Config.LOGGING</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#fontlib.config.get_cfg"><code class="docutils literal notranslate"><span class="pre">get_cfg()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.config.init_cfg"><code class="docutils literal notranslate"><span class="pre">init_cfg()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.config.DEFAULT_INI"><code class="docutils literal notranslate"><span class="pre">DEFAULT_INI</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.config.GLOBAL_CONFIG"><code class="docutils literal notranslate"><span class="pre">GLOBAL_CONFIG</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-fontlib.css">css</a><ul>
-<li><a class="reference internal" href="#fontlib.css.AtRule"><code class="docutils literal notranslate"><span class="pre">AtRule</span></code></a><ul>
-<li><a class="reference internal" href="#fontlib.css.AtRule.rule_type"><code class="docutils literal notranslate"><span class="pre">AtRule.rule_type</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#fontlib.css.CSSRule"><code class="docutils literal notranslate"><span class="pre">CSSRule</span></code></a><ul>
-<li><a class="reference internal" href="#fontlib.css.CSSRule.parse_css_rule"><code class="docutils literal notranslate"><span class="pre">CSSRule.parse_css_rule()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.css.CSSRule.parse_decl"><code class="docutils literal notranslate"><span class="pre">CSSRule.parse_decl()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.css.CSSRule.serialize"><code class="docutils literal notranslate"><span class="pre">CSSRule.serialize()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.css.CSSRule.css_url"><code class="docutils literal notranslate"><span class="pre">CSSRule.css_url</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.css.CSSRule.declarations"><code class="docutils literal notranslate"><span class="pre">CSSRule.declarations</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.css.CSSRule.rule_name"><code class="docutils literal notranslate"><span class="pre">CSSRule.rule_name</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.css.CSSRule.rule_type"><code class="docutils literal notranslate"><span class="pre">CSSRule.rule_type</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#fontlib.css.FontFaceRule"><code class="docutils literal notranslate"><span class="pre">FontFaceRule</span></code></a><ul>
-<li><a class="reference internal" href="#fontlib.css.FontFaceRule.font_family"><code class="docutils literal notranslate"><span class="pre">FontFaceRule.font_family()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.css.FontFaceRule.src"><code class="docutils literal notranslate"><span class="pre">FontFaceRule.src()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.css.FontFaceRule.unicode_range"><code class="docutils literal notranslate"><span class="pre">FontFaceRule.unicode_range()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.css.FontFaceRule.rule_name"><code class="docutils literal notranslate"><span class="pre">FontFaceRule.rule_name</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#fontlib.css.get_css_at_rules"><code class="docutils literal notranslate"><span class="pre">get_css_at_rules()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-fontlib.db">db</a><ul>
-<li><a class="reference internal" href="#fontlib.db.FontLibSchema"><code class="docutils literal notranslate"><span class="pre">FontLibSchema</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.db.TableUtilsMixIn"><code class="docutils literal notranslate"><span class="pre">TableUtilsMixIn</span></code></a><ul>
-<li><a class="reference internal" href="#fontlib.db.TableUtilsMixIn.get_persistent_object"><code class="docutils literal notranslate"><span class="pre">TableUtilsMixIn.get_persistent_object()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.db.TableUtilsMixIn.pkey_exists"><code class="docutils literal notranslate"><span class="pre">TableUtilsMixIn.pkey_exists()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#fontlib.db.fontlib_init"><code class="docutils literal notranslate"><span class="pre">fontlib_init()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.db.fontlib_scope"><code class="docutils literal notranslate"><span class="pre">fontlib_scope()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.db.fontlib_session"><code class="docutils literal notranslate"><span class="pre">fontlib_session()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.db.FontLibSession"><code class="docutils literal notranslate"><span class="pre">FontLibSession</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.db.fontlib_active_session"><code class="docutils literal notranslate"><span class="pre">fontlib_active_session</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.db.fontlib_engine"><code class="docutils literal notranslate"><span class="pre">fontlib_engine</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.db.fontlib_sessionmaker"><code class="docutils literal notranslate"><span class="pre">fontlib_sessionmaker</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-fontlib.event">event</a><ul>
-<li><a class="reference internal" href="#fontlib.event.AsyncProcEvent"><code class="docutils literal notranslate"><span class="pre">AsyncProcEvent</span></code></a><ul>
-<li><a class="reference internal" href="#fontlib.event.AsyncProcEvent.emit_async"><code class="docutils literal notranslate"><span class="pre">AsyncProcEvent.emit_async()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#fontlib.event.AsyncThreadEvent"><code class="docutils literal notranslate"><span class="pre">AsyncThreadEvent</span></code></a><ul>
-<li><a class="reference internal" href="#fontlib.event.AsyncThreadEvent.emit_async"><code class="docutils literal notranslate"><span class="pre">AsyncThreadEvent.emit_async()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#fontlib.event.Event"><code class="docutils literal notranslate"><span class="pre">Event</span></code></a><ul>
-<li><a class="reference internal" href="#fontlib.event.Event.add"><code class="docutils literal notranslate"><span class="pre">Event.add()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.event.Event.emit_sync"><code class="docutils literal notranslate"><span class="pre">Event.emit_sync()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.event.Event.remove"><code class="docutils literal notranslate"><span class="pre">Event.remove()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#fontlib.event.add"><code class="docutils literal notranslate"><span class="pre">add()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.event.emit"><code class="docutils literal notranslate"><span class="pre">emit()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.event.get_event"><code class="docutils literal notranslate"><span class="pre">get_event()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.event.init_dispatcher"><code class="docutils literal notranslate"><span class="pre">init_dispatcher()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.event.remove"><code class="docutils literal notranslate"><span class="pre">remove()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-fontlib.font">font</a><ul>
-<li><a class="reference internal" href="#fontlib.font.Font"><code class="docutils literal notranslate"><span class="pre">Font</span></code></a><ul>
-<li><a class="reference internal" href="#fontlib.font.Font.from_at_rule"><code class="docutils literal notranslate"><span class="pre">Font.from_at_rule()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.font.Font.from_css"><code class="docutils literal notranslate"><span class="pre">Font.from_css()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.font.Font.from_entry_point"><code class="docutils literal notranslate"><span class="pre">Font.from_entry_point()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.font.Font.match_name"><code class="docutils literal notranslate"><span class="pre">Font.match_name()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.font.Font.aliases"><code class="docutils literal notranslate"><span class="pre">Font.aliases</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.font.Font.blob"><code class="docutils literal notranslate"><span class="pre">Font.blob</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.font.Font.format"><code class="docutils literal notranslate"><span class="pre">Font.format</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.font.Font.id"><code class="docutils literal notranslate"><span class="pre">Font.id</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.font.Font.name"><code class="docutils literal notranslate"><span class="pre">Font.name</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.font.Font.origin"><code class="docutils literal notranslate"><span class="pre">Font.origin</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.font.Font.src_formats"><code class="docutils literal notranslate"><span class="pre">Font.src_formats</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.font.Font.unicode_range"><code class="docutils literal notranslate"><span class="pre">Font.unicode_range</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#fontlib.font.FontAlias"><code class="docutils literal notranslate"><span class="pre">FontAlias</span></code></a><ul>
-<li><a class="reference internal" href="#fontlib.font.FontAlias.alias_name"><code class="docutils literal notranslate"><span class="pre">FontAlias.alias_name</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.font.FontAlias.font"><code class="docutils literal notranslate"><span class="pre">FontAlias.font</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.font.FontAlias.id"><code class="docutils literal notranslate"><span class="pre">FontAlias.id</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#fontlib.font.FontSrcFormat"><code class="docutils literal notranslate"><span class="pre">FontSrcFormat</span></code></a><ul>
-<li><a class="reference internal" href="#fontlib.font.FontSrcFormat.font"><code class="docutils literal notranslate"><span class="pre">FontSrcFormat.font</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.font.FontSrcFormat.id"><code class="docutils literal notranslate"><span class="pre">FontSrcFormat.id</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.font.FontSrcFormat.src_format"><code class="docutils literal notranslate"><span class="pre">FontSrcFormat.src_format</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-fontlib.fontstack">fontstack</a><ul>
-<li><a class="reference internal" href="#fontlib.fontstack.FontStack"><code class="docutils literal notranslate"><span class="pre">FontStack</span></code></a><ul>
-<li><a class="reference internal" href="#fontlib.fontstack.FontStack.add_font"><code class="docutils literal notranslate"><span class="pre">FontStack.add_font()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.fontstack.FontStack.get_fontstack"><code class="docutils literal notranslate"><span class="pre">FontStack.get_fontstack()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.fontstack.FontStack.init_fontstack"><code class="docutils literal notranslate"><span class="pre">FontStack.init_fontstack()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.fontstack.FontStack.list_fonts"><code class="docutils literal notranslate"><span class="pre">FontStack.list_fonts()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.fontstack.FontStack.load_css"><code class="docutils literal notranslate"><span class="pre">FontStack.load_css()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.fontstack.FontStack.load_entry_point"><code class="docutils literal notranslate"><span class="pre">FontStack.load_entry_point()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.fontstack.FontStack.save_font"><code class="docutils literal notranslate"><span class="pre">FontStack.save_font()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.fontstack.FontStack.set_cache"><code class="docutils literal notranslate"><span class="pre">FontStack.set_cache()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#fontlib.fontstack.BUILTINS"><code class="docutils literal notranslate"><span class="pre">BUILTINS</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-fontlib.googlefont">googlefont</a><ul>
-<li><a class="reference internal" href="#fontlib.googlefont.is_google_font_url"><code class="docutils literal notranslate"><span class="pre">is_google_font_url()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.googlefont.read_google_font_css"><code class="docutils literal notranslate"><span class="pre">read_google_font_css()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.googlefont.GOOGLE_FONTS_HOST"><code class="docutils literal notranslate"><span class="pre">GOOGLE_FONTS_HOST</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.googlefont.GOOGLE_FONT_FORMATS"><code class="docutils literal notranslate"><span class="pre">GOOGLE_FONT_FORMATS</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-fontlib.log">log</a><ul>
-<li><a class="reference internal" href="#fontlib.log.init_log"><code class="docutils literal notranslate"><span class="pre">init_log()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.log.FONTLIB_LOGGER"><code class="docutils literal notranslate"><span class="pre">FONTLIB_LOGGER</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-fontlib.mime">mime</a><ul>
-<li><a class="reference internal" href="#fontlib.mime.FontlibMimeTypes"><code class="docutils literal notranslate"><span class="pre">FontlibMimeTypes</span></code></a><ul>
-<li><a class="reference internal" href="#fontlib.mime.FontlibMimeTypes.map_types"><code class="docutils literal notranslate"><span class="pre">FontlibMimeTypes.map_types()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#fontlib.mime.add_types"><code class="docutils literal notranslate"><span class="pre">add_types()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-fontlib.urlcache">urlcache</a><ul>
-<li><a class="reference internal" href="#fontlib.urlcache.NoCache"><code class="docutils literal notranslate"><span class="pre">NoCache</span></code></a><ul>
-<li><a class="reference internal" href="#fontlib.urlcache.NoCache.add_url"><code class="docutils literal notranslate"><span class="pre">NoCache.add_url()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.urlcache.NoCache.cache_url"><code class="docutils literal notranslate"><span class="pre">NoCache.cache_url()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.urlcache.NoCache.fname_by_blob"><code class="docutils literal notranslate"><span class="pre">NoCache.fname_by_blob()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.urlcache.NoCache.get_blob_obj"><code class="docutils literal notranslate"><span class="pre">NoCache.get_blob_obj()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.urlcache.NoCache.init"><code class="docutils literal notranslate"><span class="pre">NoCache.init()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.urlcache.NoCache.save_url"><code class="docutils literal notranslate"><span class="pre">NoCache.save_url()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.urlcache.NoCache.update_db"><code class="docutils literal notranslate"><span class="pre">NoCache.update_db()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#fontlib.urlcache.SimpleURLCache"><code class="docutils literal notranslate"><span class="pre">SimpleURLCache</span></code></a><ul>
-<li><a class="reference internal" href="#fontlib.urlcache.SimpleURLCache.fname_by_blob"><code class="docutils literal notranslate"><span class="pre">SimpleURLCache.fname_by_blob()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.urlcache.SimpleURLCache.init"><code class="docutils literal notranslate"><span class="pre">SimpleURLCache.init()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#fontlib.urlcache.URLBlob"><code class="docutils literal notranslate"><span class="pre">URLBlob</span></code></a><ul>
-<li><a class="reference internal" href="#fontlib.urlcache.URLBlob.STATE_CACHED"><code class="docutils literal notranslate"><span class="pre">URLBlob.STATE_CACHED</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.urlcache.URLBlob.STATE_LIST"><code class="docutils literal notranslate"><span class="pre">URLBlob.STATE_LIST</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.urlcache.URLBlob.STATE_LOCAL"><code class="docutils literal notranslate"><span class="pre">URLBlob.STATE_LOCAL</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.urlcache.URLBlob.STATE_REMOTE"><code class="docutils literal notranslate"><span class="pre">URLBlob.STATE_REMOTE</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.urlcache.URLBlob.font"><code class="docutils literal notranslate"><span class="pre">URLBlob.font</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.urlcache.URLBlob.id"><code class="docutils literal notranslate"><span class="pre">URLBlob.id</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.urlcache.URLBlob.origin"><code class="docutils literal notranslate"><span class="pre">URLBlob.origin</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.urlcache.URLBlob.state"><code class="docutils literal notranslate"><span class="pre">URLBlob.state</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#fontlib.urlcache.URLCache"><code class="docutils literal notranslate"><span class="pre">URLCache</span></code></a><ul>
-<li><a class="reference internal" href="#fontlib.urlcache.URLCache.add_url"><code class="docutils literal notranslate"><span class="pre">URLCache.add_url()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.urlcache.URLCache.cache_url"><code class="docutils literal notranslate"><span class="pre">URLCache.cache_url()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.urlcache.URLCache.fname_by_blob"><code class="docutils literal notranslate"><span class="pre">URLCache.fname_by_blob()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.urlcache.URLCache.get_blob_obj"><code class="docutils literal notranslate"><span class="pre">URLCache.get_blob_obj()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.urlcache.URLCache.init"><code class="docutils literal notranslate"><span class="pre">URLCache.init()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.urlcache.URLCache.save_url"><code class="docutils literal notranslate"><span class="pre">URLCache.save_url()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.urlcache.URLCache.update_db"><code class="docutils literal notranslate"><span class="pre">URLCache.update_db()</span></code></a></li>
-<li><a class="reference internal" href="#fontlib.urlcache.URLCache.CHUNKSIZE"><code class="docutils literal notranslate"><span class="pre">URLCache.CHUNKSIZE</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#fontlib.urlcache.download_blob"><code class="docutils literal notranslate"><span class="pre">download_blob()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-fontlib.utils">utils</a><ul>
-<li><a class="reference internal" href="#fontlib.utils.lazy_property"><code class="docutils literal notranslate"><span class="pre">lazy_property</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<h3>Navigation</h3>
+    <li><a href="https://github.com/return42/fontlib/tree/master">Source</a>
+  
+    <li><a href="https://github.com/return42/fontlib/issues">Issue Tracker</a>
+  
+    <li><a href="https://pypi.org/project/fontlib/">Releases</a>
+  </ul><h3>Navigation</h3>
 <ul>
   <li><a href="index.html">Overview</a>
     <ul>
@@ -1926,7 +1736,7 @@ has been downloaded.  If no more to download, max_bytes is set to -1.</p></li>
     </form>
     </div>
 </div>
-<script>document.getElementById('searchbox').style.display = "block"</script><div id="ethical-ad-placement"></div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>

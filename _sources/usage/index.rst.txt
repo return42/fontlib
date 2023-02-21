@@ -1,11 +1,11 @@
 .. -*- coding: utf-8; mode: rst -*-
-.. include:: refs.txt
+.. include:: ../refs.txt
 
 .. _use:
 
-===
-Use
-===
+=====
+Usage
+=====
 
 The python fontlib_ package helps to manage fonts from different resources.  A
 :ref:`Font <font>` itself is identified by its origin URL.  Fonts from various
