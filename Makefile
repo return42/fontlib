@@ -26,7 +26,7 @@ help-min:
 	@echo  '  docs-live - autobuild HTML documentation while editing'
 	@echo  '  clean     - remove most generated files'
 	@echo  ''
-	@echo  '  project   - update README & requirements.txt'
+	@echo  '  project   - rebuild project related sources'
 	@echo  '  test      - run *tox* test'
 	@echo  '  install   - developer install (./local)'
 	@echo  '  uninstall - uninstall (./local)'
@@ -45,11 +45,15 @@ build: $(PY_ENV) project pybuild
 
 PHONY += project
 project: install
-	@echo '  PROJECT   README.rst requirements.txt'
-	$(Q)- rm -f README.rst requirements.txt
+	$(Q)- rm -f README.rst requirements.txt ./docs/resources/googlefont-list.txt
+	@echo '  PROJECT   README.rst'
 	$(Q)$(PY_ENV_BIN)/python -c "from fontlib.__pkginfo__ import *; print(README)" > ./README.rst
+	@echo '  PROJECT   requirements.txt'
 	$(Q)$(PY_ENV_BIN)/python -c "from fontlib.__pkginfo__ import *; print(requirements_txt)" > ./requirements.txt
-	$(Q)$(PY_ENV_BIN)/fontlib google --format=rst list > ./docs/googlefont-list.txt
+	@echo '  PROJECT   requirements.txt'
+	$(Q)$(PY_ENV_BIN)/python -c "from fontlib.__pkginfo__ import *; print(requirements_dev_txt)" > ./requirements_dev.txt
+	@echo '  PROJECT   docs/resources/googlefont-list.txt'
+	$(Q)$(PY_ENV_BIN)/fontlib google --format=rst list > ./docs/resources/googlefont-list.txt
 
 PHONY += install
 install: pyenvinstall
