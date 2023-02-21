@@ -1,5 +1,5 @@
 .. -*- coding: utf-8; mode: rst -*-
-.. include:: refs.txt
+.. include:: ../refs.txt
 
 .. _googlefont:
 

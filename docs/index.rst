@@ -4,20 +4,19 @@
 .. _python fontlib:
 
 ==============
-Python fontlib
+python fontlib
 ==============
 
 .. automodule:: fontlib
     :undoc-members:
 
 .. toctree::
-   :hidden:
+   :maxdepth: 2
+   :caption: Contents
 
    install
-   use
+   usage/index
    config
-   googlefont
-   ep_points
-   builtin
+   resources/index
    api
    internal

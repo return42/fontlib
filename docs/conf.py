@@ -53,14 +53,30 @@ extensions = [
     , 'pallets_sphinx_themes'
 ]
 
-
-sys.path.append(os.path.abspath('_themes'))
-html_theme           = "custom"
-html_logo            = 'darmarIT_logo_128.png'
-html_theme_path      = ['_themes']
-
 # http://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html
 autoclass_content = 'both'
 autodoc_member_order = 'groupwise'
 
 todo_include_todos = True
+
+# Sphinx theme
+
+sys.path.append(os.path.abspath('_themes'))
+html_theme           = 'custom'
+html_logo            = 'darmarIT_logo_128.png'
+html_theme_path      = ['_themes']
+
+html_context = {"project_links": [] }
+html_context['project_links'].append(ProjectLink('Source', GIT_URL + '/tree/' + GIT_BRANCH))
+html_context['project_links'].append(ProjectLink('Issue Tracker', GIT_URL + '/issues'))
+html_context['project_links'].append(ProjectLink('Releases', 'https://pypi.org/project/fontlib/'))
+
+html_sidebars = {
+    "**": [
+        "globaltoc.html",
+        "project.html",
+        "relations.html",
+        "searchbox.html",
+        # "sourcelink.html"
+    ],
+}

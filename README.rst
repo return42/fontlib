@@ -1,17 +1,16 @@
-==============================================================================
+=======
 fontlib
-==============================================================================
+=======
 
-
-
-The `python fontlib` package helps to manage fonts from different resources.  It
-comes with an API and the fontlib command line (see :ref:`use`).
+The python `fontlib <http://return42.github.io/fontlib>`__ package helps to manage fonts from different
+resources.  It comes with an API and the fontlib command line (see `usage
+<http://return42.github.io/fontlib/usage/index.html>`__).
 
 To name just a few fontlib features:
 
-- fontlib ships some :ref:`builtin fonts <builtin_fonts>`
-- fontlib make use of fonts from :ref:`google fonts <googlefont>`
-- fontlib use fonts from :ref:`entry points <ep_points>`
+- fontlib ships some `builtin fonts <http://return42.github.io/fontlib/resources/builtin.html>`__
+- fontlib make use of fonts from `google fonts <http://return42.github.io/fontlib/resources/googlefont.html>`__
+- fontlib use fonts from `entry points <http://return42.github.io/fontlib/resources/ep_points.html>`__
 - Python `mimetypes <https://docs.python.org/3/library/mimetypes.html>`__ for font types
 
 
@@ -24,7 +23,6 @@ Install and update using `pip <https://pip.pypa.io/en/stable/quickstart/>`__
 .. code-block:: text
 
    pip install --user -U fontlib
-
 
 Links
 =====
@@ -40,6 +38,5 @@ copyright:   2023 Markus Heiser
 e-mail:      markus.heiser@darmarIT.de
 license:     GPLv3
 ============ ===============================================
-
 
 

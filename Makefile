@@ -26,7 +26,8 @@ help-min:
 	@echo  '  docs-live - autobuild HTML documentation while editing'
 	@echo  '  clean     - remove most generated files'
 	@echo  ''
-	@echo  '  test  - run *tox* test'
+	@echo  '  project   - update README & requirements.txt'
+	@echo  '  test      - run *tox* test'
 	@echo  '  install   - developer install (./local)'
 	@echo  '  uninstall - uninstall (./local)'
 
