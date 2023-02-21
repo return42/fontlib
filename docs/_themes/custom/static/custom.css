@@ -111,6 +111,10 @@ div.rst-example > p.admonition-title {
 /* code block in figures
  */
 
+div.highlight, div.literal-block-wrapper div.highlight {
+    margin: unset;
+}
+
 div.highlight pre {
     text-align: left;
 }
