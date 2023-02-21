@@ -107,7 +107,7 @@ def main():
         , metavar = 'INI-FILE' )
 
     cli.add_argument(
-        "--workspace"
+        '-w', '--workspace'
         , dest = 'workspace'
         , default = CTX.CONFIG.get(*MAP_ARG_TO_CFG['workspace'][:2])
         , type = FSPath
@@ -151,6 +151,11 @@ def main():
     # cmd: css-parse
 
     css_parse = cli.addCMDParser(cli_parse_css, cmdName='css-parse')
+    css_parse.add_argument(
+        '--register'
+        , action  = 'store_true'
+        , help = 'register parsed fonts'
+    )
     css_parse.add_argument(
         "url"
         , type = str
@@ -391,8 +396,9 @@ def cli_parse_css(args):
     cli = args.CLI
     _ = cli.UI
 
-    # init application with an empty fontstack database
-    CTX.CONFIG.set('DEFAULT', 'fontlib_db', value='sqlite:///:memory:')
+    if not args.register:
+        # init application with an empty fontstack database
+        CTX.CONFIG.set('DEFAULT', 'fontlib_db', value='sqlite:///:memory:')
     init_app(args)
 
     def table_rows():
@@ -419,6 +425,8 @@ def cli_parse_css(args):
             , ("font ID",       "%-22s",        "id")
             , ("URL",           "%-90s",        "origin") )
 
+    if args.register:
+        _.echo('fonts registered in workspace: %s' % CTX.WORKSPACE)
 
 def download_progress(_url, font_name, font_format, _cache_file, down_bytes, max_bytes):
     """Callback that prints download progress bar.
