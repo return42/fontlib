@@ -157,23 +157,23 @@ develop_requires_txt = "\n".join(develop_requires)
 
 requirements_txt = """\
 %(install_requires_txt)s
-
-# Packages with font entry points
-# -------------------------------
-#
-# font-amatic-sc
-# font-caladea
-# font-font-awesome
-# font-fredoka-one
-# font-hanken-grotesk
-# font-intuitive
-# font-source-sans-pro
-# font-source-serif-pro
 """ % globals()
 
 requirements_dev_txt = """\
 %(test_requires_txt)s
 %(develop_requires_txt)s
+
+# Packages with font entry points
+# -------------------------------
+#
+font-amatic-sc
+font-caladea
+font-font-awesome
+font-fredoka-one
+font-hanken-grotesk
+font-intuitive
+font-source-sans-pro
+font-source-serif-pro
 """ % globals()
 
 def get_entry_points():

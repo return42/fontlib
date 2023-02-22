@@ -14,3 +14,15 @@ sphinxcontrib-programoutput
 sqlalchemy_schemadisplay @ git+https://github.com/fschulze/sqlalchemy_schemadisplay
 twine
 
+# Packages with font entry points
+# -------------------------------
+#
+font-amatic-sc
+font-caladea
+font-font-awesome
+font-fredoka-one
+font-hanken-grotesk
+font-intuitive
+font-source-sans-pro
+font-source-serif-pro
+

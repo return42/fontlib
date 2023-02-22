@@ -3,15 +3,3 @@ requests
 sqlalchemy
 tinycss2
 
-# Packages with font entry points
-# -------------------------------
-#
-# font-amatic-sc
-# font-caladea
-# font-font-awesome
-# font-fredoka-one
-# font-hanken-grotesk
-# font-intuitive
-# font-source-sans-pro
-# font-source-serif-pro
-
