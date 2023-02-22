@@ -5,8 +5,11 @@
 import os
 import sys
 import fontlib.__pkginfo__ as PKG
-
+from fontlib import googlefont
+import fontlib.config
 from pallets_sphinx_themes import ProjectLink
+
+fontlib.config.init_cfg()
 
 project    = 'fontlib'
 copyright  = PKG.copyright  # pylint: disable=redefined-builtin
@@ -51,6 +54,13 @@ extensions = [
     , 'sphinx.ext.intersphinx'
     , 'sphinxcontrib.programoutput'
     , 'pallets_sphinx_themes'
+    , 'sphinx_jinja'                    # https://github.com/tardyp/sphinx-jinja
+    , 'notfound.extension'              # https://github.com/readthedocs/sphinx-notfound-page
+    , 'sphinx_tabs.tabs'                # https://github.com/djungelorm/sphinx-tabs
+    , 'linuxdoc.kernel_include'         # https://return42.github.io/linuxdoc/linuxdoc-howto/kernel-include-directive.html
+    , 'linuxdoc.rstFlatTable'           # https://return42.github.io/linuxdoc/linuxdoc-howto/table-markup.html#rest-flat-table
+    , 'linuxdoc.kfigure'                # https://return42.github.io/linuxdoc/linuxdoc-howto/kfigure.html#kfigure
+
 ]
 
 # http://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html
@@ -58,6 +68,18 @@ autoclass_content = 'both'
 autodoc_member_order = 'groupwise'
 
 todo_include_todos = True
+notfound_urls_prefix = '/'
+
+# jinja templating
+
+jinja_contexts = {
+    'fontlib': {
+        'googlefont' : {
+            'font_map' : googlefont.font_map(fontlib.config.get_cfg()),
+            'GOOGLE_METADATA_FONTS' : googlefont.GOOGLE_METADATA_FONTS,
+        }
+    },
+}
 
 # Sphinx theme
 

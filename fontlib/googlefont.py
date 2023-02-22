@@ -1,26 +1,20 @@
 # -*- coding: utf-8; mode: python; mode: flycheck -*-
-# pylint: disable=missing-docstring, too-few-public-methods
-"""The googlefont module serves stuff to manage fonts from `fonts.google.com
-<https://www.google.com/fonts>`__
+# pylint: disable=missing-docstring, too-few-public-methods, consider-using-f-string
+"""The :py:obj:`fontlib.googlefont` module serves stuff to manage fonts from
+`fonts.google.com <https://www.google.com/fonts>`__
 
 """
 
 __all__ = [
     'GOOGLE_FONTS_HOST'
     , 'GOOGLE_FONT_FORMATS'
-    , 'GOOGLE_FONT_METADATA_CSV'
     , 'is_google_font_url'
     , 'read_google_font_css'
 ]
 
 import logging
-import socket
-import ipaddress
-from urllib.parse import urlparse
-from urllib.request import urlopen
+import urllib.parse
 import requests
-
-import fspath
 
 log = logging.getLogger(__name__)
 
@@ -32,7 +26,6 @@ GOOGLE_FONTS_GSTATIC = 'fonts.gstatic.com'
 
 # user agent concept was stolen from https://github.com/glasslion/fontdump.git
 GOOGLE_USER_AGENTS = {
-    # pylint: disable=bad-continuation
     'woff2':  'Mozilla/5.0 (X11; Linux x86_64; rv:66.0) Gecko/20100101 Firefox/66.0'
     , 'ttf':  'Mozilla/5.0 (Linux; U; Android 2.2; en-us; DROID2 GLOBAL '
               'Build/S273) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 '
@@ -45,7 +38,9 @@ GOOGLE_USER_AGENTS = {
 GOOGLE_FONT_FORMATS = list(GOOGLE_USER_AGENTS)
 """list of font formats used from google's font api"""
 
-GOOGLE_FONT_METADATA_CSV = "https://raw.githubusercontent.com/googlefonts/FontClassificationTool/master/font-metadata.csv"
+GOOGLE_METADATA_FONTS = 'https://fonts.google.com/metadata/fonts'
+"""URL of the fonts database in JSON format.  The fonts are grouped in the list
+``familyMetadataList``."""
 
 def is_google_font_url(url):
     """Test if ``url`` is from google font host ``fonts.googleapis.com``
@@ -55,7 +50,7 @@ def is_google_font_url(url):
         ``http://`` or ``https://``
 
     """
-    url = urlparse(url)
+    url = urllib.parse.urlparse(url)
     hostname = url.netloc.split(':')[0]
 
     if ( hostname in (GOOGLE_FONTS_HOST, GOOGLE_FONTS_GSTATIC)
@@ -92,53 +87,50 @@ def read_google_font_css(url, format_list=None):
     for font_format in format_list:
         headers['User-Agent'] = GOOGLE_USER_AGENTS[font_format]
         log.debug("request: %s | User-Agent: %s" , url, headers['User-Agent'])
-        resp = requests.get(url, headers=headers)
+        resp = requests.get(url, headers=headers, timeout=30)
         content += resp.content
     return content
 
 
-def list_fontnames():
-    """Yield a list of *known* foontnames from ``fonts.googleapis.com``.
+def font_map(cfg):
+    """Return a dictionary of font families from ``fonts.googleapis.com``.
 
-    .. hint::
+    A item in the returned dict contains of::
 
-      This funtion needs some more elaboration, the generated list is faulty in
-      a very different way ...
+        <str: family-name> : {
+            'category':    <str: category name>,
+            'noto':        <bool: is noto font>,
+            'css_url':     <str: URL>,
+    }
 
-      ATM I do not know a *singel point of definition* with a complete list of
-      font names hosted on ``fonts.googleapis.com``.
+    ``<str: category name>``:
+      - Handwriting
+      - Sans
+      - ...
 
-    ATM ``fonts.googleapis.com`` lists 959 fonts.  When I grep the HTML from
-    https://fonts.google.com/ I found 950 font names (see
-    ``google-font-names.txt``).  The only list I have found is the list of font
-    names from :data:`GOOGLE_FONT_METADATA_CSV`.  In this list there are only
-    873 unique font names.
+    ``<bool: is noto font>``:
+      The font is (``True``) or is not (``False``) a `noto font`_
 
-      The interim solution is to mix font names from ``google-font-names.txt``
-      and :data:`GOOGLE_FONT_METADATA_CSV` into one list (containing 954 font
-      names).
+    ``<str: URL>``:
+      URL to google's CSS with @font-face rules for this font family.
+
+    .. _noto font: https://en.wikipedia.org/wiki/Noto_fonts
 
     """
-    names = set()
+    family_map = {}
+    base_url = cfg.get('google fonts', 'family base url')
+    with requests.get(GOOGLE_METADATA_FONTS, timeout=30) as resp:
+        if not resp.ok:
+            raise ConnectionError('HTTP %s : %s' % (resp.status_code, GOOGLE_METADATA_FONTS))
+        family_list = resp.json()['familyMetadataList']
+        for item in family_list:
+            family = item['family']
+            if family in family_map:
+                log.error('google: duplicate font-family-name: %s', family)
 
-    gfn_txt_file = fspath.FSPath(__file__).DIRNAME / 'google-font-names.txt'
-    with gfn_txt_file.openTextFile() as gfn_txt:
-        for line in gfn_txt:
-            name = line.strip()
-            if name and name[0] != '#':
-                if name in names:
-                    log.error("%s: duplicate %s", GOOGLE_FONT_METADATA_CSV, name)
-                else:
-                    names.add(name)
-
-    with urlopen(GOOGLE_FONT_METADATA_CSV) as csv:
-        _max_bytes  = int(csv.headers.get("Content-Length", 0))
-        _csv_header = csv.readline()
-        for line in csv:
-            name, _ = line.decode('utf-8').split(':', 1)
-            if name not in names:
-                log.debug("adding %s from CSV table", name)
-                names.add(name)
-
-    for name in sorted(names):
-        yield name
+            family_map[family] = {
+                'category':   item['category'],
+                'noto':       item['isNoto'],
+                'css_url':    base_url + urllib.parse.quote(family)
+            }
+    return family_map

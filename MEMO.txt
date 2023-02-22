@@ -3,11 +3,6 @@
 MEMO
 ====
 
-ToDo:
-
-- update fontlib/google-font-names.txt / see 884371370c
-
-
 Makefile::
 
   $ make clean install
@@ -20,6 +15,7 @@ bash::
 
   source ./local/py3/bin/activate
 
+  # Incompatible with SQLAlchemy 2.0.0 --> https://github.com/fschulze/sqlalchemy_schemadisplay/issues/33
   ./local/py3/bin/fontlib SCHEMA --help
   ./local/py3/bin/fontlib SCHEMA schema_diagram.svg
 
@@ -34,13 +30,8 @@ bash::
 
 PDB::
 
-   M-x realgud:pdb ./local/py3/bin/python -m fontlib.cli list
+   M-x realgud:pdb ./local/py3/bin/fontlib list
 
 SQLite::
 
    M-x sql-sqlite ~/.fontlib/fontlib.db
-
-Links:
-
-- https://bitbucket.org/marcusva/python-utils/src/default/utils/events.py
-- https://bitbucket.org/marcusva/python-utils/src/e5e6c85fb7f8901b4bd1a776e638b38f5f9e397f/utils/sysfont.py#lines-91

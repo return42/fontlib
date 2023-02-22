@@ -104,7 +104,6 @@ class Context:
 
 def main():
     """main loop of the command line interface"""
-    global CTX
 
     cli = CLI(description=__doc__)
     cli.UI = SimpleUserInterface(cli=cli)
@@ -659,25 +658,24 @@ def cli_google(args):
 
     commands:
 
-    - list: print out list of known font names from fonts.googleapis.com
+    - list: print out list of known font names from fonts.googleapis.com::
+
+        google --format=rst list 'Libre.*39'
 
     - add: font to FontStack::
 
-        google --format=rst list 'Libre.*39'
         google --format=rst add 'Libre.*39'
 
       The second argument is a optional regular expression to filter font names
       by matching this expression (default: *None*).
     """
+    # pylint: disable=too-many-branches
     init_app(args)
     _ = args.CLI.UI
 
     if args.subcommand in ('list', 'add'):
 
-        base_url = CTX.CONFIG.get('google fonts', 'family base url')
-
         # get match condition ...
-
         condition = None
         if args.argument_list:
             condition = args.argument_list.pop(0)
@@ -685,26 +683,24 @@ def cli_google(args):
             condition = re.compile(condition)
 
         # finally check command line
-
         if args.argument_list:
-            _.echo("WARNING: ignoring arguments: %s" % (','.join(args.argument_list)))
+            _.echo(f'WARNING: ignoring arguments: {",".join(args.argument_list)}')
 
     if args.subcommand == 'list':
 
         # output list ..
-
         if args.out_format == 'rst':
             _.rst_title("google font names")
 
-        c = 0
-        for name in googlefont.list_fontnames():
+        i = 0
+        for name, item in googlefont.font_map(CTX.CONFIG).items():
             if condition is not None:
                 if not condition.search(name):
                     continue
-            c += 1
+            i += 1
             msg = name
             if args.out_format == 'rst':
-                msg = '%d. %s --> %s' % (c, name, base_url + urllib.parse.quote(name))
+                msg = f"{i:4d}. {name} --> {item['css_url']}"
             _.echo(msg)
 
         if args.out_format == 'rst':
@@ -714,27 +710,24 @@ def cli_google(args):
 
         event.add('FontStack.add_font', print_font())
         event.add('FontStack.add_alias', print_msg('add alias %s to font %s'))
-        c = 0
+        i = 0
 
         with db.fontlib_scope():
-
             stack = FontStack.get_fontstack(CTX.CONFIG)
 
-            for name in googlefont.list_fontnames():
+            for name, item in googlefont.font_map(CTX.CONFIG).items():
                 if condition is not None:
                     if not condition.search(name):
                         continue
-                c += 1
+                i += 1
 
-                css_url = base_url + urllib.parse.quote(name)
-                _.echo('%d. read font-family "%s" from CSS: %s' % (c, name, css_url))
-                stack.load_css(css_url)
+                _.echo(f"{i:4d}. read font-family '{name}' from CSS: {item['css_url']}")
+                stack.load_css(item['css_url'])
 
 # ==============================================================================
 # helper ...
 # ==============================================================================
 
-# pylint: disable=bad-continuation
 MAP_ARG_TO_CFG = {
     # cli-argument    : (cfg-section, cfg-option) # see ./config.ini
     'builtins'        : ('fontstack', 'builtin fonts')
@@ -743,7 +736,6 @@ MAP_ARG_TO_CFG = {
     , 'workspace'     : ('DEFAULT', 'workspace')
 }
 """Maps command line arguments to config section & option"""
-# pylint: enable=bad-continuation
 
 def map_arg_to_cfg(args, cfg):
     """update application's CONFIG from command line arguments.."""
@@ -811,8 +803,6 @@ def init_app(args, verbose=False): # pylint: disable=too-many-statements
 
     """
     # pylint: disable=too-many-branches
-
-    global CTX
 
     verbose = verbose or args.verbose
     _ = args.CLI.UI

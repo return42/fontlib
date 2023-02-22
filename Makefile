@@ -50,10 +50,8 @@ project: install
 	$(Q)$(PY_ENV_BIN)/python -c "from fontlib.__pkginfo__ import *; print(README)" > ./README.rst
 	@echo '  PROJECT   requirements.txt'
 	$(Q)$(PY_ENV_BIN)/python -c "from fontlib.__pkginfo__ import *; print(requirements_txt)" > ./requirements.txt
-	@echo '  PROJECT   requirements.txt'
+	@echo '  PROJECT   requirements_dev.txt'
 	$(Q)$(PY_ENV_BIN)/python -c "from fontlib.__pkginfo__ import *; print(requirements_dev_txt)" > ./requirements_dev.txt
-	@echo '  PROJECT   docs/resources/googlefont-list.txt'
-	$(Q)$(PY_ENV_BIN)/fontlib google --format=rst list > ./docs/resources/googlefont-list.txt
 
 PHONY += install
 install: pyenvinstall

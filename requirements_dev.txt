@@ -2,11 +2,14 @@ pylint
 Sphinx
 argcomplete
 jedi
+linuxdoc
 pallets-sphinx-themes
 pip
 psycopg2-binary
 sphinx-autobuild
+sphinx-jinja
 sphinx-notfound-page
+sphinx-tabs
 sphinxcontrib-programoutput
 sqlalchemy_schemadisplay @ git+https://github.com/fschulze/sqlalchemy_schemadisplay
 twine
