@@ -55,13 +55,13 @@ from .log import DEFAULT_LOG_INI
 from .log import FONTLIB_LOGGER
 from .log import init_log
 
-_development = True
+_development = True  # pylint: disable=invalid-name
 
 try:
     from sqlalchemy import MetaData
     from sqlalchemy_schemadisplay import create_schema_graph
 except ImportError as exc:
-    _development = False
+    _development = False  # pylint: disable=invalid-name
 
 
 log = logging.getLogger('fontlib.cli')
@@ -73,6 +73,7 @@ CTX = None
 
 class Context:
     """Application's context"""
+    # pylint: disable=invalid-name
 
     def __init__(self, cli):
         init_cfg()
@@ -132,12 +133,12 @@ def main():
 
     # cmd: README ...
 
-    _ = cli.addCMDParser(cli_README, cmdName='README')
+    _ = cli.addCMDParser(cli_readme, cmdName='README')
 
     # cmd: SCHEMA ...
 
     if _development:
-        schema = cli.addCMDParser(cli_SCHEMA, cmdName='SCHEMA')
+        schema = cli.addCMDParser(cli_schema, cmdName='SCHEMA')
         schema.add_argument(
             '--force'
             , action  = 'store_true'
@@ -262,7 +263,7 @@ def main():
     # run ...
     cli()
 
-def cli_README(args):
+def cli_readme(args):
     """prints README to stdout
 
     Use ``--verbose`` to print URL auf http links.
@@ -278,7 +279,7 @@ def cli_README(args):
         readme = re.sub(r'`(.*?)\s\<http.*?\>`_+', r"'\1'", readme, flags=re.S)
     _.echo(readme)
 
-def cli_SCHEMA(args):
+def cli_schema(args):
     # pylint: disable=line-too-long
     """Turn SQLAlchemy DB Model into a graph.
 
@@ -309,7 +310,7 @@ def cli_SCHEMA(args):
     fontlib_connector = CTX.CONFIG.get('DEFAULT', 'fontlib_db', fallback='sqlite:///:memory:')
 
     if args.out.EXISTS and not args.force:
-        raise args.Error(42, "file %s already exists (use --force to overwrite)" % args.out)
+        raise args.Error(42, f"file {args.out} already exists (use --force to overwrite)")
 
     fmt = 'svg'
     if args.out.SUFFIX:
@@ -324,10 +325,10 @@ def cli_SCHEMA(args):
         , concentrate = False  # Don't try to join the relation lines together
     )
     if fmt in graph.formats:
-        _.echo("write format %s to file: %s" % (fmt, args.out))
+        _.echo(f"write format {fmt} to file: {args.out}")
         graph.write(args.out, format=fmt, encoding='utf-8') # write out the file
     else:
-        raise args.Error(42, "unknown output format: %s" % fmt)
+        raise args.Error(42, f"unknown output format:{fmt}")
 
 def cli_version(args):
     """prints version infos to stdout"""
@@ -369,14 +370,14 @@ def cli_list_fonts(args):
             if blob.state == blob.STATE_CACHED:
                 closest = stack.cache.fname_by_blob(blob)
 
-            yield dict(
-                id = font.id
-                , origin = font.origin
-                , name = font.name
-                , format = font.format
-                , blob_state = blob.state
-                , closest = closest
-                )
+            yield {
+                'id':            font.id
+                , 'origin':      font.origin
+                , 'name':        font.name
+                , 'format':      font.format
+                , 'blob_state':  blob.state
+                , 'closest':     closest
+            }
 
     with db.fontlib_scope():
 
@@ -415,17 +416,17 @@ def cli_parse_css(args):
     def table_rows():
 
         for font in stack.list_fonts():
-            yield dict(
-                id = font.id
-                , origin = font.origin
-                , name = font.name
-                , format = font.format
-                )
+            yield {
+                'id':          font.id
+                , 'origin':    font.origin
+                , 'name':      font.name
+                , 'format':    font.format
+            }
 
     with db.fontlib_scope():
 
         stack = FontStack.get_fontstack(CTX.CONFIG)
-        _.echo("load css from url: %s" % args.url)
+        _.echo(f"load css from url: {args.url}")
         stack.load_css(args.url)
 
         _.rst_table(
@@ -437,7 +438,7 @@ def cli_parse_css(args):
             , ("URL",           "%-90s",        "origin") )
 
     if args.register:
-        _.echo('fonts registered in workspace: %s' % CTX.WORKSPACE)
+        _.echo(f'fonts registered in workspace: {CTX.WORKSPACE}')
 
 def download_progress(_url, font_name, font_format, _cache_file, down_bytes, max_bytes):
     """Callback that prints download progress bar.
@@ -452,7 +453,7 @@ def download_progress(_url, font_name, font_format, _cache_file, down_bytes, max
 
     progressbar(
         down_bytes, progress_max
-        , prompt = "%s (%s) [%s]" % (font_name, font_format, humanizeBytes(progress_max, 1))
+        , prompt = f"{font_name} ({font_format}) [{humanizeBytes(progress_max, 1)}]"
         , pipe = CTX.CLI.OUT
     )
 
@@ -491,18 +492,18 @@ def cli_download_family(args):
                     # the resource is not a typical file URL with a file name, lets use
                     # the fonts resource ID as a file name
                     dest_file = args.dest / str(font.id) + '.' + font.format
-                _.echo("[%s]: download from %s" % (font.name, font.origin))
+                _.echo(f"[{font.name}]: download from {font.origin}")
                 stack.save_font(font, dest_file)
                 c += 1
             if c == 0:
-                _.echo("unknow font-family: %s" % font_family)
+                _.echo(f"unknow font-family: {font_family}")
             count += c
 
     msg = "non of selected fonts is registered in the FontStack"
     if count == 0:
         log.error(msg)
     else:
-        msg = "downloaded %s files into %s" % (count, args.dest)
+        msg = f"downloaded {count} files into {args.dest}"
 
     _.echo(msg)
     return not count
@@ -532,15 +533,15 @@ def cli_config(args):
         folder.makedirs()
 
         dest = folder / 'config.ini'
-        _.echo("install:  %s" % dest)
+        _.echo(f"install:  {dest}")
         if dest.EXISTS and not args.force:
-            raise args.Error(42, "file %s already exists (use --force to overwrite)" % dest)
+            raise args.Error(42, f"file {dest} already exists (use --force to overwrite)")
         DEFAULT_INI.copyfile(dest)
 
         dest = folder / 'log.ini'
-        _.echo("install:  %s" % dest)
+        _.echo(f"install:  {dest}")
         if dest.EXISTS and not args.force:
-            raise args.Error(42, "file %s already exists (use --force to overwrite)" % dest)
+            raise args.Error(42, f"file {dest} already exists (use --force to overwrite)")
         DEFAULT_LOG_INI.copyfile(dest)
 
         return
@@ -557,16 +558,20 @@ def cli_config(args):
 
         return
 
-class print_font:  # pylint: disable=invalid-name
+class print_font:  # pylint: disable=invalid-name, too-few-public-methods
     """function object to print font to stdout"""
     def __call__(self, font):
         print(
-            'add %s // %s // unicode range: %s' %
-            (','.join([y.src_format for y in font.src_formats])
-             , font.name, font.unicode_range or '--')
-            , file = CTX.CLI.OUT)
+            # pylint: disable=consider-using-f-string
+            'add %s // %s // unicode range: %s' % (
+                ','.join([y.src_format for y in font.src_formats]),
+                font.name,
+                font.unicode_range or '--'
+            ),
+            file = CTX.CLI.OUT,
+        )
 
-class print_msg(str):  # pylint: disable=invalid-name
+class print_msg(str):  # pylint: disable=invalid-name, too-few-public-methods
     """function object to print even-message to stdout"""
     def __call__(self, *args, **kwargs):
         msg = self % args
@@ -627,11 +632,11 @@ def cli_workspace(args):
         # finally check command line
 
         if args.argument_list:
-            _.echo("WARNING: ignoring arguments: %s" % (','.join(args.argument_list)))
+            _.echo(f"WARNING: ignoring arguments: {','.join(args.argument_list)}")
 
         # init workspace
 
-        _.echo("initing workspace at: %s" % workspace)
+        _.echo(f"initing workspace at: {workspace}")
         workspace.makedirs()
 
         with db.fontlib_scope():
@@ -644,11 +649,11 @@ def cli_workspace(args):
         # finally check command line
 
         if args.argument_list:
-            _.echo("WARNING: ignoring arguments: %s" % (','.join(args.argument_list)))
+            _.echo(f"WARNING: ignoring arguments: {','.join(args.argument_list)}")
 
         cfg_file = args.config if args.config.EXISTS else DEFAULT_INI
-        _.echo("WORKSPACE: %s" % workspace)
-        _.echo("CONFIG:    %s" % cfg_file)
+        _.echo(f"WORKSPACE: {workspace}")
+        _.echo(f"CONFIG:    {cfg_file}")
         return
 
 def cli_google(args):
@@ -751,27 +756,27 @@ def add_fontstack_options(cmd):
         "--builtins"
         , dest = 'builtins'
         , nargs = '?', type = str
-        , help = "register builtin fonts / e.g. '%s'" % CTX.CONFIG.get(*MAP_ARG_TO_CFG['builtins'][:2])
+        , help = f"register builtin fonts / e.g. '{CTX.CONFIG.get(*MAP_ARG_TO_CFG['builtins'][:2])}'"
         )
 
     cmd.add_argument(
         "--ep-fonts"
         , dest = 'epfonts'
         , nargs = '?', type = str
-        , help = "use fonts from entry points / e.g. '%s'" % CTX.CONFIG.get(*MAP_ARG_TO_CFG['epfonts'][:2])
+        , help = f"use fonts from entry points / e.g. '{CTX.CONFIG.get(*MAP_ARG_TO_CFG['epfonts'][:2])}'"
         )
 
     cmd.add_argument(
         "--google"
         , dest = 'google'
         , nargs = '?', type = str
-        , help = "register fonts from fonts.googleapis.com / e.g. '%s'" % CTX.CONFIG.get(*MAP_ARG_TO_CFG['google'][:2])
+        , help = f"register fonts from fonts.googleapis.com / e.g. '{CTX.CONFIG.get(*MAP_ARG_TO_CFG['google'][:2])}'"
         )
 
 def init_main(cli):
     """Init routine for the very first the main function."""
 
-    global CTX
+    global CTX  # pylint: disable=global-statement
 
     cli_parse_css.__doc__ =  cli_parse_css.__doc__ % globals()
 
@@ -808,9 +813,9 @@ def init_app(args, verbose=False): # pylint: disable=too-many-statements
     # set some base logging while app's runtime is build up
     logger = logging.getLogger(FONTLIB_LOGGER)
     if args.debug:
-        args.ERR.write("set log level of logger: %s (%s)\n" % (logger.name, 'DEBUG'))
-        logging.getLogger('sqlalchemy.engine').setLevel('INFO')
+        args.ERR.write(f"set log level of logger: {logger.name} (DEBUG)\n")
         logger.setLevel('DEBUG')
+        logging.getLogger('sqlalchemy.engine').setLevel('INFO')
 
     # init application's CONFIG from INI file
 
@@ -819,7 +824,7 @@ def init_app(args, verbose=False): # pylint: disable=too-many-statements
     if args.workspace:
         # assert %(workspace)s/config.ini if --workspace was explicite set
         if not args.workspace.EXISTS:
-            raise args.Error(42, 'workspace folder does not exists: %s' % args.workspace)
+            raise args.Error(42, f'workspace folder does not exists: {args.workspace}')
 
         ini_file = args.workspace / 'config.ini'
         if ini_file.EXISTS:
@@ -830,10 +835,10 @@ def init_app(args, verbose=False): # pylint: disable=too-many-statements
     elif args.config.EXIST:
         cfg = args.config
     else:
-        raise args.Error(42, 'config file does not exists: %s' % args.config)
+        raise args.Error(42, f'config file does not exists: {args.workspace}')
 
     if cfg:
-        _.echo("init configuration from: %s" % cfg)
+        _.echo(f"init configuration from: {cfg}")
         init_cfg(cfg)
 
     map_arg_to_cfg(args, CTX.CONFIG)
@@ -844,7 +849,7 @@ def init_app(args, verbose=False): # pylint: disable=too-many-statements
         _.echo("initing workspace at: %s", CTX.WORKSPACE)
         CTX.WORKSPACE.makedirs()
 
-    msg = "using workspace: %s\n" % CTX.WORKSPACE
+    msg = f"using workspace: {CTX.WORKSPACE}\n"
     log.debug(msg)
     if verbose:
         _.echo(msg)
@@ -863,12 +868,12 @@ def init_app(args, verbose=False): # pylint: disable=too-many-statements
 
     if log_cfg is not None:
         if not log_cfg.EXISTS:
-            raise args.Error( 42, (
-                'log config file does not exists:'
-                ' %s check your [logging]:config= setting at: %s'
-            ) % (log_cfg, args.config))
+            raise args.Error(
+                42, ( f'log config file does not exists:'
+                      f' {log_cfg} check your [logging]:config= setting at: {args.config}'
+                     ))
         if verbose:
-            args.ERR.write("load logging configuration from: %s\n" % log_cfg)
+            args.ERR.write(f"load logging configuration from: {log_cfg}\n")
         env = CTX.CONFIG.config_env(app='cli', workspace=CTX.WORKSPACE)
         init_log(log_cfg, defaults = env)
 

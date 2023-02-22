@@ -111,7 +111,7 @@ class CSSRule:
         self.css_url = css_url
         """URL of the CSS (stylesheet) file"""
         self.content = []
-        self.declarations = dict()
+        self.declarations = {}
         """Python dict with CSS declarations"""
 
     def serialize(self):
@@ -124,7 +124,7 @@ class CSSRule:
         TODO: needs some documentation
         """
         self.content = rule.content
-        self.declarations = dict()
+        self.declarations = {}
 
         for decl in split_tokens(self.content, t_type='literal', t_value=';'):
             decl_name = None
@@ -147,7 +147,10 @@ class CSSRule:
                 # exists, use self.parse_decl
 
                 method_name = re.sub('[^a-zA-Z0-9]', '_', decl_name)
-                parse_method = getattr(self, 'parse_decl_%s' % method_name, self.parse_decl)
+                parse_method = getattr(
+                    # pylint: disable=consider-using-f-string
+                    self, 'parse_decl_%s' % method_name, self.parse_decl
+                )
                 parse_method(decl_name, token)
 
     def parse_decl(self, decl_name, token):
@@ -242,7 +245,11 @@ class FontFaceRule(AtRule):
 
         """
         # pylint: disable=too-many-branches
-        ret_val = dict(url=None, format=None, local=[], )
+        ret_val = {
+            'url':      None,
+            'format':   None,
+            'local':    [],
+        }
         decl = self.declarations.get('src', None)
         if decl is None:
             log.error("invalid @font-face rule, missing declartion: src")

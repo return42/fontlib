@@ -2,7 +2,7 @@
 """utils
 
 """
-
+# pylint: disable=too-few-public-methods
 __all__ = [
     'lazy_property'
     , ]

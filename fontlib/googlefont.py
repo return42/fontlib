@@ -74,8 +74,7 @@ def read_google_font_css(url, format_list=None):
     """
 
     if not is_google_font_url(url):
-        raise ConnectionError('%s is not a google font url matching %s' % (
-            url, GOOGLE_FONTS_HOST))
+        raise ConnectionError(f'{url} is not a google font url matching {GOOGLE_FONTS_HOST}')
 
     if format_list is None:
         format_list = GOOGLE_FONT_FORMATS
@@ -120,7 +119,7 @@ def font_map(cfg):
     base_url = cfg.get('google fonts', 'family base url')
     with requests.get(GOOGLE_METADATA_FONTS, timeout=30) as resp:
         if not resp.ok:
-            raise ConnectionError('HTTP %s : %s' % (resp.status_code, GOOGLE_METADATA_FONTS))
+            raise ConnectionError(f'HTTP {resp.status_code} : {GOOGLE_METADATA_FONTS}')
         family_list = resp.json()['familyMetadataList']
         for item in family_list:
             family = item['family']

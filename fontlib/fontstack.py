@@ -109,7 +109,7 @@ class FontStack:
         for font in Font.from_css(css_url):
             self.add_font(font)
 
-    def list_fonts(self, name=None):  # pylint: disable=no-self-use
+    def list_fonts(self, name=None):
         """Return generator of :py:class:`.font.Font` objects selected by ``name``.
 
         :param name:

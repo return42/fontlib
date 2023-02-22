@@ -40,10 +40,10 @@ _['woff2-variations']  = ('.woff2', )
 # https://www.w3.org/TR/2018/REC-css-fonts-3-20180920/#src-desc
 _['woff2']  = ('.woff2', )           # WOFF 2.0 https://www.w3.org/TR/WOFF2/
 _['woff'] = ('.woff', )              # WOFF 1.0 https://www.w3.org/TR/WOFF/
-_['truetype'] = ('.ttf')             # TrueType --> https://docs.microsoft.com/en-us/typography/opentype/spec/
-_['opentype'] = ('.otf', 'ttf' )     # OpenType --> https://docs.microsoft.com/en-us/typography/opentype/spec/
+_['truetype'] = ('.ttf', )           # TrueType --> https://docs.microsoft.com/en-us/typography/opentype/spec/
+_['opentype'] = ('.otf', 'ttf', )    # OpenType --> https://docs.microsoft.com/en-us/typography/opentype/spec/
 _['embedded-opentype'] = ('.eot', )  # Embedded OpenType --> https://www.w3.org/Submission/2008/SUBM-EOT-20080305/
-_['svg'] = ('.svg', '.svgz')         # SVG Font --> https://www.w3.org/TR/SVG11/fonts.html
+_['svg'] = ('.svg', '.svgz', )       # SVG Font --> https://www.w3.org/TR/SVG11/fonts.html
 
 def _guess_format(src_format_string):
     if src_format_string is None:
@@ -125,6 +125,7 @@ class Font(FontLibSchema, TableUtilsMixIn):
         super().__init__(**kwargs)
 
     def __repr__(self):
+        # pylint: disable=consider-using-f-string
         return "<Font (%(name)s) id='%(id)s', origin='%(origin)s'>" % self.__dict__
 
     def match_name(self, name):
@@ -247,6 +248,7 @@ class FontAlias(FontLibSchema, TableUtilsMixIn):
     font = relationship(Font, back_populates="aliases", uselist=False)
 
     def __repr__(self):
+        # pylint: disable=consider-using-f-string
         return "<FontAlias %(alias_name)s>" % self.__dict__
 
 
@@ -265,4 +267,5 @@ class FontSrcFormat(FontLibSchema, TableUtilsMixIn):
     font = relationship(Font, back_populates="src_formats", uselist=False)
 
     def __repr__(self):
+        # pylint: disable=consider-using-f-string
         return "<FontSrcFormat %(src_format)s>" % self.__dict__

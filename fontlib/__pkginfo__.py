@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
+# pylint: disable=line-too-long, invalid-name, consider-using-f-string
 """Python package meta informations used by setup.py and other project files.
 
 Single point of source for all fontlib package metadata.  After modifying this
@@ -31,16 +32,15 @@ Further read:
 .. _installing: https://packaging.python.org/tutorials/installing-packages/
 
 """
-# pylint: enable=line-too-long
 
 from setuptools import find_packages
 
 package = 'fontlib'
 version = '20230220'
 
-copyright = '2023 Markus Heiser'
+copyright = '2023 Markus Heiser'  # pylint: disable=redefined-builtin
 description = 'plugable font library'
-license = 'AGPL-3.0-or-later'
+license = 'AGPL-3.0-or-later'  # pylint: disable=redefined-builtin
 keywords = 'fonts TTF OTF WOFF WOFF2'
 
 author = 'Markus Heiser'
@@ -56,7 +56,6 @@ docs = 'http://return42.github.io/fontlib'
 issues = 'https://github.com/return42/fontlib/issues'
 
 project_urls = {
-    # pylint: disable=bad-continuation
     'Documentation'      : docs
     , 'Code'             : url
     , 'Issue tracker'    : issues

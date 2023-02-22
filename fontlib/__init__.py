@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
-
+# pylint: disable=missing-module-docstring
 import logging
 from . import __pkginfo__
 from .mime import add_types

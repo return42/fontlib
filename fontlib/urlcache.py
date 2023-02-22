@@ -64,7 +64,7 @@ class URLBlob(FontLibSchema, TableUtilsMixIn):  # pylint: disable=too-few-public
         if 'state' not in kwargs:
             kwargs['state'] = URLBlob.STATE_REMOTE
         if kwargs['state'] not in URLBlob.STATE_LIST:
-            raise ValueError("URLBlob unknown state:" % kwargs['state'] )
+            raise ValueError(f"URLBlob unknown state: {kwargs['state']}")
 
         if 'id' not in kwargs:
             _ = origin.encode('utf-8')
@@ -75,6 +75,7 @@ class URLBlob(FontLibSchema, TableUtilsMixIn):  # pylint: disable=too-few-public
         super().__init__(**kwargs)
 
     def __repr__(self):
+        # pylint: disable=consider-using-f-string
         return "<URLBlob (%(id)s), origin='%(origin)s'>" % self.__dict__
 
 
@@ -130,7 +131,7 @@ class URLCache:
     def __init__(self):
         self.init_ok = False
 
-    def get_blob_obj(self, origin):  # pylint: disable=no-self-use
+    def get_blob_obj(self, origin):
         """Return :py:class:`URLBlob` for <origin> URL or ``None`` if URL is unknown.
 
         :param str origin: the URL of the origin
@@ -264,7 +265,7 @@ class URLCache:
 class NoCache(URLCache):
     """A dummy cache which never caches"""
 
-    def get_blob_obj(self, origin):  # pylint: disable=no-self-use
+    def get_blob_obj(self, origin):
         return URLBlob(origin)
 
     def add_url(self, origin):

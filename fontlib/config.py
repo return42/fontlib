@@ -63,11 +63,10 @@ def get_cfg():
     """Returns *active* :py:obj:`GLOBAL_CONFIG`
 
     """
-    global GLOBAL_CONFIG # pylint: disable=global-statement
     return GLOBAL_CONFIG
 
 
-class Config(configparser.ConfigParser): # pylint: disable=too-many-ancestors
+class Config(configparser.ConfigParser):
     """Configuration object of :py:obj:`fontlib`"""
 
     def __init__(self, *args, **kwargs):
@@ -81,7 +80,7 @@ class Config(configparser.ConfigParser): # pylint: disable=too-many-ancestors
             section, option, self._convert_fqn_to_pyobj,
             raw=raw, vars=_vars, fallback=fallback, **kwargs)
 
-    def _convert_fqn_to_pyobj(self, value):  # pylint: disable=no-self-use
+    def _convert_fqn_to_pyobj(self, value):
         (modulename, name) = value.rsplit('.', 1)
         m = __import__(modulename, {}, {}, [name], 0)
         return getattr(m, name)
@@ -93,7 +92,7 @@ class Config(configparser.ConfigParser): # pylint: disable=too-many-ancestors
             section, option, self._convert_to_list,
             raw=raw, vars=_vars, fallback=fallback, **kwargs)
 
-    def _convert_to_list(self, value): # pylint: disable=no-self-use
+    def _convert_to_list(self, value):
         if not value:
             return []
         return [i.strip() for i in value.split(',')]
@@ -105,15 +104,16 @@ class Config(configparser.ConfigParser): # pylint: disable=too-many-ancestors
             section, option, self._convert_to_fspath,
             raw=raw, vars=_vars, fallback=fallback, **kwargs)
 
-    def _convert_to_fspath(self, value): # pylint: disable=no-self-use
+    def _convert_to_fspath(self, value):
         return FSPath(value).EXPANDUSER.EXPANDVARS
 
-    def config_env(self, app, workspace):  # pylint: disable=no-self-use
+    def config_env(self, app, workspace):
         """Additional variables that can be used in the INI files"""
         return {'app' : app, 'workspace' : workspace}
 
-    # direct access to config sections
+    # pylint: disable=invalid-name
 
+    # direct access to config sections
     @property
     def FONTSTACK(self):
         """Dictionary from config section ``[fontstack]``"""

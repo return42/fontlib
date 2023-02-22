@@ -11,11 +11,11 @@ __all__ = [
     , 'fontlib_init'
     , 'fontlib_scope'
     , 'fontlib_session'
-    , 'fontlib_engine'
+    , 'FONTLIB_ENGINE'
     , 'TableUtilsMixIn'
-    , 'FontLibSession'
-    , 'fontlib_active_session'
-    , 'fontlib_sessionmaker'
+    , 'FONTLIB_SESSION'
+    , 'FONTLIB_ACTIVE_SESSION'
+    , 'FONTLIB_SESSIONMAKER'
 ]
 
 import logging
@@ -29,26 +29,26 @@ from sqlalchemy.ext.declarative import declarative_base
 log = logging.getLogger(__name__)
 
 FontLibSchema = declarative_base()
-FontLibSession = None
+FONTLIB_SESSION = None
 """Session class
 
 The global session class is inited by :py:func:`fontlib_init`
 
 """
 
-fontlib_engine = None
+FONTLIB_ENGINE = None
 """Engine of DB ``fontlib``.
 
 """
 
-fontlib_sessionmaker = None
+FONTLIB_SESSIONMAKER = None
 """Sessionmaker of DB ``fontlib``
 
 The global session maker is inited by :py:func:`fontlib_init`
 
 """
 
-fontlib_active_session = None
+FONTLIB_ACTIVE_SESSION = None
 """active session of DB ``fontlib``
 
 The surrounding process (or thread) sets the active session, for details see
@@ -61,21 +61,21 @@ def fontlib_init(config):
 
     1. Create a DB connector to database ``[DEFAULT]:fontlib_db``
 
-    2. Create a engine with this connector in :py:obj:`fontlib_engine`
+    2. Create a engine with this connector in :py:obj:`FONTLIB_ENGINE`
 
-    3. Create a session maker in :py:obj:`fontlib_sessionmaker`
+    3. Create a session maker in :py:obj:`FONTLIB_SESSIONMAKER`
 
     4. Create DB schema by calling :py:class:`sqlalchemy.schema.MetaData.create_all`
 
-    5. Create a session class in :py:obj:`FontLibSession`.
+    5. Create a session class in :py:obj:`FONTLIB_SESSION`.
 
     .. hint::
 
-       The :py:obj:`FontLibSession` is a scoped_session_, about session
+       The :py:obj:`FONTLIB_SESSION` is a scoped_session_, about session
        management (transactions) in application's code see :py:func:`fontlib_scope`.
 
     """
-    global fontlib_engine, fontlib_sessionmaker, FontLibSession  # pylint: disable=global-statement
+    global FONTLIB_ENGINE, FONTLIB_SESSIONMAKER, FONTLIB_SESSION  # pylint: disable=global-statement
 
     log.debug("init_fontlib: START ...")
     # https://docs.sqlalchemy.org/engines.html#database-urls
@@ -84,19 +84,19 @@ def fontlib_init(config):
     log.debug("init_fontlib: create engine connected to DB: %s", fontlib_connector)
     # https://docs.sqlalchemy.org/orm/tutorial.html#connecting
     # https://docs.sqlalchemy.org/core/engines.html
-    fontlib_engine = create_engine(fontlib_connector)
+    FONTLIB_ENGINE = create_engine(fontlib_connector)
 
     log.debug("fontlib_db: init schema (create_all) of %s",  FontLibSchema)
     # https://docs.sqlalchemy.org/en/13/core/metadata.html#creating-and-dropping-database-tables
-    FontLibSchema.metadata.create_all(fontlib_engine)
+    FontLibSchema.metadata.create_all(FONTLIB_ENGINE)
 
     # https://docs.sqlalchemy.org/en/13/orm/contextual.html#unitofwork-contextual
-    log.debug("fontlib_db: create sessionmaker binded to engine: %s", fontlib_engine)
-    fontlib_sessionmaker = sessionmaker(bind=fontlib_engine, autocommit=False)
+    log.debug("fontlib_db: create sessionmaker binded to engine: %s", FONTLIB_ENGINE)
+    FONTLIB_SESSIONMAKER = sessionmaker(bind=FONTLIB_ENGINE, autocommit=False)
 
     # https://docs.sqlalchemy.org/en/13/orm/session_transaction.html
     log.debug("init_fontlib: init contextual (scoped) sessions")
-    FontLibSession = scoped_session(fontlib_sessionmaker)
+    FONTLIB_SESSION = scoped_session(FONTLIB_SESSIONMAKER)
 
     log.debug("init_fontlib: OK")
 
@@ -104,8 +104,8 @@ def fontlib_init(config):
 def fontlib_scope():
     """Provide a (new) transactional scope for on 'fontlib' DB.
 
-    Creates a instance of :py:obj:`FontLibSession`, stores it under the global
-    name :py:obj:`fontlib_active_session` and yield it.
+    Creates a instance of :py:obj:`FONTLIB_SESSION`, stores it under the global
+    name :py:obj:`FONTLIB_ACTIVE_SESSION` and yield it.
 
     .. hint::
 
@@ -152,24 +152,24 @@ def fontlib_scope():
             fontlib_session().add(font)
 
     """
-    global fontlib_active_session # pylint: disable=global-statement
+    global FONTLIB_ACTIVE_SESSION # pylint: disable=global-statement
 
     # https://docs.sqlalchemy.org/en/13/orm/contextual.html#unitofwork-contextual
     log.debug("fontlib_scope: START transactional scope")
-    fontlib_active_session = FontLibSession()
+    FONTLIB_ACTIVE_SESSION = FONTLIB_SESSION()
     try:
-        yield fontlib_active_session
+        yield FONTLIB_ACTIVE_SESSION
         log.debug("fontlib_scope: COMMIT transactional scope")
-        fontlib_active_session.commit()
+        FONTLIB_ACTIVE_SESSION.commit()
 
     except:
         log.debug("fontlib_scope: ROLLBACK transactional scope")
-        fontlib_active_session.rollback()
+        FONTLIB_ACTIVE_SESSION.rollback()
         raise
 
     finally:
         log.debug("fontlib_scope: CLOSE transactional scope")
-        fontlib_active_session.close()
+        FONTLIB_ACTIVE_SESSION.close()
 
     log.debug("fontlib_scope: END transactional scope")
 
@@ -177,8 +177,7 @@ def fontlib_session():
     """Returns current active fontlib session (see :py:func:`fontlib_scope`)
 
     """
-    global fontlib_active_session # pylint: disable=global-statement
-    return fontlib_active_session
+    return FONTLIB_ACTIVE_SESSION
 
 
 class TableUtilsMixIn:

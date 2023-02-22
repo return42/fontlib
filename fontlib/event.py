@@ -69,7 +69,7 @@ def init_dispatcher(event_cls=None):
     if event_cls is None:
         event_cls = AsyncThreadEvent
     _EVENT_CLASS = event_cls
-    _DISPATCHER = dict()
+    _DISPATCHER = {}
 
 def get_event(event_name):
     """Returns a named :py:class:`Event` instance from global event dispatcher.
@@ -84,7 +84,6 @@ def get_event(event_name):
       - :py:class:`AsyncThreadEvent`
 
     """
-    global _DISPATCHER, _EVENT_CLASS  # pylint: disable=global-statement
     if _DISPATCHER is None:
         raise RuntimeError('init of global dispatcher is needed first!')
     handler = _DISPATCHER.get(event_name, None)
@@ -280,6 +279,8 @@ class AsyncProcEvent(Event):
         #
         #    To inhibit implicite call of ``pool.terminate()`` we don't use the
         #    *context management protocol* of the multiprocessing.Pool class!!!
+
+        # pylint: disable=consider-using-with
 
         pool = Pool(processes=self.maxprocs)
         for handler in self.callbacks:

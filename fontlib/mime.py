@@ -23,7 +23,7 @@ class FontlibMimeTypes(mimetypes.MimeTypes):
         self.types_map = ({}, {})
         self.types_map_inv = ({}, {})
         log.debug("FontlibMimeTypes: load mime.types from: %s", MIMETYPES_FNAME)
-        with open(MIMETYPES_FNAME) as f:
+        with open(MIMETYPES_FNAME, encoding='utf-8') as f:
             self.readfp(f, True)
 
     def map_types(self):
