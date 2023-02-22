@@ -9,6 +9,7 @@
     <title>The fontlib command &#8212; fontlib 20230220 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/doctools.js"></script>
     <script src="../_static/sphinx_highlight.js"></script>
@@ -45,32 +46,72 @@
             
   <section id="the-fontlib-command">
 <span id="fontlib-cli"></span><h1>The <code class="docutils literal notranslate"><span class="pre">fontlib</span></code> command<a class="headerlink" href="#the-fontlib-command" title="Permalink to this heading">¶</a></h1>
-<p>Command line tools from the fontlib library.</p>
-<p>Most commands do work with a workspace.  If you haven’t used fontlib before it
-might be good to create one first:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fontlib</span> <span class="n">workspace</span> <span class="n">init</span> <span class="o">&lt;</span><span class="n">dest</span><span class="o">-</span><span class="n">folder</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span>
+<nav class="contents local" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#fontlib-list" id="id5"><code class="docutils literal notranslate"><span class="pre">fontlib</span> <span class="pre">list</span></code></a></p></li>
+<li><p><a class="reference internal" href="#fontlib-css-parse" id="id6"><code class="docutils literal notranslate"><span class="pre">fontlib</span> <span class="pre">css-parse</span></code></a></p></li>
+<li><p><a class="reference internal" href="#fontlib-download" id="id7"><code class="docutils literal notranslate"><span class="pre">fontlib</span> <span class="pre">download</span></code></a></p></li>
+<li><p><a class="reference internal" href="#fontlib-config" id="id8"><code class="docutils literal notranslate"><span class="pre">fontlib</span> <span class="pre">config</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#source-code-remarks" id="id9">Source Code Remarks</a></p></li>
+</ul>
+</li>
+</ul>
+</nav>
+<p>The <a class="reference external" href="https://github.com/return42/fontlib.git">fontlib</a> library comes with a command line.  Use <code class="docutils literal notranslate"><span class="pre">fontlib</span> <span class="pre">--help</span></code> for a
+basic help.  Most commands do work with a workspace.  If you haven’t used
+fontlib before it might be good to create one first:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fontlib</span> <span class="n">workspace</span> <span class="n">init</span>
 </pre></div>
 </div>
-<p>Which creates a workspace at &lt;dest-folder&gt; and init this workspace with some
-defaults registered.  Use the help option for more details.</p>
-<p>The <a class="reference external" href="https://github.com/return42/fontlib.git">fontlib</a> library comes with a command line.  Use <code class="docutils literal notranslate"><span class="pre">fontlib</span> <span class="pre">--help</span></code> for a
-basic help.</p>
+<p>Which creates a workspace and init this workspace with some defaults registered.</p>
+<p id="fontlib-cli-options">common options:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-c</span> <span class="pre">/</span> <span class="pre">--config</span></code>: <a class="reference external" href="https://github.com/return42/fontlib/blob/master/fontlib/config.ini">git://fontlib/config.ini</a> (see <a class="reference internal" href="../config.html#config"><span class="std std-ref">Config</span></a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-w</span> <span class="pre">/</span> <span class="pre">--workspace</span></code>: place where application persists its data</p></li>
+</ul>
+<p>fontstack options:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--builtins</span></code>: select <a class="reference internal" href="../resources/builtin.html#builtin-fonts"><span class="std std-ref">Builtin fonts</span></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--ep-fonts</span></code>: <a class="reference internal" href="../resources/ep_points.html#ep-points"><span class="std std-ref">Fonts from entry points</span></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--google</span></code>: <a class="reference internal" href="../resources/googlefont.html#googlefont"><span class="std std-ref">Google Fonts</span></a></p></li>
+</ul>
+<p>For a more detailed help to one of the sub commands type:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ fontlib &lt;command&gt; --help
+</pre></div>
+</div>
 <div class="rst-example admonition">
 <p class="admonition-title">fontlib –help</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: fontlib [-h] [--debug] [--verbose] [--quiet] [-c [INI-FILE]]
-               [--workspace WORKSPACE] [--debug-sql]
+               [-w WORKSPACE] [--debug-sql]
                {README,SCHEMA,version,list,css-parse,download,config,workspace,google}
                ...
 
-    Command line tools from the fontlib library.
+    The fontlib_ library comes with a command line.  Use ``fontlib --help`` for a
+basic help.  Most commands do work with a workspace.  If you haven&#39;t used
+fontlib before it might be good to create one first::
 
-Most commands do work with a workspace.  If you haven&#39;t used fontlib before it
-might be good to create one first::
+  fontlib workspace init
 
-  fontlib workspace init &lt;dest-folder&gt; [-h]
+Which creates a workspace and init this workspace with some defaults registered.
 
-Which creates a workspace at &lt;dest-folder&gt; and init this workspace with some
-defaults registered.  Use the help option for more details.
+.. _fontlib_cli_options:
+
+common options:
+
+- ``-c / --config``: :origin:`fontlib/config.ini` (see :ref:`config`)
+- ``-w / --workspace``: place where application persists its data
+
+fontstack options:
+
+- ``--builtins``: select :ref:`builtin_fonts`
+- ``--ep-fonts``: :ref:`ep_points`
+- ``--google``: :ref:`googlefont`
+
+For a more detailed help to one of the sub commands type::
+
+  $ fontlib &lt;command&gt; --help
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -80,7 +121,7 @@ optional arguments:
   -c [INI-FILE], --config [INI-FILE]
                         specify config file (default:
                         /home/markus/.fontlib/config.ini)
-  --workspace WORKSPACE
+  -w WORKSPACE, --workspace WORKSPACE
                         workspace (default: ~/.fontlib)
   --debug-sql           debug sql engine (default: False)
 
@@ -89,7 +130,7 @@ commands:
     README              prints README to stdout
     SCHEMA              Turn SQLAlchemy DB Model into a graph.
     version             prints version infos to stdout
-    list                list fonts
+    list                list fonts registered in the workspace
     css-parse           Parse ``@font-face`` rules from &lt;url&gt;.
     download            Download font-family &lt;family&gt; into folder &lt;dest&gt;.
     config              Inspect configuration (working with INI files).
@@ -98,27 +139,8 @@ commands:
 </pre></div>
 </div>
 </div>
-<p>For a more detailed help to one of the sub commands type:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ fontlib &lt;command&gt; --help
-</pre></div>
-</div>
-<section id="fontlib-options">
-<span id="fontlib-cli-options"></span><h2>Fontlib Options<a class="headerlink" href="#fontlib-options" title="Permalink to this heading">¶</a></h2>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">--verbose</span></code>: more verbose output</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-c</span> <span class="pre">/</span> <span class="pre">--config</span></code>: <a class="reference external" href="https://github.com/return42/fontlib/blob/master/fontlib/config.ini">git://fontlib/config.ini</a> (see <a class="reference internal" href="../config.html#config"><span class="std std-ref">Config</span></a>)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--workspace</span></code>: place where application persists its data</p></li>
-</ul>
-</section>
-<section id="fontstack-options">
-<h2>Fontstack options<a class="headerlink" href="#fontstack-options" title="Permalink to this heading">¶</a></h2>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">--builtins</span></code>: select <a class="reference internal" href="../resources/builtin.html#builtin-fonts"><span class="std std-ref">Builtin fonts</span></a></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--ep-fonts</span></code>: <a class="reference internal" href="../resources/ep_points.html#ep-points"><span class="std std-ref">Fonts from entry points</span></a></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--google</span></code>: <a class="reference internal" href="../resources/googlefont.html#googlefont"><span class="std std-ref">Fonts from google</span></a></p></li>
-</ul>
 <section id="fontlib-list">
-<h3>fontlib list<a class="headerlink" href="#fontlib-list" title="Permalink to this heading">¶</a></h3>
+<span id="id1"></span><h2><a class="toc-backref" href="#id5" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">fontlib</span> <span class="pre">list</span></code></a><a class="headerlink" href="#fontlib-list" title="Permalink to this heading">¶</a></h2>
 <div class="rst-example admonition">
 <p class="admonition-title">fontlib list –help</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: fontlib list [-h]
@@ -126,22 +148,26 @@ commands:
 optional arguments:
   -h, --help  show this help message and exit
 
-list fonts
+list fonts registered in the workspace
 </pre></div>
 </div>
 </div>
 </section>
 <section id="fontlib-css-parse">
-<h3>fontlib css-parse<a class="headerlink" href="#fontlib-css-parse" title="Permalink to this heading">¶</a></h3>
+<span id="id2"></span><h2><a class="toc-backref" href="#id6" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">fontlib</span> <span class="pre">css-parse</span></code></a><a class="headerlink" href="#fontlib-css-parse" title="Permalink to this heading">¶</a></h2>
+<p>With this command fonts can be parsed from <a class="reference external" href="https://www.w3.org/TR/css-fonts-3/#font-face-rule">&#64;font-face</a> rules in a CSS file.
+With the option <code class="docutils literal notranslate"><span class="pre">--register</span></code> the parsed fonts will be registered in the
+workspace.</p>
 <div class="rst-example admonition">
 <p class="admonition-title">fontlib css-parse –help</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: fontlib css-parse [-h] url
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: fontlib css-parse [-h] [--register] url
 
 positional arguments:
   url         URL of stylesheet (CSS) to parse
 
 optional arguments:
   -h, --help  show this help message and exit
+  --register  register parsed fonts (default: False)
 
 Parse ``@font-face`` rules from &lt;url&gt;.
 
@@ -159,7 +185,7 @@ or built-in *dejavu* fonts from url::
 </div>
 </section>
 <section id="fontlib-download">
-<h3>fontlib download<a class="headerlink" href="#fontlib-download" title="Permalink to this heading">¶</a></h3>
+<span id="id3"></span><h2><a class="toc-backref" href="#id7" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">fontlib</span> <span class="pre">download</span></code></a><a class="headerlink" href="#fontlib-download" title="Permalink to this heading">¶</a></h2>
 <div class="rst-example admonition">
 <p class="admonition-title">fontlib download –help</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: fontlib download [-h] dest family [family ...]
@@ -178,13 +204,12 @@ Download font-family &lt;family&gt; into folder &lt;dest&gt;.
 </div>
 </section>
 <section id="fontlib-config">
-<h3>fontlib config<a class="headerlink" href="#fontlib-config" title="Permalink to this heading">¶</a></h3>
+<span id="id4"></span><h2><a class="toc-backref" href="#id8" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">fontlib</span> <span class="pre">config</span></code></a><a class="headerlink" href="#fontlib-config" title="Permalink to this heading">¶</a></h2>
 <p>For more details see <a class="reference internal" href="../config.html#config"><span class="std std-ref">Config</span></a>.</p>
-</section>
-</section>
 <section id="source-code-remarks">
-<h2>Source Code Remarks<a class="headerlink" href="#source-code-remarks" title="Permalink to this heading">¶</a></h2>
+<h3><a class="toc-backref" href="#id9" role="doc-backlink">Source Code Remarks</a><a class="headerlink" href="#source-code-remarks" title="Permalink to this heading">¶</a></h3>
 <p>Implementation of application’s configuration class <a class="reference internal" href="../internal.html#fontlib.config.Config" title="fontlib.config.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a>.</p>
+</section>
 </section>
 </section>
 

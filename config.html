@@ -9,6 +9,7 @@
     <title>Config &#8212; fontlib 20230220 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="_static/tabs.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/doctools.js"></script>
     <script src="_static/sphinx_highlight.js"></script>
@@ -45,9 +46,8 @@
   <section id="config">
 <span id="id1"></span><h1>Config<a class="headerlink" href="#config" title="Permalink to this heading">¶</a></h1>
 <p>Fontlib can be configured with a configuration file (see <a class="reference internal" href="#basic-config-and-logging-setup">basic config and
-logging setup</a>) and/or with command line arguments (see
-<a class="reference internal" href="usage/cli.html#fontlib-cli-options"><span class="std std-ref">Fontlib Options</span></a>).  If nothing is given, the <a class="reference internal" href="#application-defaults">application defaults</a>
-and <a class="reference internal" href="#logging-defaults">logging defaults</a> come to the effect.</p>
+logging setup</a>) and/or with command line arguments (see <a class="reference internal" href="usage/cli.html#fontlib-cli-options"><span class="std std-ref">fontlib options</span></a>).  If nothing is given, the <a class="reference internal" href="#application-defaults">application defaults</a> and
+<a class="reference internal" href="#logging-defaults">logging defaults</a> come to the effect.</p>
 <section id="basic-config-and-logging-setup">
 <h2>basic config and logging setup<a class="headerlink" href="#basic-config-and-logging-setup" title="Permalink to this heading">¶</a></h2>
 <p>To install templates for indiviual configuration use the <code class="docutils literal notranslate"><span class="pre">config</span> <span class="pre">install</span></code>
@@ -104,7 +104,7 @@ keys = root, fontlib
 </div>
 </section>
 <section id="application-defaults">
-<h2>application defaults<a class="headerlink" href="#application-defaults" title="Permalink to this heading">¶</a></h2>
+<span id="id2"></span><h2>application defaults<a class="headerlink" href="#application-defaults" title="Permalink to this heading">¶</a></h2>
 <p>The default application configuration is taken from the
 <a class="reference external" href="https://github.com/return42/fontlib/blob/master/fontlib/config.ini">git://fontlib/config.ini</a> file:</p>
 <div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c1"># -*- coding: utf-8; mode: ini -*-</span>
@@ -139,14 +139,16 @@ keys = root, fontlib
 <span class="linenos">30</span><span class="c1"># https://github.com/googlefonts/robotoslab</span>
 <span class="linenos">31</span><span class="c1"># https://github.com/googlefonts/staatliches</span>
 <span class="linenos">32</span><span class="c1"># https://github.com/graphicore/librebarcode</span>
-<span class="linenos">33</span><span class="na">fonts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">Roboto Slab, Staatliches, Libre Barcode 39 Extended Text</span>
+<span class="linenos">33</span><span class="na">fonts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">Roboto Slab, Staatliches, Libre Barcode 39 Extended Text, Leckerli One</span>
 <span class="linenos">34</span>
 <span class="linenos">35</span><span class="k">[logging]</span>
 <span class="linenos">36</span>
 <span class="linenos">37</span><span class="c1"># Threshold for the logger</span>
 <span class="linenos">38</span><span class="c1"># Value: debug | info | warning | error | critical</span>
 <span class="linenos">39</span><span class="na">level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">warning</span>
-<span class="linenos">40</span><span class="c1">#config = %(workspace)s/log.ini</span>
+<span class="linenos">40</span>
+<span class="linenos">41</span><span class="c1"># activate this line to use the logger configuration from your workspace</span>
+<span class="linenos">42</span><span class="c1"># config = %(workspace)s/log.ini</span>
 </pre></div>
 </div>
 </section>

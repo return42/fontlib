@@ -9,6 +9,7 @@
     <title>Font and FontStack &#8212; fontlib 20230220 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/doctools.js"></script>
     <script src="../_static/sphinx_highlight.js"></script>
@@ -74,13 +75,13 @@ FontStack instance inited from a <a class="reference internal" href="../internal
 </ul>
 </dd>
 <dt>fonttools:</dt><dd><p>Tool for manipulating TrueType and OpenType fonts (<a class="reference external" href="https://github.com/fonttools/fonttools">fonttools</a>).</p>
-<p>Install method which uses python3 &amp; installs ‘fonttools’ and ‘brotli’
+<p>Install method which uses apt &amp; python and installs <code class="docutils literal notranslate"><span class="pre">fonttools</span></code> and <code class="docutils literal notranslate"><span class="pre">brotli</span></code>
 compression:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ sudo apt-get install python3-dev
-$ pip3 install --user fonttools
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ sudo apt-get install python-dev
+$ pip install --user fonttools
 $ git clone https://github.com/google/brotli
 cd brotli
-$ python3 setup.py install --user
+$ python setup.py install --user
 </pre></div>
 </div>
 </dd>

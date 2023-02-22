@@ -9,6 +9,7 @@
     <title>get started &#8212; fontlib 20230220 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/doctools.js"></script>
     <script src="../_static/sphinx_highlight.js"></script>
@@ -45,11 +46,30 @@
             
   <section id="get-started">
 <span id="id1"></span><h1>get started<a class="headerlink" href="#get-started" title="Permalink to this heading">¶</a></h1>
-<p>To see what a default FontStack consist of use:</p>
+<p>The first thing you need to work with fontlib is a <em>workspace</em>.  Let’s start
+with the initialization of a workspace:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ fontlib workspace init
+initing workspace at: ~/.fontlib
+load entry point fonts_ttf
+...
+add ttf // AmaticSCBold // unicode range: -- ...
+load entry point fonts_otf ...
+load entry point fonts_woff ...
+load entry point fonts_woff2 ...
+load CSS file:/path/to/fontlib/fontlib/files/cantarell/cantarell.css ...
+load CSS file:/path/to/fontlib/fontlib/files/dejavu/dejavu.css ...
+load CSS https://fonts.googleapis.com/css?family=Roboto Slab ...
+load CSS https://fonts.googleapis.com/css?family=Staatliches ...
+load CSS https://fonts.googleapis.com/css?family=Libre Barcode 39 Extended Text ...
+</pre></div>
+</div>
+<p>By default the workspace is created in <code class="docutils literal notranslate"><span class="pre">~/.fontlib</span></code> and the configuration from
+<a class="reference internal" href="../config.html#application-defaults"><span class="std std-ref">application defaults</span></a> are applied.  To see what a default FontStack
+consist of use:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ fontlib list
 </pre></div>
 </div>
-<p>What you will see is a list of font families and their file location, an URL.:</p>
+<p>What you will see is a list of font families and their file locations (URL):</p>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>cache sate</p></th>
@@ -64,25 +84,25 @@
 <td><p>DejaVu Sans Mono</p></td>
 <td><p>woff2</p></td>
 <td><p>xfficWNFACPr2phNsNtP1Q</p></td>
-<td><p><a class="reference external" href="file:/x/share/fontlib/fontlib/files/dejavu/DejaVuSansMono.woff2">file:/x/share/fontlib/fontlib/files/dejavu/DejaVuSansMono.woff2</a></p></td>
+<td><p><a class="reference external" href="file:/path/to/fontlib/fontlib/files/dejavu/DejaVuSansMono.woff2">file:/path/to/fontlib/fontlib/files/dejavu/DejaVuSansMono.woff2</a></p></td>
 </tr>
-<tr class="row-odd"><td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
+<tr class="row-odd"><td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
 </tr>
 <tr class="row-even"><td><p>local</p></td>
 <td><p>DejaVu Serif</p></td>
 <td><p>woff2</p></td>
 <td><p>R3R9kwD3jhPe7B7gEsuQlw</p></td>
-<td><p><a class="reference external" href="file:/x/share/fontlib/fontlib/files/dejavu/DejaVuSerif.woff2">file:/x/share/fontlib/fontlib/files/dejavu/DejaVuSerif.woff2</a></p></td>
+<td><p><a class="reference external" href="file:/path/to/fontlib/fontlib/files/dejavu/DejaVuSerif.woff2">file:/path/to/fontlib/fontlib/files/dejavu/DejaVuSerif.woff2</a></p></td>
 </tr>
-<tr class="row-odd"><td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
+<tr class="row-odd"><td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
 </tr>
 <tr class="row-even"><td><p>remote</p></td>
 <td><p>Leckerli One</p></td>
@@ -96,11 +116,11 @@
 <td><p>bEENZuBR4lRJicez5ZzF7A</p></td>
 <td><p><a class="reference external" href="https://fonts.gstatic.com/s/leckerlione/v10/V8mCoQH8VCsNttEnxnGQ-1idKpZYJNE9Fg.ttf">https://fonts.gstatic.com/s/leckerlione/v10/V8mCoQH8VCsNttEnxnGQ-1idKpZYJNE9Fg.ttf</a></p></td>
 </tr>
-<tr class="row-even"><td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
+<tr class="row-even"><td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
 </tr>
 <tr class="row-odd"><td><p>remote</p></td>
 <td><p>Roboto Slab</p></td>
@@ -120,11 +140,11 @@
 <td><p>gsDhbHcgFsjRqJIs23E7tQ</p></td>
 <td><p><a class="reference external" href="https://fonts.gstatic.com/s/robotoslab/v9/BngMUXZYTXPIvIBgJJSb6ufB5qW54A.woff2">https://fonts.gstatic.com/s/robotoslab/v9/BngMUXZYTXPIvIBgJJSb6ufB5qW54A.woff2</a></p></td>
 </tr>
-<tr class="row-even"><td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
+<tr class="row-even"><td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
 </tr>
 <tr class="row-odd"><td><p>remote</p></td>
 <td><p>Roboto Slab</p></td>
@@ -132,11 +152,11 @@
 <td><p>qSYiiwuckE32fKvnEIQaMQ</p></td>
 <td><p><a class="reference external" href="https://fonts.gstatic.com/s/robotoslab/v9/BngMUXZYTXPIvIBgJJSb6ufN5qCr4xCC.ttf">https://fonts.gstatic.com/s/robotoslab/v9/BngMUXZYTXPIvIBgJJSb6ufN5qCr4xCC.ttf</a></p></td>
 </tr>
-<tr class="row-even"><td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
+<tr class="row-even"><td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
 </tr>
 </tbody>
 </table>
@@ -150,15 +170,15 @@ really need to know, just remember, that there is one which is used fore
 internal purpose.</p>
 <p>Now lets download font family <em>Leckerli One</em>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ fontlib download ~/Downloads &quot;Leckerli One&quot;
-[Leckerli One]: download ~/Downloads/V8mCoQH8VCsNttEnxnGQ-1idKpZd.woff2 from https://fonts.gstatic.com/s/leckerlione/v10/V8mCoQH8VCsNttEnxnGQ-1idKpZd.woff2
+[Leckerli One]: download ~/Downloads/V8mCoQH8VCsNttEnxnGQ-1idKpZd.woff2     from https://fonts.gstatic.com/s/leckerlione/v10/V8mCoQH8VCsNttEnxnGQ-1idKpZd.woff2
 [Leckerli One]: download ~/Downloads/V8mCoQH8VCsNttEnxnGQ-1idKpZYJNE9Fg.ttf from https://fonts.gstatic.com/s/leckerlione/v10/V8mCoQH8VCsNttEnxnGQ-1idKpZYJNE9Fg.ttf
-[Leckerli One]: download ~/Downloads/8qrv1tIC_i-mOkfb29wAlg.svg from https://fonts.gstatic.com/l/font?kit=V8mCoQH8VCsNttEnxnGQ-1idKpZa&amp;skey=6384c587add2bb80&amp;v=v10#LeckerliOne
+[Leckerli One]: download ~/Downloads/8qrv1tIC_i-mOkfb29wAlg.svg             from https://fonts.gstatic.com/l/font?kit=V8mCoQH8VCsNttEnxnGQ-1idKpZa&amp;skey=6384c587add2bb80&amp;v=v10#LeckerliOne
 download 3 files into ~/Downloads
 </pre></div>
 </div>
 <p>If you repeat the <code class="docutils literal notranslate"><span class="pre">fontlib</span> <span class="pre">list</span></code> after a <em>download</em> command you will see that
 the downloaded font-family is cached from now on (compare column <strong>cache
-state</strong>).  The <strong>location</strong> now points to the BLOB located in the cache.</p>
+state</strong>).  The <strong>location</strong> now points to the <strong>BLOB</strong> located in the cache.</p>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>cache sate</p></th>

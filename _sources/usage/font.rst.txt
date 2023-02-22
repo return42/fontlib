@@ -42,12 +42,12 @@ fonttools:
   Tool for manipulating TrueType and OpenType fonts (`fonttools
   <https://github.com/fonttools/fonttools>`_).
 
-  Install method which uses python3 & installs 'fonttools' and 'brotli'
+  Install method which uses apt & python and installs ``fonttools`` and ``brotli``
   compression::
 
-    $ sudo apt-get install python3-dev
-    $ pip3 install --user fonttools
+    $ sudo apt-get install python-dev
+    $ pip install --user fonttools
     $ git clone https://github.com/google/brotli
     cd brotli
-    $ python3 setup.py install --user
+    $ python setup.py install --user
 

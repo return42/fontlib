@@ -9,9 +9,11 @@
     <title>fontlib.cli &#8212; fontlib 20230220 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/doctools.js"></script>
     <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/tabs.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
   </head><body>
@@ -39,15 +41,30 @@
 <span></span><span class="c1"># -*- coding: utf-8; mode: python; mode: flycheck -*-</span>
 <span class="c1"># pylint: disable=global-statement, too-few-public-methods</span>
 
-<span class="sd">&quot;&quot;&quot;Command line tools from the fontlib library.</span>
+<span class="sd">&quot;&quot;&quot;The fontlib_ library comes with a command line.  Use ``fontlib --help`` for a</span>
+<span class="sd">basic help.  Most commands do work with a workspace.  If you haven&#39;t used</span>
+<span class="sd">fontlib before it might be good to create one first::</span>
 
-<span class="sd">Most commands do work with a workspace.  If you haven&#39;t used fontlib before it</span>
-<span class="sd">might be good to create one first::</span>
+<span class="sd">  fontlib workspace init</span>
 
-<span class="sd">  fontlib workspace init &lt;dest-folder&gt; [-h]</span>
+<span class="sd">Which creates a workspace and init this workspace with some defaults registered.</span>
 
-<span class="sd">Which creates a workspace at &lt;dest-folder&gt; and init this workspace with some</span>
-<span class="sd">defaults registered.  Use the help option for more details.</span>
+<span class="sd">.. _fontlib_cli_options:</span>
+
+<span class="sd">common options:</span>
+
+<span class="sd">- ``-c / --config``: :origin:`fontlib/config.ini` (see :ref:`config`)</span>
+<span class="sd">- ``-w / --workspace``: place where application persists its data</span>
+
+<span class="sd">fontstack options:</span>
+
+<span class="sd">- ``--builtins``: select :ref:`builtin_fonts`</span>
+<span class="sd">- ``--ep-fonts``: :ref:`ep_points`</span>
+<span class="sd">- ``--google``: :ref:`googlefont`</span>
+
+<span class="sd">For a more detailed help to one of the sub commands type::</span>
+
+<span class="sd">  $ fontlib &lt;command&gt; --help</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 
@@ -124,16 +141,14 @@
             <span class="s1">&#39;DEFAULT&#39;</span><span class="p">,</span> <span class="s1">&#39;workspace&#39;</span>
             <span class="p">,</span> <span class="n">fallback</span> <span class="o">=</span> <span class="n">FSPath</span><span class="p">(</span><span class="s1">&#39;~/.fontlib&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">EXPANDUSER</span> <span class="p">)</span></div>
 
+
 <div class="viewcode-block" id="main"><a class="viewcode-back" href="../../internal.html#fontlib.cli.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;main loop of the command line interface&quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">CTX</span>
 
     <span class="n">cli</span> <span class="o">=</span> <span class="n">CLI</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="vm">__doc__</span><span class="p">)</span>
     <span class="n">cli</span><span class="o">.</span><span class="n">UI</span> <span class="o">=</span> <span class="n">SimpleUserInterface</span><span class="p">(</span><span class="n">cli</span><span class="o">=</span><span class="n">cli</span><span class="p">)</span>
 
     <span class="n">init_main</span><span class="p">(</span><span class="n">cli</span><span class="p">)</span>
-
-    <span class="c1"># config ...</span>
 
     <span class="n">cli</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="s1">&#39;--config&#39;</span>
@@ -145,7 +160,7 @@
         <span class="p">,</span> <span class="n">metavar</span> <span class="o">=</span> <span class="s1">&#39;INI-FILE&#39;</span> <span class="p">)</span>
 
     <span class="n">cli</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--workspace&quot;</span>
+        <span class="s1">&#39;-w&#39;</span><span class="p">,</span> <span class="s1">&#39;--workspace&#39;</span>
         <span class="p">,</span> <span class="n">dest</span> <span class="o">=</span> <span class="s1">&#39;workspace&#39;</span>
         <span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="n">CTX</span><span class="o">.</span><span class="n">CONFIG</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="o">*</span><span class="n">MAP_ARG_TO_CFG</span><span class="p">[</span><span class="s1">&#39;workspace&#39;</span><span class="p">][:</span><span class="mi">2</span><span class="p">])</span>
         <span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="n">FSPath</span>
@@ -189,6 +204,11 @@
     <span class="c1"># cmd: css-parse</span>
 
     <span class="n">css_parse</span> <span class="o">=</span> <span class="n">cli</span><span class="o">.</span><span class="n">addCMDParser</span><span class="p">(</span><span class="n">cli_parse_css</span><span class="p">,</span> <span class="n">cmdName</span><span class="o">=</span><span class="s1">&#39;css-parse&#39;</span><span class="p">)</span>
+    <span class="n">css_parse</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--register&#39;</span>
+        <span class="p">,</span> <span class="n">action</span>  <span class="o">=</span> <span class="s1">&#39;store_true&#39;</span>
+        <span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s1">&#39;register parsed fonts&#39;</span>
+    <span class="p">)</span>
     <span class="n">css_parse</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;url&quot;</span>
         <span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">str</span>
@@ -365,7 +385,7 @@
         <span class="p">]))</span></div>
 
 <div class="viewcode-block" id="cli_list_fonts"><a class="viewcode-back" href="../../internal.html#fontlib.cli.cli_list_fonts">[docs]</a><span class="k">def</span> <span class="nf">cli_list_fonts</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;list fonts</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;list fonts registered in the workspace</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">init_app</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
@@ -429,8 +449,9 @@
     <span class="n">cli</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">CLI</span>
     <span class="n">_</span> <span class="o">=</span> <span class="n">cli</span><span class="o">.</span><span class="n">UI</span>
 
-    <span class="c1"># init application with an empty fontstack database</span>
-    <span class="n">CTX</span><span class="o">.</span><span class="n">CONFIG</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;DEFAULT&#39;</span><span class="p">,</span> <span class="s1">&#39;fontlib_db&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s1">&#39;sqlite:///:memory:&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">register</span><span class="p">:</span>
+        <span class="c1"># init application with an empty fontstack database</span>
+        <span class="n">CTX</span><span class="o">.</span><span class="n">CONFIG</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;DEFAULT&#39;</span><span class="p">,</span> <span class="s1">&#39;fontlib_db&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s1">&#39;sqlite:///:memory:&#39;</span><span class="p">)</span>
     <span class="n">init_app</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">table_rows</span><span class="p">():</span>
@@ -455,8 +476,10 @@
             <span class="p">,</span> <span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span>          <span class="s2">&quot;</span><span class="si">%-40s</span><span class="s2">&quot;</span><span class="p">,</span>        <span class="s2">&quot;name&quot;</span><span class="p">)</span>
             <span class="p">,</span> <span class="p">(</span><span class="s2">&quot;format&quot;</span><span class="p">,</span>        <span class="s2">&quot;</span><span class="si">%-20s</span><span class="s2">&quot;</span><span class="p">,</span>        <span class="s2">&quot;format&quot;</span><span class="p">)</span>
             <span class="p">,</span> <span class="p">(</span><span class="s2">&quot;font ID&quot;</span><span class="p">,</span>       <span class="s2">&quot;</span><span class="si">%-22s</span><span class="s2">&quot;</span><span class="p">,</span>        <span class="s2">&quot;id&quot;</span><span class="p">)</span>
-            <span class="p">,</span> <span class="p">(</span><span class="s2">&quot;URL&quot;</span><span class="p">,</span>           <span class="s2">&quot;</span><span class="si">%-90s</span><span class="s2">&quot;</span><span class="p">,</span>        <span class="s2">&quot;origin&quot;</span><span class="p">)</span> <span class="p">)</span></div>
+            <span class="p">,</span> <span class="p">(</span><span class="s2">&quot;URL&quot;</span><span class="p">,</span>           <span class="s2">&quot;</span><span class="si">%-90s</span><span class="s2">&quot;</span><span class="p">,</span>        <span class="s2">&quot;origin&quot;</span><span class="p">)</span> <span class="p">)</span>
 
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">register</span><span class="p">:</span>
+        <span class="n">_</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s1">&#39;fonts registered in workspace: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">CTX</span><span class="o">.</span><span class="n">WORKSPACE</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="download_progress"><a class="viewcode-back" href="../../internal.html#fontlib.cli.download_progress">[docs]</a><span class="k">def</span> <span class="nf">download_progress</span><span class="p">(</span><span class="n">_url</span><span class="p">,</span> <span class="n">font_name</span><span class="p">,</span> <span class="n">font_format</span><span class="p">,</span> <span class="n">_cache_file</span><span class="p">,</span> <span class="n">down_bytes</span><span class="p">,</span> <span class="n">max_bytes</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Callback that prints download progress bar.</span>
@@ -646,7 +669,7 @@
         <span class="c1"># finally check command line</span>
 
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">argument_list</span><span class="p">:</span>
-            <span class="n">_</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">u</span><span class="s2">&quot;WARNING: ignoring arguments: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">argument_list</span><span class="p">)))</span>
+            <span class="n">_</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s2">&quot;WARNING: ignoring arguments: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">argument_list</span><span class="p">)))</span>
 
         <span class="c1"># init workspace</span>
 
@@ -663,9 +686,11 @@
         <span class="c1"># finally check command line</span>
 
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">argument_list</span><span class="p">:</span>
-            <span class="n">_</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">u</span><span class="s2">&quot;WARNING: ignoring arguments: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">argument_list</span><span class="p">)))</span>
+            <span class="n">_</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s2">&quot;WARNING: ignoring arguments: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">argument_list</span><span class="p">)))</span>
 
-        <span class="n">_</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">workspace</span><span class="p">)</span>
+        <span class="n">cfg_file</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">config</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">EXISTS</span> <span class="k">else</span> <span class="n">DEFAULT_INI</span>
+        <span class="n">_</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s2">&quot;WORKSPACE: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">workspace</span><span class="p">)</span>
+        <span class="n">_</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s2">&quot;CONFIG:    </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">cfg_file</span><span class="p">)</span>
         <span class="k">return</span></div>
 
 <div class="viewcode-block" id="cli_google"><a class="viewcode-back" href="../../internal.html#fontlib.cli.cli_google">[docs]</a><span class="k">def</span> <span class="nf">cli_google</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
@@ -673,25 +698,24 @@
 
 <span class="sd">    commands:</span>
 
-<span class="sd">    - list: print out list of known font names from fonts.googleapis.com</span>
+<span class="sd">    - list: print out list of known font names from fonts.googleapis.com::</span>
+
+<span class="sd">        google --format=rst list &#39;Libre.*39&#39;</span>
 
 <span class="sd">    - add: font to FontStack::</span>
 
-<span class="sd">        google --format=rst list &#39;Libre.*39&#39;</span>
 <span class="sd">        google --format=rst add &#39;Libre.*39&#39;</span>
 
 <span class="sd">      The second argument is a optional regular expression to filter font names</span>
 <span class="sd">      by matching this expression (default: *None*).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># pylint: disable=too-many-branches</span>
     <span class="n">init_app</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
     <span class="n">_</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">CLI</span><span class="o">.</span><span class="n">UI</span>
 
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">subcommand</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="s1">&#39;add&#39;</span><span class="p">):</span>
 
-        <span class="n">base_url</span> <span class="o">=</span> <span class="n">CTX</span><span class="o">.</span><span class="n">CONFIG</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;google fonts&#39;</span><span class="p">,</span> <span class="s1">&#39;family base url&#39;</span><span class="p">)</span>
-
         <span class="c1"># get match condition ...</span>
-
         <span class="n">condition</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">argument_list</span><span class="p">:</span>
             <span class="n">condition</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">argument_list</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -699,26 +723,24 @@
             <span class="n">condition</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">condition</span><span class="p">)</span>
 
         <span class="c1"># finally check command line</span>
-
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">argument_list</span><span class="p">:</span>
-            <span class="n">_</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">u</span><span class="s2">&quot;WARNING: ignoring arguments: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">argument_list</span><span class="p">)))</span>
+            <span class="n">_</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;WARNING: ignoring arguments: </span><span class="si">{</span><span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">argument_list</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">subcommand</span> <span class="o">==</span> <span class="s1">&#39;list&#39;</span><span class="p">:</span>
 
         <span class="c1"># output list ..</span>
-
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">out_format</span> <span class="o">==</span> <span class="s1">&#39;rst&#39;</span><span class="p">:</span>
             <span class="n">_</span><span class="o">.</span><span class="n">rst_title</span><span class="p">(</span><span class="s2">&quot;google font names&quot;</span><span class="p">)</span>
 
-        <span class="n">c</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">googlefont</span><span class="o">.</span><span class="n">list_fontnames</span><span class="p">():</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">googlefont</span><span class="o">.</span><span class="n">font_map</span><span class="p">(</span><span class="n">CTX</span><span class="o">.</span><span class="n">CONFIG</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">condition</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">condition</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
                     <span class="k">continue</span>
-            <span class="n">c</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="n">msg</span> <span class="o">=</span> <span class="n">name</span>
             <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">out_format</span> <span class="o">==</span> <span class="s1">&#39;rst&#39;</span><span class="p">:</span>
-                <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">. </span><span class="si">%s</span><span class="s1"> --&gt; </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">base_url</span> <span class="o">+</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">:</span><span class="s2">4d</span><span class="si">}</span><span class="s2">. </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> --&gt; </span><span class="si">{</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;css_url&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="n">_</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">out_format</span> <span class="o">==</span> <span class="s1">&#39;rst&#39;</span><span class="p">:</span>
@@ -728,27 +750,24 @@
 
         <span class="n">event</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;FontStack.add_font&#39;</span><span class="p">,</span> <span class="n">print_font</span><span class="p">())</span>
         <span class="n">event</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;FontStack.add_alias&#39;</span><span class="p">,</span> <span class="n">print_msg</span><span class="p">(</span><span class="s1">&#39;add alias </span><span class="si">%s</span><span class="s1"> to font </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">))</span>
-        <span class="n">c</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="k">with</span> <span class="n">db</span><span class="o">.</span><span class="n">fontlib_scope</span><span class="p">():</span>
-
             <span class="n">stack</span> <span class="o">=</span> <span class="n">FontStack</span><span class="o">.</span><span class="n">get_fontstack</span><span class="p">(</span><span class="n">CTX</span><span class="o">.</span><span class="n">CONFIG</span><span class="p">)</span>
 
-            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">googlefont</span><span class="o">.</span><span class="n">list_fontnames</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">googlefont</span><span class="o">.</span><span class="n">font_map</span><span class="p">(</span><span class="n">CTX</span><span class="o">.</span><span class="n">CONFIG</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">if</span> <span class="n">condition</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="k">if</span> <span class="ow">not</span> <span class="n">condition</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
                         <span class="k">continue</span>
-                <span class="n">c</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
 
-                <span class="n">css_url</span> <span class="o">=</span> <span class="n">base_url</span> <span class="o">+</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-                <span class="n">_</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%d</span><span class="s1">. read font-family &quot;</span><span class="si">%s</span><span class="s1">&quot; from CSS: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">css_url</span><span class="p">))</span>
-                <span class="n">stack</span><span class="o">.</span><span class="n">load_css</span><span class="p">(</span><span class="n">css_url</span><span class="p">)</span></div>
+                <span class="n">_</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">:</span><span class="s2">4d</span><span class="si">}</span><span class="s2">. read font-family &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; from CSS: </span><span class="si">{</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;css_url&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">stack</span><span class="o">.</span><span class="n">load_css</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;css_url&#39;</span><span class="p">])</span></div>
 
 <span class="c1"># ==============================================================================</span>
 <span class="c1"># helper ...</span>
 <span class="c1"># ==============================================================================</span>
 
-<span class="c1"># pylint: disable=bad-continuation</span>
 <span class="n">MAP_ARG_TO_CFG</span> <span class="o">=</span> <span class="p">{</span>
     <span class="c1"># cli-argument    : (cfg-section, cfg-option) # see ./config.ini</span>
     <span class="s1">&#39;builtins&#39;</span>        <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;fontstack&#39;</span><span class="p">,</span> <span class="s1">&#39;builtin fonts&#39;</span><span class="p">)</span>
@@ -757,16 +776,13 @@
     <span class="p">,</span> <span class="s1">&#39;workspace&#39;</span>     <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;DEFAULT&#39;</span><span class="p">,</span> <span class="s1">&#39;workspace&#39;</span><span class="p">)</span>
 <span class="p">}</span>
 <span class="sd">&quot;&quot;&quot;Maps command line arguments to config section &amp; option&quot;&quot;&quot;</span>
-<span class="c1"># pylint: enable=bad-continuation</span>
 
 <div class="viewcode-block" id="map_arg_to_cfg"><a class="viewcode-back" href="../../internal.html#fontlib.cli.map_arg_to_cfg">[docs]</a><span class="k">def</span> <span class="nf">map_arg_to_cfg</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">cfg</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;update application&#39;s CONFIG from command line arguments..&quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">arg_name</span><span class="p">,</span> <span class="p">(</span><span class="n">cfg_sect</span><span class="p">,</span> <span class="n">cfg_opt</span><span class="p">)</span> <span class="ow">in</span> <span class="n">MAP_ARG_TO_CFG</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">arg_name</span><span class="p">,</span> <span class="n">UNKNOWN</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="n">UNKNOWN</span><span class="p">:</span>
-            <span class="k">continue</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">arg_name</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+            <span class="k">continue</span>
         <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;set </span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2"> = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">cfg_sect</span><span class="p">,</span> <span class="n">cfg_opt</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
         <span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">cfg_sect</span><span class="p">,</span> <span class="n">cfg_opt</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span></div>
 
@@ -776,25 +792,22 @@
     <span class="n">cmd</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--builtins&quot;</span>
         <span class="p">,</span> <span class="n">dest</span> <span class="o">=</span> <span class="s1">&#39;builtins&#39;</span>
-        <span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="n">CTX</span><span class="o">.</span><span class="n">CONFIG</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="o">*</span><span class="n">MAP_ARG_TO_CFG</span><span class="p">[</span><span class="s1">&#39;builtins&#39;</span><span class="p">][:</span><span class="mi">2</span><span class="p">])</span>
         <span class="p">,</span> <span class="n">nargs</span> <span class="o">=</span> <span class="s1">&#39;?&#39;</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">str</span>
-        <span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;register builtin fonts&quot;</span>
+        <span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;register builtin fonts / e.g. &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">CTX</span><span class="o">.</span><span class="n">CONFIG</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="o">*</span><span class="n">MAP_ARG_TO_CFG</span><span class="p">[</span><span class="s1">&#39;builtins&#39;</span><span class="p">][:</span><span class="mi">2</span><span class="p">])</span>
         <span class="p">)</span>
 
     <span class="n">cmd</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--ep-fonts&quot;</span>
         <span class="p">,</span> <span class="n">dest</span> <span class="o">=</span> <span class="s1">&#39;epfonts&#39;</span>
-        <span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="n">CTX</span><span class="o">.</span><span class="n">CONFIG</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="o">*</span><span class="n">MAP_ARG_TO_CFG</span><span class="p">[</span><span class="s1">&#39;epfonts&#39;</span><span class="p">][:</span><span class="mi">2</span><span class="p">])</span>
         <span class="p">,</span> <span class="n">nargs</span> <span class="o">=</span> <span class="s1">&#39;?&#39;</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">str</span>
-        <span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;use fonts from entry points&quot;</span>
+        <span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;use fonts from entry points / e.g. &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">CTX</span><span class="o">.</span><span class="n">CONFIG</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="o">*</span><span class="n">MAP_ARG_TO_CFG</span><span class="p">[</span><span class="s1">&#39;epfonts&#39;</span><span class="p">][:</span><span class="mi">2</span><span class="p">])</span>
         <span class="p">)</span>
 
     <span class="n">cmd</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--google&quot;</span>
         <span class="p">,</span> <span class="n">dest</span> <span class="o">=</span> <span class="s1">&#39;google&#39;</span>
-        <span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="n">CTX</span><span class="o">.</span><span class="n">CONFIG</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="o">*</span><span class="n">MAP_ARG_TO_CFG</span><span class="p">[</span><span class="s1">&#39;google&#39;</span><span class="p">][:</span><span class="mi">2</span><span class="p">])</span>
         <span class="p">,</span> <span class="n">nargs</span> <span class="o">=</span> <span class="s1">&#39;?&#39;</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">str</span>
-        <span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;register fonts from fonts.googleapis.com&quot;</span>
+        <span class="p">,</span> <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;register fonts from fonts.googleapis.com / e.g. &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">CTX</span><span class="o">.</span><span class="n">CONFIG</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="o">*</span><span class="n">MAP_ARG_TO_CFG</span><span class="p">[</span><span class="s1">&#39;google&#39;</span><span class="p">][:</span><span class="mi">2</span><span class="p">])</span>
         <span class="p">)</span></div>
 
 <div class="viewcode-block" id="init_main"><a class="viewcode-back" href="../../internal.html#fontlib.cli.init_main">[docs]</a><span class="k">def</span> <span class="nf">init_main</span><span class="p">(</span><span class="n">cli</span><span class="p">):</span>
@@ -805,6 +818,7 @@
     <span class="n">cli_parse_css</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span>  <span class="n">cli_parse_css</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">%</span> <span class="nb">globals</span><span class="p">()</span>
 
     <span class="c1"># init main&#39;s context</span>
+
     <span class="n">CTX</span> <span class="o">=</span> <span class="n">Context</span><span class="p">(</span><span class="n">cli</span><span class="p">)</span>
     <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;initial using workspace at: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">CTX</span><span class="o">.</span><span class="n">WORKSPACE</span><span class="p">)</span>
     <span class="n">CTX</span><span class="o">.</span><span class="n">WORKSPACE</span><span class="o">.</span><span class="n">makedirs</span><span class="p">()</span>
@@ -830,46 +844,46 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># pylint: disable=too-many-branches</span>
 
-    <span class="k">global</span> <span class="n">CTX</span>
-
     <span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span> <span class="ow">or</span> <span class="n">args</span><span class="o">.</span><span class="n">verbose</span>
     <span class="n">_</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">CLI</span><span class="o">.</span><span class="n">UI</span>
 
+    <span class="c1"># set some base logging while app&#39;s runtime is build up</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">FONTLIB_LOGGER</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">ERR</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;set log level of logger: </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">)</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">logger</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;DEBUG&#39;</span><span class="p">))</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;sqlalchemy.engine&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="s1">&#39;INFO&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="s1">&#39;DEBUG&#39;</span><span class="p">)</span>
+
     <span class="c1"># init application&#39;s CONFIG from INI file</span>
 
-    <span class="n">cfg</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">cfg</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">config</span> <span class="o">!=</span> <span class="n">CTX</span><span class="o">.</span><span class="n">WORKSPACE</span> <span class="o">/</span> <span class="n">CONFIG_INI</span><span class="p">:</span>
-        <span class="c1"># assert config if --config was explicite set</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">EXISTS</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">args</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="mi">42</span><span class="p">,</span> <span class="s1">&#39;config file does not exists: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">args</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
-        <span class="n">cfg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
-
-    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">workspace</span><span class="p">:</span>
-        <span class="c1"># assert %(workspace)s/config.ini if --workspace was explicite set but</span>
-        <span class="c1"># not --config</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">workspace</span><span class="p">:</span>
+        <span class="c1"># assert %(workspace)s/config.ini if --workspace was explicite set</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">workspace</span><span class="o">.</span><span class="n">EXISTS</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">args</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="mi">42</span><span class="p">,</span> <span class="s1">&#39;workspace folder does not exists: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">args</span><span class="o">.</span><span class="n">workspace</span><span class="p">)</span>
 
         <span class="n">ini_file</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">workspace</span> <span class="o">/</span> <span class="s1">&#39;config.ini&#39;</span>
         <span class="k">if</span> <span class="n">ini_file</span><span class="o">.</span><span class="n">EXISTS</span><span class="p">:</span>
-            <span class="n">cfg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ini_file</span><span class="p">)</span>
+            <span class="n">cfg</span> <span class="o">=</span> <span class="n">ini_file</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Config file </span><span class="si">%s</span><span class="s2"> does not exists.&quot;</span><span class="p">,</span> <span class="n">ini_file</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">cfg</span><span class="p">:</span>
-        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;load additional configuration from: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">cfg</span>
-        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-            <span class="n">_</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">EXIST</span><span class="p">:</span>
+        <span class="n">cfg</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">config</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">args</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="mi">42</span><span class="p">,</span> <span class="s1">&#39;config file does not exists: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">args</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
 
-    <span class="n">CTX</span><span class="o">.</span><span class="n">CONFIG</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">cfg</span><span class="p">:</span>
+        <span class="n">_</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s2">&quot;init configuration from: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">cfg</span><span class="p">)</span>
+        <span class="n">init_cfg</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
+
     <span class="n">map_arg_to_cfg</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">CTX</span><span class="o">.</span><span class="n">CONFIG</span><span class="p">)</span>
 
     <span class="c1"># init application&#39;s WORKSPACE from (new) CONFIG settings</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">CTX</span><span class="o">.</span><span class="n">WORKSPACE</span><span class="o">.</span><span class="n">EXISTS</span><span class="p">:</span>
-        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;initing workspace at: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">CTX</span><span class="o">.</span><span class="n">WORKSPACE</span><span class="p">)</span>
+        <span class="n">_</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s2">&quot;initing workspace at: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">CTX</span><span class="o">.</span><span class="n">WORKSPACE</span><span class="p">)</span>
         <span class="n">CTX</span><span class="o">.</span><span class="n">WORKSPACE</span><span class="o">.</span><span class="n">makedirs</span><span class="p">()</span>
 
     <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;using workspace: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">CTX</span><span class="o">.</span><span class="n">WORKSPACE</span>
@@ -879,17 +893,12 @@
 
     <span class="c1"># init app logging with (new) CONFIG settings</span>
 
-    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">FONTLIB_LOGGER</span><span class="p">)</span>
-
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
         <span class="n">CTX</span><span class="o">.</span><span class="n">CONFIG</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;logging&quot;</span><span class="p">,</span> <span class="s2">&quot;level&quot;</span><span class="p">,</span> <span class="s1">&#39;debug&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">debug_sql</span><span class="p">:</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;sqlalchemy.engine&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="s1">&#39;INFO&#39;</span><span class="p">)</span>
 
     <span class="n">level</span> <span class="o">=</span> <span class="n">CTX</span><span class="o">.</span><span class="n">CONFIG</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;logging&quot;</span><span class="p">,</span> <span class="s2">&quot;level&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-        <span class="n">args</span><span class="o">.</span><span class="n">ERR</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;set log level of logger: </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">)</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">logger</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">level</span><span class="p">))</span>
-
     <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span><span class="p">)</span>
 
     <span class="n">log_cfg</span> <span class="o">=</span> <span class="n">CTX</span><span class="o">.</span><span class="n">CONFIG</span><span class="o">.</span><span class="n">getpath</span><span class="p">(</span><span class="s2">&quot;logging&quot;</span><span class="p">,</span> <span class="s2">&quot;config&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>

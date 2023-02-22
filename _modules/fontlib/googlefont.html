@@ -9,9 +9,11 @@
     <title>fontlib.googlefont &#8212; fontlib 20230220 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/doctools.js"></script>
     <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/tabs.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
   </head><body>
@@ -37,28 +39,22 @@
             
   <h1>Source code for fontlib.googlefont</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: utf-8; mode: python; mode: flycheck -*-</span>
-<span class="c1"># pylint: disable=missing-docstring, too-few-public-methods</span>
-<span class="sd">&quot;&quot;&quot;The googlefont module serves stuff to manage fonts from `fonts.google.com</span>
-<span class="sd">&lt;https://www.google.com/fonts&gt;`__</span>
+<span class="c1"># pylint: disable=missing-docstring, too-few-public-methods, consider-using-f-string</span>
+<span class="sd">&quot;&quot;&quot;The :py:obj:`fontlib.googlefont` module serves stuff to manage fonts from</span>
+<span class="sd">`fonts.google.com &lt;https://www.google.com/fonts&gt;`__</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s1">&#39;GOOGLE_FONTS_HOST&#39;</span>
     <span class="p">,</span> <span class="s1">&#39;GOOGLE_FONT_FORMATS&#39;</span>
-    <span class="p">,</span> <span class="s1">&#39;GOOGLE_FONT_METADATA_CSV&#39;</span>
     <span class="p">,</span> <span class="s1">&#39;is_google_font_url&#39;</span>
     <span class="p">,</span> <span class="s1">&#39;read_google_font_css&#39;</span>
 <span class="p">]</span>
 
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">socket</span>
-<span class="kn">import</span> <span class="nn">ipaddress</span>
-<span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">urlparse</span>
-<span class="kn">from</span> <span class="nn">urllib.request</span> <span class="kn">import</span> <span class="n">urlopen</span>
+<span class="kn">import</span> <span class="nn">urllib.parse</span>
 <span class="kn">import</span> <span class="nn">requests</span>
-
-<span class="kn">import</span> <span class="nn">fspath</span>
 
 <span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -70,7 +66,6 @@
 
 <span class="c1"># user agent concept was stolen from https://github.com/glasslion/fontdump.git</span>
 <span class="n">GOOGLE_USER_AGENTS</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="c1"># pylint: disable=bad-continuation</span>
     <span class="s1">&#39;woff2&#39;</span><span class="p">:</span>  <span class="s1">&#39;Mozilla/5.0 (X11; Linux x86_64; rv:66.0) Gecko/20100101 Firefox/66.0&#39;</span>
     <span class="p">,</span> <span class="s1">&#39;ttf&#39;</span><span class="p">:</span>  <span class="s1">&#39;Mozilla/5.0 (Linux; U; Android 2.2; en-us; DROID2 GLOBAL &#39;</span>
               <span class="s1">&#39;Build/S273) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 &#39;</span>
@@ -83,7 +78,9 @@
 <span class="n">GOOGLE_FONT_FORMATS</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">GOOGLE_USER_AGENTS</span><span class="p">)</span>
 <span class="sd">&quot;&quot;&quot;list of font formats used from google&#39;s font api&quot;&quot;&quot;</span>
 
-<span class="n">GOOGLE_FONT_METADATA_CSV</span> <span class="o">=</span> <span class="s2">&quot;https://raw.githubusercontent.com/googlefonts/FontClassificationTool/master/font-metadata.csv&quot;</span>
+<span class="n">GOOGLE_METADATA_FONTS</span> <span class="o">=</span> <span class="s1">&#39;https://fonts.google.com/metadata/fonts&#39;</span>
+<span class="sd">&quot;&quot;&quot;URL of the fonts database in JSON format.  The fonts are grouped in the list</span>
+<span class="sd">``familyMetadataList``.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="is_google_font_url"><a class="viewcode-back" href="../../internal.html#fontlib.googlefont.is_google_font_url">[docs]</a><span class="k">def</span> <span class="nf">is_google_font_url</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test if ``url`` is from google font host ``fonts.googleapis.com``</span>
@@ -93,7 +90,7 @@
 <span class="sd">        ``http://`` or ``https://``</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">url</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
     <span class="n">hostname</span> <span class="o">=</span> <span class="n">url</span><span class="o">.</span><span class="n">netloc</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="k">if</span> <span class="p">(</span> <span class="n">hostname</span> <span class="ow">in</span> <span class="p">(</span><span class="n">GOOGLE_FONTS_HOST</span><span class="p">,</span> <span class="n">GOOGLE_FONTS_GSTATIC</span><span class="p">)</span>
@@ -130,56 +127,53 @@
     <span class="k">for</span> <span class="n">font_format</span> <span class="ow">in</span> <span class="n">format_list</span><span class="p">:</span>
         <span class="n">headers</span><span class="p">[</span><span class="s1">&#39;User-Agent&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">GOOGLE_USER_AGENTS</span><span class="p">[</span><span class="n">font_format</span><span class="p">]</span>
         <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;request: </span><span class="si">%s</span><span class="s2"> | User-Agent: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="p">[</span><span class="s1">&#39;User-Agent&#39;</span><span class="p">])</span>
-        <span class="n">resp</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
+        <span class="n">resp</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
         <span class="n">content</span> <span class="o">+=</span> <span class="n">resp</span><span class="o">.</span><span class="n">content</span>
     <span class="k">return</span> <span class="n">content</span></div>
 
 
-<span class="k">def</span> <span class="nf">list_fontnames</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Yield a list of *known* foontnames from ``fonts.googleapis.com``.</span>
+<span class="k">def</span> <span class="nf">font_map</span><span class="p">(</span><span class="n">cfg</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a dictionary of font families from ``fonts.googleapis.com``.</span>
 
-<span class="sd">    .. hint::</span>
+<span class="sd">    A item in the returned dict contains of::</span>
 
-<span class="sd">      This funtion needs some more elaboration, the generated list is faulty in</span>
-<span class="sd">      a very different way ...</span>
+<span class="sd">        &lt;str: family-name&gt; : {</span>
+<span class="sd">            &#39;category&#39;:    &lt;str: category name&gt;,</span>
+<span class="sd">            &#39;noto&#39;:        &lt;bool: is noto font&gt;,</span>
+<span class="sd">            &#39;css_url&#39;:     &lt;str: URL&gt;,</span>
+<span class="sd">    }</span>
 
-<span class="sd">      ATM I do not know a *singel point of definition* with a complete list of</span>
-<span class="sd">      font names hosted on ``fonts.googleapis.com``.</span>
+<span class="sd">    ``&lt;str: category name&gt;``:</span>
+<span class="sd">      - Handwriting</span>
+<span class="sd">      - Sans</span>
+<span class="sd">      - ...</span>
 
-<span class="sd">    ATM ``fonts.googleapis.com`` lists 959 fonts.  When I grep the HTML from</span>
-<span class="sd">    https://fonts.google.com/ I found 950 font names (see</span>
-<span class="sd">    ``google-font-names.txt``).  The only list I have found is the list of font</span>
-<span class="sd">    names from :data:`GOOGLE_FONT_METADATA_CSV`.  In this list there are only</span>
-<span class="sd">    873 unique font names.</span>
+<span class="sd">    ``&lt;bool: is noto font&gt;``:</span>
+<span class="sd">      The font is (``True``) or is not (``False``) a `noto font`_</span>
 
-<span class="sd">      The interim solution is to mix font names from ``google-font-names.txt``</span>
-<span class="sd">      and :data:`GOOGLE_FONT_METADATA_CSV` into one list (containing 954 font</span>
-<span class="sd">      names).</span>
+<span class="sd">    ``&lt;str: URL&gt;``:</span>
+<span class="sd">      URL to google&#39;s CSS with @font-face rules for this font family.</span>
+
+<span class="sd">    .. _noto font: https://en.wikipedia.org/wiki/Noto_fonts</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">family_map</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">base_url</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;google fonts&#39;</span><span class="p">,</span> <span class="s1">&#39;family base url&#39;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">GOOGLE_METADATA_FONTS</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span> <span class="k">as</span> <span class="n">resp</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">resp</span><span class="o">.</span><span class="n">ok</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ConnectionError</span><span class="p">(</span><span class="s1">&#39;HTTP </span><span class="si">%s</span><span class="s1"> : </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span> <span class="n">GOOGLE_METADATA_FONTS</span><span class="p">))</span>
+        <span class="n">family_list</span> <span class="o">=</span> <span class="n">resp</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s1">&#39;familyMetadataList&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">family_list</span><span class="p">:</span>
+            <span class="n">family</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;family&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">family</span> <span class="ow">in</span> <span class="n">family_map</span><span class="p">:</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;google: duplicate font-family-name: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">family</span><span class="p">)</span>
 
-    <span class="n">gfn_txt_file</span> <span class="o">=</span> <span class="n">fspath</span><span class="o">.</span><span class="n">FSPath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">DIRNAME</span> <span class="o">/</span> <span class="s1">&#39;google-font-names.txt&#39;</span>
-    <span class="k">with</span> <span class="n">gfn_txt_file</span><span class="o">.</span><span class="n">openTextFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">gfn_txt</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">gfn_txt</span><span class="p">:</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">name</span> <span class="ow">and</span> <span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;#&#39;</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
-                    <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: duplicate </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">GOOGLE_FONT_METADATA_CSV</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">names</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-
-    <span class="k">with</span> <span class="n">urlopen</span><span class="p">(</span><span class="n">GOOGLE_FONT_METADATA_CSV</span><span class="p">)</span> <span class="k">as</span> <span class="n">csv</span><span class="p">:</span>
-        <span class="n">_max_bytes</span>  <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">csv</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Content-Length&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
-        <span class="n">_csv_header</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">csv</span><span class="p">:</span>
-            <span class="n">name</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
-                <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;adding </span><span class="si">%s</span><span class="s2"> from CSV table&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-                <span class="n">names</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-
-    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">names</span><span class="p">):</span>
-        <span class="k">yield</span> <span class="n">name</span>
+            <span class="n">family_map</span><span class="p">[</span><span class="n">family</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;category&#39;</span><span class="p">:</span>   <span class="n">item</span><span class="p">[</span><span class="s1">&#39;category&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;noto&#39;</span><span class="p">:</span>       <span class="n">item</span><span class="p">[</span><span class="s1">&#39;isNoto&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;css_url&#39;</span><span class="p">:</span>    <span class="n">base_url</span> <span class="o">+</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">family</span><span class="p">)</span>
+            <span class="p">}</span>
+    <span class="k">return</span> <span class="n">family_map</span>
 </pre></div>
 
             <div class="clearer"></div>

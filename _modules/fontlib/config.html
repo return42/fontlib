@@ -9,9 +9,11 @@
     <title>fontlib.config &#8212; fontlib 20230220 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/doctools.js"></script>
     <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/tabs.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
   </head><body>
@@ -41,8 +43,11 @@
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Config&#39;</span><span class="p">,</span> <span class="s1">&#39;init_cfg&#39;</span><span class="p">,</span> <span class="s1">&#39;get_cfg&#39;</span><span class="p">,</span> <span class="s1">&#39;DEFAULT_INI&#39;</span><span class="p">,</span> <span class="s1">&#39;GLOBAL_CONFIG&#39;</span><span class="p">]</span>
 
+<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">configparser</span>
 <span class="kn">from</span> <span class="nn">fspath</span> <span class="kn">import</span> <span class="n">FSPath</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <span class="n">DEFAULT_INI</span> <span class="o">=</span> <span class="n">FSPath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">DIRNAME</span> <span class="o">/</span> <span class="s2">&quot;config.ini&quot;</span>
 <span class="sd">&quot;&quot;&quot;Default ``config.ini``&quot;&quot;&quot;</span>
@@ -61,7 +66,7 @@
 
 <span class="sd">&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="init_cfg"><a class="viewcode-back" href="../../internal.html#fontlib.config.init_cfg">[docs]</a><span class="k">def</span> <span class="nf">init_cfg</span><span class="p">(</span><span class="n">filenames</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="init_cfg"><a class="viewcode-back" href="../../internal.html#fontlib.config.init_cfg">[docs]</a><span class="k">def</span> <span class="nf">init_cfg</span><span class="p">(</span><span class="n">filenames</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Init :py:obj:`GLOBAL_CONFIG`.</span>
 
 <span class="sd">    Read and parse a filename or an iterable of filenames.  Files that cannot be</span>
@@ -72,7 +77,7 @@
 <span class="sd">    :param filenames: Filename or an iterable of filenames (default:</span>
 <span class="sd">        :py:obj:`DEFAULT_INI`).</span>
 
-<span class="sd">    :param encoding: The encoding parameter(default: ``None``).</span>
+<span class="sd">    :param encoding: The encoding parameter(default: ``utf-8``).</span>
 
 <span class="sd">    .. note::</span>
 
@@ -86,11 +91,12 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">GLOBAL_CONFIG</span> <span class="c1"># pylint: disable=global-statement</span>
-    <span class="n">ret_val</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">cfg</span> <span class="o">=</span> <span class="n">Config</span><span class="p">()</span>
+    <span class="n">GLOBAL_CONFIG</span> <span class="o">=</span> <span class="n">Config</span><span class="p">()</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;init_cfg: defaults from </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">DEFAULT_INI</span><span class="p">)</span>
+    <span class="n">ret_val</span> <span class="o">=</span> <span class="n">GLOBAL_CONFIG</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">DEFAULT_INI</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">filenames</span><span class="p">:</span>
-        <span class="n">ret_val</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">filenames</span><span class="p">,</span> <span class="n">encoding</span><span class="p">)</span>
-    <span class="n">GLOBAL_CONFIG</span> <span class="o">=</span> <span class="n">cfg</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;init_cfg: read from </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">filenames</span><span class="p">)</span>
+        <span class="n">ret_val</span> <span class="o">=</span> <span class="n">GLOBAL_CONFIG</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">filenames</span><span class="p">,</span> <span class="n">encoding</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">ret_val</span></div>
 
 <div class="viewcode-block" id="get_cfg"><a class="viewcode-back" href="../../internal.html#fontlib.config.get_cfg">[docs]</a><span class="k">def</span> <span class="nf">get_cfg</span><span class="p">():</span>
@@ -106,7 +112,6 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">DEFAULT_INI</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Config.getfqnobj"><a class="viewcode-back" href="../../internal.html#fontlib.config.Config.getfqnobj">[docs]</a>    <span class="k">def</span> <span class="nf">getfqnobj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">option</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">_vars</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                   <span class="n">fallback</span><span class="o">=</span><span class="n">configparser</span><span class="o">.</span><span class="n">_UNSET</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span> <span class="c1"># pylint: disable=protected-access</span>
