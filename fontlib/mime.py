@@ -1,4 +1,4 @@
-# -*- coding: utf-8; mode: python; mode: flycheck -*-
+# SPDX-License-Identifier: AGPL-3.0-or-later
 """
 MIME type implementations
 """

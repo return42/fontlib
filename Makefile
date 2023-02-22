@@ -1,4 +1,5 @@
 # -*- coding: utf-8; mode: makefile-gmake -*-
+# SPDX-License-Identifier: AGPL-3.0-or-later
 
 all: help
 

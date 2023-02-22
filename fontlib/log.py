@@ -1,6 +1,6 @@
-# -*- coding: utf-8; mode: python; mode: flycheck -*-
-"""
-common logging & setup implementations
+# SPDX-License-Identifier: AGPL-3.0-or-later
+"""common logging & setup implementations
+
 """
 
 __all__ = ['DEFAULT_LOG_INI', 'FONTLIB_LOGGER', 'init_log']

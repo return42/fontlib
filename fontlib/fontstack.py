@@ -1,6 +1,6 @@
-# -*- coding: utf-8; mode: python; mode: flycheck -*-
-"""
-Implementation of class :py:class:`FontStack`.
+# SPDX-License-Identifier: AGPL-3.0-or-later
+"""Implementation of class :py:class:`FontStack`.
+
 """
 
 __all__ = ['FontStack', 'BUILTINS']

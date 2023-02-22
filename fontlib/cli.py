@@ -1,6 +1,4 @@
-# -*- coding: utf-8; mode: python; mode: flycheck -*-
-# pylint: disable=global-statement, too-few-public-methods
-
+# SPDX-License-Identifier: AGPL-3.0-or-later
 """The fontlib_ library comes with a command line.  Use ``fontlib --help`` for a
 basic help.  Most commands do work with a workspace.  If you haven't used
 fontlib before it might be good to create one first::

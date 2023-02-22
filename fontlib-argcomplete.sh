@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# -*- coding: utf-8; mode: sh -*-
+# SPDX-License-Identifier: AGPL-3.0-or-later
 # ----------------------------------------------------------------------------
 # Purpose:  fontlib bash argcomplete
 # ----------------------------------------------------------------------------

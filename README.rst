@@ -36,7 +36,7 @@ Links
 package:     fontlib (20230220)
 copyright:   2023 Markus Heiser
 e-mail:      markus.heiser@darmarIT.de
-license:     GPLv3
+license:     AGPL-3.0-or-later
 ============ ===============================================
 
 

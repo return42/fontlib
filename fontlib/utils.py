@@ -1,7 +1,6 @@
-# -*- coding: utf-8; mode: python; mode: flycheck -*-
-# pylint: disable=too-few-public-methods
-"""
-utils
+# SPDX-License-Identifier: AGPL-3.0-or-later
+"""utils
+
 """
 
 __all__ = [

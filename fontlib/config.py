@@ -1,4 +1,4 @@
-# -*- coding: utf-8; mode: python; mode: flycheck -*-
+# SPDX-License-Identifier: AGPL-3.0-or-later
 """Implementation of application's configuration class :py:class:`Config`."""
 
 __all__ = ['Config', 'init_cfg', 'get_cfg', 'DEFAULT_INI', 'GLOBAL_CONFIG']

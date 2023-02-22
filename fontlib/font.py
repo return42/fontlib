@@ -1,8 +1,6 @@
-# -*- coding: utf-8; mode: python; mode: flycheck -*-
-# pylint: disable=too-few-public-methods
+# SPDX-License-Identifier: AGPL-3.0-or-later
+"""Implemtation of class :py:class:`Font`.
 
-"""
-Implemtation of class :py:class:`Font`.
 """
 
 __all__ = ['Font', 'FontAlias', 'FontSrcFormat']

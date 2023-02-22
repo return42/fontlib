@@ -1,5 +1,5 @@
 ;;; .dir-locals.el
-;;
+;; SPDX-License-Identifier: AGPL-3.0-or-later;;
 ;; If you get ``*** EPC Error ***`` with this setup in your emacs session,
 ;; mostly you have jedi-mode enabled but the python enviroment is missed.  The
 ;; python environment has to be next to the ``<repo>/.dir-locals.el`` in::

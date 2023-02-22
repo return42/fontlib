@@ -1,5 +1,4 @@
-# -*- coding: utf-8; mode: python; mode: flycheck -*-
-# pylint: disable=missing-docstring, too-few-public-methods, consider-using-f-string
+# SPDX-License-Identifier: AGPL-3.0-or-later
 """The :py:obj:`fontlib.googlefont` module serves stuff to manage fonts from
 `fonts.google.com <https://www.google.com/fonts>`__
 

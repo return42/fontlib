@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*- coding: utf-8; mode: python -*-
+# SPDX-License-Identifier: AGPL-3.0-or-later
 """
 fontlib ``setup.py``
 

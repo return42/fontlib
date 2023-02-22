@@ -1,6 +1,6 @@
-# -*- coding: utf-8; mode: python; mode: flycheck -*-
-"""
-Font library
+# SPDX-License-Identifier: AGPL-3.0-or-later
+"""Font library
+
 """
 
 __all__ = [

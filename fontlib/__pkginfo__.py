@@ -1,6 +1,4 @@
-# -*- coding: utf-8; mode: python; mode: flycheck -*-
-# pylint: disable=invalid-name,redefined-builtin
-# pylint: disable=line-too-long
+# SPDX-License-Identifier: AGPL-3.0-or-later
 """Python package meta informations used by setup.py and other project files.
 
 Single point of source for all fontlib package metadata.  After modifying this
@@ -41,8 +39,8 @@ package = 'fontlib'
 version = '20230220'
 
 copyright = '2023 Markus Heiser'
-description = 'Pluginable font library'
-license = 'GPLv3'
+description = 'plugable font library'
+license = 'AGPL-3.0-or-later'
 keywords = 'fonts TTF OTF WOFF WOFF2'
 
 author = 'Markus Heiser'
@@ -189,7 +187,7 @@ def get_entry_points():
 classifiers = [
     "Development Status :: 5 - Production/Stable"
     , "Intended Audience :: Developers"
-    , "License :: OSI Approved :: GNU General Public License v3 (GPLv3)"
+    , "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)"
     , "Operating System :: OS Independent"
     , "Programming Language :: Python"
     , "Programming Language :: Python :: 3"

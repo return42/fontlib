@@ -1,4 +1,4 @@
-# -*- coding: utf-8; mode: python; mode: flycheck -*-
+# SPDX-License-Identifier: AGPL-3.0-or-later
 """Implementation of application's database.
 
 Fontlib's SQL Toolkit and Object Relational Mapper is based on the

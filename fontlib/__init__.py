@@ -1,5 +1,4 @@
-# -*- coding: utf-8; mode: python; mode: flycheck -*-
-# pylint: disable=missing-docstring
+# SPDX-License-Identifier: AGPL-3.0-or-later
 
 import logging
 from . import __pkginfo__

@@ -1,7 +1,6 @@
-# -*- coding: utf-8; mode: python; mode: flycheck -*-
-# pylint: disable=too-few-public-methods
-"""
-CSS helper
+# SPDX-License-Identifier: AGPL-3.0-or-later
+"""CSS helper
+
 """
 
 __all__ = ['get_css_at_rules', 'CSSRule', 'AtRule', 'FontFaceRule']

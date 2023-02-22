@@ -1,6 +1,6 @@
-# -*- coding: utf-8; mode: python; mode: flycheck -*-
-"""
-Implementation for Sphinx-doc exetensions (TODO)
+# SPDX-License-Identifier: AGPL-3.0-or-later
+"""Implementation for Sphinx-doc exetensions (TODO)
+
 """
 
 import logging

@@ -1,6 +1,6 @@
-# -*- coding: utf-8; mode: python; mode: flycheck -*-
-"""
-Font library API
+# SPDX-License-Identifier: AGPL-3.0-or-later
+"""Font library API
+
 """
 
 __all__ = ['FontStack', 'BUILTINS', 'URLBlob']
