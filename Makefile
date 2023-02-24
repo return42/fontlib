@@ -79,6 +79,6 @@ PHONY += rqmts
 rqmts: msg-python-exe msg-pip-exe
 
 PHONY += test
-test: pytest
+test: pylint
 
 .PHONY: $(PHONY)
