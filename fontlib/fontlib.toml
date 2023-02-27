@@ -1,0 +1,48 @@
+[fontlib]
+
+workspace = "~/.fontlib"
+
+# https://docs.sqlalchemy.org/en/20/core/engines.html#database-urls
+db_url = "sqlite:////%(fontlib.workspace)s/fontlib.db"
+
+[fontlib.fontstack]
+
+# Fonts loaded from builtins.
+builtin_fonts = [
+  "cantarell",
+  "dejavu",
+]
+
+# Fonts loaded from entry points.
+entry_points = [
+  "fonts_ttf",
+  "fonts_otf",
+  "fonts_woff",
+  "fonts_woff2",
+]
+
+# Full qualified name of the URL-cache implementation.  Subclass of
+# fontlib.urlcache.URLCache.  e.g.: fontlib.urlcache.SimpleURLCache
+# or fontlib.urlcache.NoCache
+cache = "fontlib.urlcache.SimpleURLCache"
+
+[fontlib.googlefont]
+
+# Select font families from https://fonts.google.com/
+family_base_url = "https://fonts.googleapis.com/css?family="
+
+fonts = [
+  "Roboto Slab",                        # https://github.com/googlefonts/robotoslab
+  "Staatliches",                        # https://github.com/googlefonts/staatliches
+  "Libre Barcode 39 Extended Text",     # https://github.com/graphicore/librebarcode
+  "Leckerli One",
+]
+
+[fontlib.logging]
+
+# Threshold for the logger
+# Value: NOTSET | DEBUG | INFO | WARNING | ERROR | CRITICAL
+level = "WARNING"
+
+# activate this line to use the logger configuration from your workspace
+config = "%(fontlib.workspace)s/log.ini"

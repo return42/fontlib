@@ -128,7 +128,7 @@ class FontStack:
         # get FontStack and set cache from configuration
 
         stack = cls()
-        cache_cls = config.getfqnobj('fontstack', 'cache', fallback=NoCache)
+        cache_cls = config.pyobj('fontlib.fontstack.cache', default=NoCache)
         log.info("get_fontstack: init cache class %s", cache_cls)
         cache_obj = cache_cls()
         cache_obj.init(config)

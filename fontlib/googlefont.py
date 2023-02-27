@@ -116,7 +116,7 @@ def font_map(cfg):
 
     """
     family_map = {}
-    base_url = cfg.get('google fonts', 'family base url')
+    base_url = cfg.get('fontlib.googlefont.family_base_url')
     with requests.get(GOOGLE_METADATA_FONTS, timeout=30) as resp:
         if not resp.ok:
             raise ConnectionError(f'HTTP {resp.status_code} : {GOOGLE_METADATA_FONTS}')
