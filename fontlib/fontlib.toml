@@ -1,5 +1,6 @@
 [fontlib]
 
+name = "fontlib"
 workspace = "~/.fontlib"
 
 # https://docs.sqlalchemy.org/en/20/core/engines.html#database-urls

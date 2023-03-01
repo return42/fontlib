@@ -4,12 +4,16 @@
 
 import os
 import sys
-import fontlib.__pkginfo__ as PKG
-from fontlib import googlefont
-import fontlib.config
 from pallets_sphinx_themes import ProjectLink
 
-fontlib.config.init_cfg()
+from fontlib import __pkginfo__ as PKG
+from fontlib import app
+from fontlib import googlefont
+
+# build application's context
+APP = app.Application()
+APP.init()
+
 
 project    = 'fontlib'
 copyright  = PKG.copyright  # pylint: disable=redefined-builtin
@@ -75,7 +79,7 @@ notfound_urls_prefix = '/'
 jinja_contexts = {
     'fontlib': {
         'googlefont' : {
-            'font_map' : googlefont.font_map(fontlib.config.get_cfg()),
+            'font_map' : googlefont.font_map(APP.cfg),
             'GOOGLE_METADATA_FONTS' : googlefont.GOOGLE_METADATA_FONTS,
         }
     },
