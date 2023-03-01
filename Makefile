@@ -12,6 +12,7 @@ GIT_URL   = git@github.com:return42/fontlib.git
 PYOBJECTS = fontlib
 DOC       = docs
 SLIDES    = $(DOC)/slides
+MAN1      = ./$(LXC_ENV_FOLDER)dist/man1
 
 PY_SETUP_EXTRAS = \[develop,test\]
 
@@ -40,19 +41,19 @@ help-all: help-min
 	@echo  ''
 	$(Q)$(MAKE) -e -s python-help
 
-
 PHONY += build
-build: $(PY_ENV) project pybuild
+build: $(PY_ENV) project pybuild man docs
 
 PHONY += project
 project: install
 	$(Q)- rm -f README.rst requirements.txt ./docs/resources/googlefont-list.txt
 	@echo '  PROJECT   README.rst'
-	$(Q)$(PY_ENV_BIN)/python -c "from fontlib.__pkginfo__ import *; print(README)" > ./README.rst
+	$(Q)$(PY_ENV_BIN)/fontlib project readme > ./README.rst
 	@echo '  PROJECT   requirements.txt'
-	$(Q)$(PY_ENV_BIN)/python -c "from fontlib.__pkginfo__ import *; print(requirements_txt)" > ./requirements.txt
+	$(Q)$(PY_ENV_BIN)/fontlib project requirements > ./requirements.txt
 	@echo '  PROJECT   requirements_dev.txt'
-	$(Q)$(PY_ENV_BIN)/python -c "from fontlib.__pkginfo__ import *; print(requirements_dev_txt)" > ./requirements_dev.txt
+	$(Q)$(PY_ENV_BIN)/fontlib project requirements-dev > ./requirements_dev.txt
+
 
 PHONY += install
 install: pyenvinstall
@@ -70,6 +71,13 @@ docs-live: pyenvinstall
 # PHONY += slides
 # slides: pyenvinstall
 # 	$(call cmd,sphinx,html,$(SLIDES),$(SLIDES),slides)
+
+PHONY += man
+man: pyenvinstall
+	$(Q)mkdir -p $(MAN1)
+	@echo "BUILD     [man-pages] $(MAN1)"
+	$(Q)$(PY_ENV_BIN)/click-man --target="$(MAN1)" fontlib
+	$(Q)find ./dist/man1 -name 'fontlib*.1' -printf '          man:/$(abspath $(MAN1))/%f\n'
 
 PHONY += clean
 clean: pyclean docs-clean

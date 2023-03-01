@@ -1,4 +1,6 @@
+click
 fspath
+pytomlpp
 requests
 sqlalchemy
 tinycss2

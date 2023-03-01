@@ -1,11 +1,12 @@
 pylint
-Sphinx
 argcomplete
+click-man
 jedi
 linuxdoc
 pallets-sphinx-themes
 pip
 psycopg2-binary
+sphinx
 sphinx-autobuild
 sphinx-jinja
 sphinx-notfound-page

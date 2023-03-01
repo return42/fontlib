@@ -39,6 +39,9 @@ def log_cfg_env(cfg):
 class Application:
     """Application's RTE."""
 
+    _fontstack = None
+    _db = None
+
     def __init__(self, config_file=None, workspace_folder=None, debug=False):
 
         self.cfg = None
@@ -171,3 +174,17 @@ class Application:
         valid_levels = ["NOTSET", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
         if log_level not in valid_levels:
             raise ValueError(f"'{log_level}' is not a valid log level, choose one from: {valid_levels}")
+
+    @property
+    def db(self) -> FontlibDB:  # pylint: disable=invalid-name
+        """Session and DB engine of the fontlib application."""
+        if self._db is None:
+            self._db = FontlibDB(self.cfg)
+        return self._db
+
+    @property
+    def fontstack(self) -> FontStack:
+        """Collection of :py:class:`fontlib.font.Font` objects."""
+        if self._fontstack is None:
+            self._fontstack = FontStack(self)
+        return self._fontstack

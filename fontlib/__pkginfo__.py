@@ -66,7 +66,7 @@ packages = find_packages(exclude=['docs', 'tests'])
 # https://setuptools.readthedocs.io/en/latest/setuptools.html#including-data-files
 package_data = {
     'fontlib' : [
-        'config.ini'
+        'fontlib.toml'
         , 'log.ini'
         , 'mime.types'
 
@@ -86,12 +86,12 @@ package_data = {
 # https://setuptools.readthedocs.io/en/latest/history.html#v40-5-0
 data_files = [
     ('/etc/fontlib', [
-        'fontlib/config.ini'
+        'fontlib/fontlib.toml'
         ,  'fontlib/log.ini'
     ])
     , ('/usr/share/doc/fontlib', [
         'README.rst'
-        , 'LICENSE.txt'
+        , 'LICENSE'
         , 'fontlib/files/cantarell/COPYING'
         , 'fontlib/files/dejavu/LICENSE.html'
     ])
@@ -136,20 +136,21 @@ test_requires.sort()
 test_requires_txt = "\n".join(test_requires)
 
 develop_requires = [
-    'jedi' # https://jedi.readthedocs.io/
-    , 'Sphinx'
-    , 'pallets-sphinx-themes'
-    , 'sphinx-autobuild'
-    , 'sphinxcontrib-programoutput'
-    , 'sphinx-jinja'
-    , 'sphinx-tabs'
-    , 'sphinx-notfound-page'
+    'argcomplete'
+    , 'click-man'
+    , 'jedi' # https://jedi.readthedocs.io/
     , 'linuxdoc'
+    , 'pallets-sphinx-themes'
     , 'pip'
-    , 'sqlalchemy_schemadisplay @ git+https://github.com/fschulze/sqlalchemy_schemadisplay'
     , 'psycopg2-binary'
+    , 'sphinx'
+    , 'sphinx-autobuild'
+    , 'sphinx-jinja'
+    , 'sphinx-notfound-page'
+    , 'sphinx-tabs'
+    , 'sphinxcontrib-programoutput'
+    , 'sqlalchemy_schemadisplay @ git+https://github.com/fschulze/sqlalchemy_schemadisplay'
     , 'twine'
-    , 'argcomplete'
 ]
 develop_requires.sort()
 develop_requires_txt = "\n".join(develop_requires)
@@ -179,7 +180,7 @@ def get_entry_points():
     """get entry points of the python package"""
     return {
         'console_scripts': [
-            'fontlib = fontlib.cli:main' # Main fontlib_ console script
+            'fontlib = fontlib.cliapp:cli' # Main fontlib console command
         ]}
 
 # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
