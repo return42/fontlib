@@ -9,7 +9,6 @@ import logging
 import fspath
 
 from . import event
-from .db import fontlib_session
 from .font import Font
 from .font import FontAlias
 from .urlcache import NoCache
@@ -19,10 +18,12 @@ log = logging.getLogger(__name__)
 BUILTINS = fspath.FSPath(__file__).DIRNAME / 'files'
 """Folder where the builtin fonts are in."""
 
+
 class FontStack:
     """A collection of :py:class:`.font.Font` objects"""
 
-    def __init__(self):
+    def __init__(self, app):
+        self.app = app
         self.cache = NoCache()
 
     def set_cache(self, cache):
@@ -46,14 +47,13 @@ class FontStack:
 
         """
 
-        session = fontlib_session()
-        p_obj = font.get_persistent_object(session)
+        p_obj = font.identity(self.app.db.session)
 
         if p_obj:
             if p_obj.match_name(font.name):
                 log.info(
                     "Font with identical origin and font name already exists,"
-                    " skip additional Font '%s' with url '%s'"
+                    " skip additional font '%s' with url '%s'"
                     , font.name, font.origin)
             else:
                 log.debug("add alias '%s' to url %s", font.name, font.origin)
@@ -64,7 +64,7 @@ class FontStack:
         else:
             event.emit('FontStack.add_font', font)
             log.debug("add font-family: %s", font)
-            session.add(font)
+            self.app.db.session.add(font)
 
         self.cache.add_url(font.origin)
 
@@ -115,72 +115,29 @@ class FontStack:
         :param name:
             Name of the font
         """
-        session = fontlib_session()
-        for font in session.query(Font):
+        for font in self.app.db.session.query(Font):
             if name is None or font.match_name(name):
                 yield font
 
-    @classmethod
-    def get_fontstack(cls, config):
-        """Get fonstack instance by configuration <config>.
-        """
+    def init_stack(self):
+        """Init fonstack.  Register fonts from various resources into the
+        fontlib database.
 
-        # get FontStack and set cache from configuration
-
-        stack = cls()
-        cache_cls = config.pyobj('fontlib.fontstack.cache', default=NoCache)
-        log.info("get_fontstack: init cache class %s", cache_cls)
-        cache_obj = cache_cls()
-        cache_obj.init(config)
-        stack.set_cache(cache_obj)
-        return stack
-
-    @classmethod
-    def init_fontstack(cls, config):
-        """Init fonstack by configuration <config>.
-
-        Register fonts from various resources into the fontlib database.
-
-        google fonts:
-
-        - fonts from fonts.googleapis.com
-
-        Configuration ``[google fonts]fonts`` controls which font families will
-        be registered.  Select font families from https://fonts.google.com/
-
-        available builtin fonts:
-
-        - :ref:`builtin_cantarell`
-        - :ref:`builtiin_dejavu`
-
-        available entry points:
-
-        - ``fonts_ttf``
-        - ``fonts_otf``
-        - ``fonts_woff``
-        - ``fonts_woff2``
-
-        E.g. to include all fonts from the fonts-python_ project install::
-
-            $ pip install font-amatic-sc font-caladea font-font-awesome \\
-                          font-fredoka-one font-hanken-grotesk font-intuitive \\
-                          font-source-sans-pro  font-source-serif-pro
+        - register builtin fonts (config: ``fontlib.fontstack.builtin_fonts``)
+        - register entry points (config: ``fontlib.fontstack.entry_points``)
+        - register google fonts (config: ``fontlib.googlefont.family_base_url``)
 
         """
 
-        stack = cls.get_fontstack(config)
-
-        # register font files from entry points
-        for ep_name in config.getlist('fontstack', 'entry points'):
-            stack.load_entry_point(ep_name)
-
-        # register builtin fonts
-        for name in config.getlist('fontstack', 'builtin fonts'):
+        for name in self.app.cfg.get('fontlib.fontstack.builtin_fonts'):
             log.debug('register builtin font: %s', name)
             css_file = BUILTINS / name / name + ".css"
-            stack.load_css('file:' + css_file)
+            self.load_css('file:' + css_file)
 
-        # register google fonts
-        base_url = config.get('google fonts', 'family base url')
-        for family in config.getlist('google fonts', 'fonts'):
-            stack.load_css(base_url + family)
+        for ep_name in self.app.cfg.get('fontlib.fontstack.entry_points'):
+            self.load_entry_point(ep_name)
+
+        fonts = self.app.cfg.get('fontlib.googlefont.fonts')
+        url = self.app.cfg.get('fontlib.googlefont.family_base_url')
+        for family in fonts:
+            self.load_css(url + family)

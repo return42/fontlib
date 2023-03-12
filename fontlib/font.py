@@ -12,14 +12,15 @@ import collections
 import logging
 import base64
 import hashlib
+
+from sqlalchemy import schema
 from sqlalchemy import Column, String
-from sqlalchemy.schema import ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy import orm
 
 import pkg_resources
 
-from .db import FontLibSchema
-from .db import TableUtilsMixIn
+from . import db
+
 from .css import get_css_at_rules
 from .css import FontFaceRule
 from .utils import lazy_property
@@ -69,7 +70,7 @@ def _guess_format(src_format_string):
         src_format_string = found_format
     return src_format_string
 
-class Font(FontLibSchema, TableUtilsMixIn):
+class Font(db.FontlibBase):
 
     """A font resource identified by URL (ID).
 
@@ -94,21 +95,21 @@ class Font(FontLibSchema, TableUtilsMixIn):
 
     # https://docs.sqlalchemy.org/orm/backref.html
 
-    aliases = relationship(
+    aliases = orm.relationship(
         'FontAlias'
         , back_populates = 'font'
         , uselist = True
         , cascade = 'all, delete-orphan'  # 1:N aggregation
         , doc = """A list of alias font-names (values of `CSS @font-face:font-family`_)""")
 
-    src_formats = relationship(
+    src_formats = orm.relationship(
         'FontSrcFormat'
         , back_populates = 'font'
         , uselist = True
         , cascade = 'all, delete-orphan'   # 1:N aggregation
         , doc = "A list of format strings (`CSS @font-face:src`_)")
 
-    blob = relationship(
+    blob = orm.relationship(
         'URLBlob'
         , back_populates = 'font'
         , uselist = False
@@ -233,38 +234,38 @@ class Font(FontLibSchema, TableUtilsMixIn):
             ))
         return font
 
-class FontAlias(FontLibSchema, TableUtilsMixIn):
+class FontAlias(db.FontlibBase):
 
     """Object of table 'font_alias'"""
 
     __tablename__ = 'font_alias'
 
-    id = Column(String(22), ForeignKey('font.id'), primary_key=True)
+    id = Column(String(22), schema.ForeignKey('font.id'), primary_key=True)
     id.__doc__ = Font.id.__doc__
 
     alias_name = Column(String(80), primary_key=True)
     """Alias font-name (value of `CSS @font-face:font-family`_)"""
 
-    font = relationship(Font, back_populates="aliases", uselist=False)
+    font = orm.relationship(Font, back_populates="aliases", uselist=False)
 
     def __repr__(self):
         # pylint: disable=consider-using-f-string
         return "<FontAlias %(alias_name)s>" % self.__dict__
 
 
-class FontSrcFormat(FontLibSchema, TableUtilsMixIn):
+class FontSrcFormat(db.FontlibBase):
 
     """Object of table 'font_src_format.'"""
 
     __tablename__ = 'font_src_format'
 
-    id = Column(String(22), ForeignKey('font.id'), primary_key=True)
+    id = Column(String(22), schema.ForeignKey('font.id'), primary_key=True)
     id.__doc__ = Font.id.__doc__
 
     src_format = Column(String(22), primary_key=True)
     """Format string (`CSS @font-face:src`_)"""
 
-    font = relationship(Font, back_populates="src_formats", uselist=False)
+    font = orm.relationship(Font, back_populates="src_formats", uselist=False)
 
     def __repr__(self):
         # pylint: disable=consider-using-f-string

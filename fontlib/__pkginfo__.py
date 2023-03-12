@@ -124,7 +124,9 @@ install_requires = [
     'fspath'
     , 'tinycss2'
     , 'requests'
-    , 'sqlalchemy'
+    , 'sqlalchemy>=2.0.0'
+    , 'click'
+    , 'pytomlpp'
 ]
 install_requires.sort()
 install_requires_txt = "\n".join(install_requires)

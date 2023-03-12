@@ -2,6 +2,6 @@ click
 fspath
 pytomlpp
 requests
-sqlalchemy
+sqlalchemy>=2.0.0
 tinycss2
 

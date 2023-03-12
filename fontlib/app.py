@@ -9,7 +9,8 @@ import fspath
 import pytomlpp as toml
 
 from .config import Config
-
+from .db import FontlibDB
+from .fontstack import FontStack
 log = logging.getLogger(__name__)
 
 FONTLIB_TOML = fspath.FSPath(__file__).DIRNAME / "fontlib.toml"
@@ -53,6 +54,8 @@ class Application:
     def init(self):
         """Initialize the runtime environment"""
 
+        self._db = None
+        self._fontstack = None
         self.init_cfg()
         self.init_log()
         self.check_cfg()

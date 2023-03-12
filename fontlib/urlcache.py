@@ -23,14 +23,11 @@ from sqlalchemy.orm import relationship
 import fspath
 
 from . import event
-
-from .db import FontLibSchema
-from .db import TableUtilsMixIn
-from .db import fontlib_session
+from . import db
 
 log = logging.getLogger(__name__)
 
-class URLBlob(FontLibSchema, TableUtilsMixIn):  # pylint: disable=too-few-public-methods
+class URLBlob(db.FontlibBase):  # pylint: disable=too-few-public-methods
     """A simple BLOB object"""
 
     __tablename__ = 'urlcache_blob'
