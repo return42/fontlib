@@ -212,3 +212,6 @@ def init(fontlib_app):
         )
 
     print("ToDO ...")
+    # ToDo init fontlib DB db.fontlib_init(...)
+    fontlib_app.fontstack.init_stack()
+    _info(fontlib_app)
